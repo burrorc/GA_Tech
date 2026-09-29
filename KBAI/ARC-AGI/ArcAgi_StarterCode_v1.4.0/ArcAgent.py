@@ -38,6 +38,9 @@ class ArcAgent:
 
         training_sets = arc_problem.training_set()
 
+        target_problem = "1cf80156"
+        target_training_sets = {1, 2, 3}     
+
         count = 1
 
         for training_set in training_sets:
@@ -46,10 +49,42 @@ class ArcAgent:
 
             input_grid_analysis = self.analyze_grid(input_grid)
             output_grid_analysis = self.analyze_grid(output_grid)
-            print(f"Training Set {count}")
-            print("Input:", input_grid_analysis)
-            print("Output:", output_grid_analysis)
-            print()
+            input_shapes = self.identify_shapes(input_grid)
+            output_shapes = self.identify_shapes(output_grid)
+            
+            if (
+                arc_problem.problem_name() == target_problem
+                and count in target_training_sets
+            ):
+                print(f"\nPROBLEM: {arc_problem.problem_name()}")
+                print(f"Training Set {count}")
+
+                for shape in input_shapes:
+                    print(
+                        "Input:",
+                        "id =", shape["id"],
+                        "color =", shape["color"],
+                        "top =", shape["top"],
+                        "bottom =", shape["bottom"],
+                        "left =", shape["left"],
+                        "right =", shape["right"],
+                        "height =", shape["height"],
+                        "width =", shape["width"]
+                    )
+
+                for shape in output_shapes:
+                    print(
+                        "Output:",
+                        "id =", shape["id"],
+                        "color =", shape["color"],
+                        "top =", shape["top"],
+                        "bottom =", shape["bottom"],
+                        "left =", shape["left"],
+                        "right =", shape["right"],
+                        "height =", shape["height"],
+                        "width =", shape["width"]
+                    )
+
             count += 1
 
 
@@ -62,6 +97,73 @@ class ArcAgent:
         predictions.append(output)
 
         return predictions
+
+    def identify_shapes(self, grid: np.ndarray) -> list[dict]:
+
+        shapes = []
+        visited_cells = set()
+        shape_id = 1
+
+        connection_points = [(-1,-1), (-1,0), (-1,1),
+                             (0,-1), (0,1),
+                             (1,-1), (1,0), (1,1)]
+
+        for row in range(grid.shape[0]):
+            for column in range(grid.shape[1]):
+                if(grid[row,column] == 0):
+                    continue
+                elif(row,column) in visited_cells:
+                    continue
+
+                color = grid[row,column].item()
+
+                cells = []
+                connection_stack = [(row,column)]
+                visited_cells.add((row,column))
+
+                while connection_stack:
+                    current_cell = connection_stack.pop()
+                    cells.append(current_cell)
+
+                    for row_shift, column_shift in connection_points:
+                        
+                        adjacent_row = current_cell[0] + row_shift
+                        adjacent_column = current_cell[1] + column_shift
+                        adjacent_cell = (adjacent_row, adjacent_column)
+
+                        if(adjacent_row < 0 or adjacent_row >= grid.shape[0] or adjacent_column < 0 or adjacent_column >= grid.shape[1]):
+                            continue
+                        elif(adjacent_cell) in visited_cells:
+                            continue
+                        elif grid[adjacent_row,adjacent_column] != color:
+                            continue
+
+                        visited_cells.add(adjacent_cell)
+                        connection_stack.append(adjacent_cell)
+
+                boundaries = self.get_shape_boundaries(cells)
+                shapes.append({"id": shape_id, "color": color, "cells": cells, 
+                               "top": boundaries["top"], "bottom":boundaries["bottom"], 
+                               "left":boundaries["left"], "right": boundaries["right"], 
+                               "height": boundaries["height"], "width": boundaries["width"]})
+
+                shape_id +=1
+        return shapes
+
+    def get_shape_boundaries(self, cells: list[tuple[int, int]]) -> dict:
+        rows =  [cell[0] for cell in cells]
+        columns = [cell[1] for cell in cells]
+
+        top = min(rows)
+        bottom = max(rows)
+        left = min(columns)
+        right = max(columns)
+        height = bottom-top+1
+        width = right-left+1
+
+        return{"top": top, "bottom":bottom, "left": left, "right": right, "height": height, "width": width}
+
+
 
     def analyze_grid(self, grid: np.ndarray) -> dict:
         colors, counts = np.unique(grid, return_counts=True)
