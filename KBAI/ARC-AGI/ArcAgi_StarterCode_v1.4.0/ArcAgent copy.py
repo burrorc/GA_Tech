@@ -38,7 +38,7 @@ class ArcAgent:
 
         training_sets = arc_problem.training_set()
 
-        target_problem = "b1948b0a"
+        target_problem = "0520fde7"
         target_training_sets = {1, 2, 3}     
 
         count = 1
@@ -47,23 +47,19 @@ class ArcAgent:
             input_grid = training_set.get_input_data().data()
             output_grid = training_set.get_output_data().data()
 
-            input_grid_id = "input_grid_" + str(count)
-            output_grid_id = "output_grid_" + str(count)
-
-            input_grid_analysis = self.analyze_grid(input_grid, input_grid_id, "full")
-            output_grid_analysis = self.analyze_grid(output_grid, output_grid_id, "full")
-            input_shapes = self.identify_shapes(input_grid, input_grid_id)
-            output_shapes = self.identify_shapes(output_grid, output_grid_id)
+            input_grid_analysis = self.analyze_grid(input_grid, "input_grid", "full")
+            output_grid_analysis = self.analyze_grid(output_grid, "output_grid", "full")
+            input_shapes = self.identify_shapes(input_grid, "input_grid")
+            output_shapes = self.identify_shapes(output_grid,"output_grid")
             input_relationships = self.get_object_grid_relationships(input_grid, input_shapes)
             output_relationships = self.get_object_grid_relationships(output_grid,output_shapes)
-            input_regions = self.get_grid_regions(input_grid, input_grid_id, input_shapes, input_relationships)
-            output_regions = self.get_grid_regions(output_grid, output_grid_id, output_shapes, output_relationships)
+            input_regions = self.get_grid_regions(input_grid, "input_grid",input_shapes,input_relationships)
+            output_regions = self.get_grid_regions(output_grid, "output_grid",output_shapes,output_relationships)
             self.get_shape_regions(input_shapes,input_regions)
             self.get_shape_regions(output_shapes,output_regions)
             input_object_relationships = self.get_object_to_object_relationships(input_shapes)
             output_object_relationships = self.get_object_to_object_relationships(output_shapes)
             input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
-            input_output_transformations = self.get_input_output_transformations(input_shapes, output_shapes,input_output_object_relationships)
             
             if (
                 arc_problem.problem_name() == target_problem
@@ -100,11 +96,8 @@ class ArcAgent:
                     # for relationship in output_object_relationships:
                     #     self.print_frame(relationship, "OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for relationship in input_output_object_relationships:
-                    #     self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
-
-                    for transformation in input_output_transformations:
-                        self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
+                    for relationship in input_output_object_relationships:
+                        self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
 
             count += 1
@@ -127,54 +120,7 @@ class ArcAgent:
 
         for key, value in frame.items():
             print(f"{key} = {value}", file=file)
-
-
-    def get_input_output_transformations(self, input_shapes: list[dict], output_shapes: list[dict],input_output_relationships: list[dict]) -> list[dict]:
-        transformations = []
-        relationship_pairs = {}
-
-        for relationship in input_output_relationships:
-            source_id = relationship["source_id"]
-            target_id = relationship["target_id"]
-            input_shapes_map = {}
-            output_shapes_map = {}
-
-            for shape in input_shapes:
-                input_shapes_map[shape["object_id"]] = shape
-
-            for shape in output_shapes:
-                output_shapes_map[shape["object_id"]] = shape
-
-            pair = (source_id, target_id)
-            if pair not in relationship_pairs:
-                relationship_pairs[pair] = []
-            relationship_pairs[pair].append(relationship)
-
-        for pair, relationships in relationship_pairs.items():
-            same_color = False
-            different_color = False
-            same_shape = False
-
-            for relationship in relationships:
-                if(relationship["relationship_type"] == "color" and relationship["relationship_degree"] == "same_color"):
-                    same_color = True
-                elif(relationship["relationship_type"] == "color" and relationship["relationship_degree"] == "different_color"):
-                    different_color = True
-                if(relationship["relationship_type"] == "shape" and relationship["relationship_degree"] == "same"):
-                    same_shape = True
-
-            source_shape = input_shapes_map[pair[0]]
-            target_shape = output_shapes_map[pair[1]]
-            if same_color and same_shape:
-                transformations.append({"transformation_type": "object", "transformation": "none", 
-                                        "source_id": pair[0], "target_id": pair[1]})
-            elif same_shape and different_color:
-                transformations.append({"transformation_type": "object", "transformation": "color_change", 
-                                        "from_color": source_shape["color"], "to_color": target_shape["color"],
-                                        "source_id": pair[0], "target_id": pair[1]})
-            
-
-        return transformations
+        
 
     def get_object_to_object_relationships(self, shapes:list[dict], target_shapes: list[dict] = None) -> list[dict]:
         relationships = []
@@ -190,13 +136,12 @@ class ArcAgent:
                 if (same_source and source_shape["id"] == target_shape["id"]):
                     continue
 
-                if same_source:
-                    position_relationships = self.get_object_object_positions(source_shape, target_shape)
-                    relationships.extend(position_relationships)
+                position_relationships = self.get_object_object_positions(source_shape, target_shape)
+                relationships.extend(position_relationships)
 
-                
-                region_relationships = self.get_object_object_regions(source_shape, target_shape)
-                relationships.extend(region_relationships)
+                if same_source:
+                    region_relationships = self.get_object_object_regions(source_shape, target_shape)
+                    relationships.extend(region_relationships)
 
                 color_relationships = self.get_object_object_colors(source_shape, target_shape)
                 relationships.extend(color_relationships)
@@ -227,11 +172,11 @@ class ArcAgent:
             if(np.array_equal(transformed, target_pattern)):
                 shape_relationships.append({
                     "source_item": "object",
-                    "source_id": source_shape["object_id"],
+                    "source_id": source_shape["id"],
                     "relationship_type": "shape",
                     "relationship_degree": degree,
                     "target_item": "object",
-                    "target_id": target_shape["object_id"]
+                    "target_id": target_shape["id"]
                 })  
                 if "same" == degree:
                     return shape_relationships    
@@ -243,18 +188,14 @@ class ArcAgent:
         color_relationships = []
 
         if source_shape["color"] == target_shape["color"]:
-            relationship_degree = "same_color"
-        else:
-            relationship_degree = "different_color"
-
-        color_relationships.append({
-            "source_item": "object",
-            "source_id": source_shape["object_id"],
-            "relationship_type": "color",
-            "relationship_degree": relationship_degree,
-            "target_item": "object",
-            "target_id": target_shape["object_id"]
-        })
+            color_relationships.append({
+                "source_item": "object",
+                "source_id": source_shape["id"],
+                "relationship_type": "color",
+                "relationship_degree": "same_color",
+                "target_item": "object",
+                "target_id": target_shape["id"]
+            })
 
         return color_relationships
 
@@ -267,11 +208,11 @@ class ArcAgent:
         ):
             region_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape["object_id"],
+                "source_id": source_shape["id"],
                 "relationship_type": "region",
                 "relationship_degree": "same_region",
                 "target_item": "object",
-                "target_id": target_shape["object_id"]
+                "target_id": target_shape["id"]
             })
 
         return region_relationships
@@ -281,41 +222,41 @@ class ArcAgent:
         if(source_shape["right"] < target_shape["left"]):
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape["object_id"],
+                "source_id": source_shape["id"],
                 "relationship_type": "position",
                 "relationship_degree": "left_of",
                 "target_item": "object",
-                "target_id": target_shape["object_id"]
+                "target_id": target_shape["id"]
             })
 
         if(source_shape["left"] > target_shape["right"]):
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape["object_id"],
+                "source_id": source_shape["id"],
                 "relationship_type": "position",
                 "relationship_degree": "right_of",
                 "target_item": "object",
-                "target_id": target_shape["object_id"]
+                "target_id": target_shape["id"]
             })
 
         if source_shape["bottom"] < target_shape["top"]:
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape["object_id"],
+                "source_id": source_shape["id"],
                 "relationship_type": "position",
                 "relationship_degree": "above",
                 "target_item": "object",
-                "target_id": target_shape["object_id"]
+                "target_id": target_shape["id"]
             })
 
         if source_shape["top"] > target_shape["bottom"]:
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape["object_id"],
+                "source_id": source_shape["id"],
                 "relationship_type": "position",
                 "relationship_degree": "below",
                 "target_item": "object",
-                "target_id": target_shape["object_id"]
+                "target_id": target_shape["id"]
             })
 
         return position_relationships
@@ -351,7 +292,7 @@ class ArcAgent:
             divider = None
 
             for shape in shapes:
-                if(shape["object_id"] == relationship["source_id"]):
+                if(shape["id"] == relationship["source_id"]):
                     divider = shape
                     break
 
@@ -467,7 +408,7 @@ class ArcAgent:
             if fills_grid:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape["object_id"],
+                    "source_id": shape["id"],
                     "relationship": "fills_grid",
                     "target_item": "grid"
                 }
@@ -477,7 +418,7 @@ class ArcAgent:
             if divides_grid_vertical:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape["object_id"],
+                    "source_id": shape["id"],
                     "relationship": "divides_grid",
                     "target_item": "grid",
                     "orientation": "vertical",
@@ -489,7 +430,7 @@ class ArcAgent:
             if divides_grid_horizontal:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape["object_id"],
+                    "source_id": shape["id"],
                     "relationship": "divides_grid",
                     "target_item": "grid",
                     "orientation": "horizontal",
@@ -550,7 +491,7 @@ class ArcAgent:
                 for row,column in cells:
                     pattern[row - boundaries["top"], column - boundaries["left"]] = 1
 
-                shape = {"id": shape_id, "object_id": parent_grid_id + "_object_" + str(shape_id), "parent_grid_id": parent_grid_id, "color": color, "cells": cells, "pattern": pattern, 
+                shape = {"id": shape_id, "parent_grid_id": parent_grid_id, "color": color, "cells": cells, "pattern": pattern, 
                                "top": boundaries["top"], "bottom":boundaries["bottom"], 
                                "left":boundaries["left"], "right": boundaries["right"], 
                                "height": boundaries["height"], "width": boundaries["width"]}

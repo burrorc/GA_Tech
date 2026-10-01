@@ -1,0 +1,22 @@
+
+PROBLEM: b1948b0a
+Training Set 3
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = none
+source_id = input_grid_3_object_1
+target_id = output_grid_3_object_1
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = color_change
+from_color = 6
+to_color = 2
+source_id = input_grid_3_object_2
+target_id = output_grid_3_object_2
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = color_change
+from_color = 6
+to_color = 2
+source_id = input_grid_3_object_3
+target_id = output_grid_3_object_3
