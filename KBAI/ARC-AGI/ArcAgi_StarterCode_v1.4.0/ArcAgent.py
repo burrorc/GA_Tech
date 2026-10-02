@@ -11,6 +11,8 @@ class ArcAgent:
         You may add additional variables to this init method. Be aware that it gets called only once
         and then the make_predictions method will get called several times.
         """
+        with open("debug_output.txt", "w") as debug_file:
+            pass
         pass
 
     def make_predictions(self, arc_problem: ArcProblem) -> list[np.ndarray]:
@@ -29,7 +31,7 @@ class ArcAgent:
         is considered an ERROR and the test will be automatically
         marked as INCORRECT.
         """
-
+       
         # predictions: list[np.ndarray] = [
         #     np.array([[0, 0, 5], [0, 0, 5], [0, 5, 0]])
         # ]
@@ -38,8 +40,9 @@ class ArcAgent:
 
         training_sets = arc_problem.training_set()
 
-        target_problem = "b1948b0a"
-        target_training_sets = {1, 2, 3}     
+        target_problem = "4347f46a"
+        target_training_sets = {1, 2, 3}
+        training_change_candidates = []     
 
         count = 1
 
@@ -64,12 +67,18 @@ class ArcAgent:
             output_object_relationships = self.get_object_to_object_relationships(output_shapes)
             input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
             input_output_transformations = self.get_input_output_transformations(input_shapes, output_shapes,input_output_object_relationships)
+            grid_transformations = self.get_grid_transformations(input_grid_analysis, output_grid_analysis, input_shapes, output_shapes, input_output_transformations)
+            color_mappings = self.get_color_mappings(input_grid,output_grid)
+            change_candidates = self.get_change_candidates(input_output_transformations,grid_transformations,color_mappings,count)
+            training_change_candidates.append(change_candidates)
+            
+            
             
             if (
                 arc_problem.problem_name() == target_problem
                 and count in target_training_sets
             ):
-                with open("debug_output.txt", "w") as debug_file:
+                with open("debug_output.txt", "a") as debug_file:
                     print(f"\nPROBLEM: {arc_problem.problem_name()}", file=debug_file)
                     print(f"Training Set {count}", file=debug_file)
 
@@ -106,15 +115,51 @@ class ArcAgent:
                     for transformation in input_output_transformations:
                         self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
 
+                    for transformation in grid_transformations:
+                        self.print_frame(transformation, "GRID TRANSFORMATIONS", debug_file)
+
+                    for change in change_candidates:
+                        self.print_frame(change, "CHANGE CANDIDATES", debug_file)
+
+                    for mapping in color_mappings:
+                        print("COLOR MAPPING", file=debug_file)
+                        for key, value in mapping.items():
+                            print(key, "=", value, file=debug_file)          
+
+                    # for change in validated_changes:
+                    #     self.print_frame(change, "VALIDATED_CHANGES", debug_file)
+
 
             count += 1
 
+        validated_changes = self.validate_change_candidates(training_change_candidates)
+        if (
+            arc_problem.problem_name() == target_problem
+        ):
+            with open("debug_output.txt", "a") as debug_file:
+                for change in validated_changes:
+                    self.print_frame(change, "VALIDATED_CHANGES", debug_file)
+
+
+        
 
         '''
         The next 2 lines are only an example of how to populate the predictions list.
         This will just be an empty answer the size of the input data;
         delete it before you start adding your own predictions.
         '''
+        test_grid = arc_problem.test_set().get_input_data().data()
+        test_shapes = self.identify_shapes(test_grid, "test_grid")
+        my_predictions = self. apply_validated_changes(test_grid, test_shapes, validated_changes)
+
+        if (
+            arc_problem.problem_name() == target_problem
+        ):
+            with open("debug_output.txt", "a") as debug_file:
+                for prediction in my_predictions:
+                    print(f"\nPREDICTION: {prediction}", file=debug_file)
+
+        predictions.append(my_predictions)
         output = np.zeros_like(arc_problem.test_set().get_input_data().data())
         predictions.append(output)
 
@@ -128,16 +173,400 @@ class ArcAgent:
         for key, value in frame.items():
             print(f"{key} = {value}", file=file)
 
+    def get_color_mappings(self, input_grid: np.ndarray, output_grid: np.ndarray)-> list[dict]:
+        mappings = []
+        # i dunno what I'm gonna do here, this will only work when grids are same size
 
+        if input_grid.shape != output_grid.shape:
+            return mappings
+        
+        input_colors = np.unique(input_grid)
+
+        for color in input_colors:
+            # ignore backgournd
+            if color == 0:
+                continue
+
+            output_colors = output_grid[input_grid == color]
+            unique_output_colors = np.unique(output_colors)
+
+            if(len(unique_output_colors) == 1):
+                output_color = unique_output_colors[0]
+
+                if color != output_color:
+                    mappings.append({"from_color": int(color), "to_color": int(output_color)})
+
+        return mappings
+
+
+    def get_shape_by_reference(self, shapes:list[dict], reference: str)->dict|None:
+        if not shapes:
+            return None
+        
+        if(reference == "single"):
+            if(len(shapes)==1):
+                return shapes[0]
+        elif reference == "largest":
+            largest_shape = shapes[0]
+            largest_size = largest_shape["height"] * largest_shape["width"]
+            largest_count = 1
+
+            for shape in shapes[1:]:
+                size = shape["height"] * shape["width"]
+
+                if (size > largest_size):
+                    largest_shape = shape
+                    largest_size = size
+                    largest_count = 1
+
+                elif size == largest_size:
+                    largest_count += 1
+
+            if largest_count == 1:
+                return largest_shape
+
+        elif reference == "smallest":
+            smallest_shape = shapes[0]
+            smallest_size = smallest_shape["height"] * smallest_shape["width"]
+            smallest_count = 1
+
+            for shape in shapes[1:]:
+                size = shape["height"] * shape["width"]
+
+                if (size < smallest_size):
+                    smallest_shape = shape
+                    smallest_size = size
+                    smallest_count = 1
+
+                elif size == smallest_size:
+                    smallest_count += 1
+
+            if smallest_count == 1:
+                return smallest_shape
+
+        return None
+
+
+    def get_grid_transformations(self, input_grid_analysis: dict, output_grid_analysis: dict, 
+                                 input_shapes: list[dict], output_shapes: list[dict],
+                                 input_output_transformations)-> list[dict]:
+        transformations = []
+        input_shapes_map = {}
+        output_shapes_map = {}
+
+        for shape in input_shapes:
+            input_shapes_map[shape["object_id"]] = shape
+
+        for shape in output_shapes:
+            output_shapes_map[shape["object_id"]] = shape
+
+        for transformation in input_output_transformations:
+            if transformation["transformation"] not in ("none", "color_change"):
+                continue
+            source_shape = input_shapes_map[transformation["source_id"]]
+            object_reference = self.get_object_reference(source_shape, input_shapes)
+
+            if(object_reference is None):
+                continue
+
+            if (output_grid_analysis["height"] == source_shape["height"]
+                and output_grid_analysis["width"] == source_shape["width"]):
+
+                transformations.append({
+                    "transformation_type": "grid",
+                    "transformation": "crop_to_object",
+                    "source_id": source_shape["object_id"],
+                    "object_reference": object_reference
+                })
+
+        return transformations
+    
+    def get_object_reference(self, source_shape: dict, shapes: list[dict]) -> str|None:
+        if(len(shapes) == 1):
+            return "single"
+
+        largest_shape = shapes[0]
+        largest_size = largest_shape["height"]*largest_shape["width"]
+        largest_count = 1
+
+        smallest_shape = shapes[0]
+        smallest_size = smallest_shape["height"]*smallest_shape["width"]
+        smallest_count = 1
+
+        for shape in shapes[1:]:
+            size = shape["height"]*shape["width"]
+
+            if(size > largest_size):
+                largest_shape = shape
+                largest_size = size
+                largest_count = 1
+            elif(size == largest_size):
+                largest_count +=1
+
+            if size < smallest_size:
+                smallest_shape = shape
+                smallest_size = size
+                smallest_count = 1
+            elif size == smallest_size:
+                smallest_count += 1
+
+        if(largest_count == 1 and largest_shape["object_id"] == source_shape["object_id"]):
+            return "largest"
+        if(smallest_count == 1 and smallest_shape["object_id"] == source_shape["object_id"]):
+            return "smallest"
+
+        return None
+
+    def select_object_reference(self, test_shapes: list[dict], change: dict) -> dict|None:
+        if not test_shapes:
+            return None
+        if (change["object_reference"] == "single"):
+            if(len(test_shapes) == 1):
+                return test_shapes[0]
+        elif(change["object_reference"] == "largest"):
+            largest_shape = test_shapes[0]
+            largest_size = largest_shape["height"] * largest_shape["width"]
+            largest_count = 1
+
+            for shape in test_shapes[1:]:
+                size = shape["height"] * shape["width"]
+
+                if(size> largest_size):
+                    largest_shape = shape
+                    largest_size = size
+                    largest_count = 1
+
+            if (largest_count == 1):
+                return largest_shape            
+        return None
+            
+
+    def apply_validated_changes(self, test_grid: np.ndarray, test_shapes: list[dict], validated_changes: list[dict])-> np.ndarray:
+        output_grid = test_grid.copy()
+        mapped_color = None
+        mapped_source_color = None
+
+        for change in validated_changes:
+                if(change["change_type"] == "crop_to_object"):
+                    shape = self.select_object_reference(test_shapes, change)
+                    if shape is not None:
+                        output_grid = test_grid[shape["top"]:shape["bottom"] + 1, shape["left"]:shape["right"] + 1].copy()
+        original_grid = output_grid.copy()
+
+        for change in validated_changes:
+            if (change["change_type"] == "color_change"and "source_color" in change and change.get("target_reference") == "mapped_color"):
+                mapped_source_color = change["source_color"]
+                break
+        if mapped_source_color is not None:
+            for color in np.unique(original_grid):
+                if color == 0:
+                    continue
+
+                if color == mapped_source_color:
+                    continue
+
+                mapped_color = int(color)
+                break
+
+
+        for change in validated_changes:
+            if(change["change_type"] == "color_mapping"):
+                output_grid[original_grid == change["from_color"]] = change["to_color"]
+            elif change["change_type"] == "color_change":
+                if ("source_color" in change and change.get("target_reference") == "mapped_color"):
+                    if mapped_color is not None:
+                        output_grid[original_grid == change["source_color"]] = mapped_color
+                elif(change.get("source_reference") == "mapped_color"and "target_color" in change):
+                    if mapped_color is not None:
+                        output_grid[original_grid == mapped_color] = change["target_color"]
+                else:
+                    source_shape = self.get_shape_by_reference(test_shapes,change["source_reference"])
+                    target_shape = self.get_shape_by_reference( test_shapes,change["target_reference"])
+
+                    if source_shape is not None and target_shape is not None:
+                        source_color = source_shape["color"]
+                        target_color = target_shape["color"]
+
+                        output_grid[original_grid == source_color] = target_color
+            elif change["change_type"] == "make_hollow":
+                if change["source_reference"] == "all_objects":
+
+                    for shape in test_shapes:
+                        top = shape["top"]
+                        bottom = shape["bottom"]
+                        left = shape["left"]
+                        right = shape["right"]
+                        color = shape["color"]
+
+                        for row in range(top, bottom + 1):
+                            for column in range(left, right + 1):
+
+                                if original_grid[row, column] != color:
+                                    continue
+
+                                if(row != top and row != bottom and column != left and column != right):
+                                    output_grid[row, column] = change["fill_color"]
+
+        return output_grid
+
+    def validate_change_candidates(self, change_candidates: list[list[dict]]) -> list[dict]:
+        validated_changes = []
+        color_change_keys = ["source_reference", "target_reference","source_color","target_color"]
+        if not change_candidates:
+            return validated_changes
+
+        first_training_changes = change_candidates[0]
+
+        for change in first_training_changes:
+            found_in_all = True
+
+            for candidates in change_candidates[1:]:
+                found = False
+
+                for other in candidates:
+                    if(change["change_type"] != other["change_type"]):
+                        continue
+                    
+                    if(change["change_type"] == "color_mapping"):
+                        if(change["from_color"] == other["from_color"]
+                            and change["to_color"] == other["to_color"]):
+                            found = True
+                            break
+                    elif(change["change_type"] == "color_change"):
+                        change_values = {}
+                        other_values = {}
+
+                        for key in color_change_keys:
+                            if key in change:
+                                change_values[key] = change[key]
+
+                            if key in other:
+                                other_values[key] = other[key]
+
+                        if change_values == other_values:
+                            found = True
+                            break
+                        # if (change["source_reference"] == other["source_reference"]
+                        #     and change["target_reference"] == other["target_reference"]):
+                        #     found = True
+                        #     break
+                    elif change["change_type"] in ("make_hollow", "fill_in"):
+                        if change["source_reference"] == other["source_reference"] and change["fill_color"] == other["fill_color"]:
+                            found = True
+                            break
+                    elif(change["change_type"] == "crop_to_object"):
+                        if(change["object_reference"] == other["object_reference"]):
+                            found = True
+                            break
+
+                if not found:
+                    found_in_all = False
+                    break
+
+            if found_in_all:
+                if(change["change_type"] == "color_mapping"):
+                    validated_changes.append({"change_type": "color_mapping", "from_color": change["from_color"], 
+                        "to_color": change["to_color"]})
+                elif (change["change_type"] == "color_change"):
+                    validated_change = {"change_type": "color_change" }
+                    for key in color_change_keys:
+                        if key in change:
+                            validated_change[key] = change[key]
+                    validated_changes.append(validated_change)
+                    # validated_changes.append({"change_type": "color_change","source_reference": change["source_reference"],
+                    #     "target_reference": change["target_reference"]})
+                elif change["change_type"] in ("make_hollow", "fill_in"):
+                    validated_changes.append({"change_type": change["change_type"],"source_reference": change["source_reference"],
+                        "fill_color": change["fill_color"]})
+                elif(change["change_type"] == "crop_to_object"):
+                    validated_changes.append({"change_type":"crop_to_object", "object_reference":change["object_reference"]})
+
+        return validated_changes
+
+
+        
+
+
+    def get_change_candidates(self, object_transformations: list[dict], grid_transformations: list[dict], color_mappings: list[dict], training_set: int) -> list[dict]:
+        change_candidates = []
+        color_changes = {}
+        make_hollow_count = 0
+        fill_in_count = 0
+
+        for transformation in grid_transformations:
+            if (transformation["transformation"] == "crop_to_object"):
+                change_candidates.append({
+                    "change_type": "crop_to_object",
+                    "source_id": transformation["source_id"],
+                    "object_reference": transformation["object_reference"], 
+                    "training_set": training_set
+                })
+
+        for transformation in object_transformations:
+            if transformation["transformation"] == "make_hollow":
+                make_hollow_count += 1
+                continue
+            elif transformation["transformation"] == "fill_in":
+                fill_in_count += 1
+                continue
+
+            if(transformation["transformation"] != "color_change"):
+                continue
+
+            if (transformation["source_reference"] is not None
+                and transformation["target_reference"] is not None):
+                change_candidates.append({
+                    "change_type": "color_change",
+                    "source_reference": transformation["source_reference"],
+                    "target_reference": transformation["target_reference"],
+                    "training_set": training_set
+                })
+
+            color_change = (transformation["from_color"], transformation['to_color'])
+
+            if color_change not in color_changes:
+                color_changes[color_change] = 0
+
+            color_changes[color_change] +=1
+
+
+
+        for color_change, count in color_changes.items():
+            change_candidates.append({"change_type": "color_mapping", "from_color": color_change[0], 
+                                      "to_color": color_change[1], "count_objects": count, "training_set": training_set})
+
+        for start_mapping in color_mappings:
+            for next_mapping in color_mappings:
+                if start_mapping == next_mapping:
+                    continue
+
+                if(start_mapping["to_color"] == next_mapping["from_color"] and next_mapping["to_color"] == 0):
+                    change_candidates.append({"change_type": "color_change","source_color": start_mapping["from_color"],
+                        "target_reference": "mapped_color","training_set": training_set})
+
+                    change_candidates.append({"change_type": "color_change","source_reference": "mapped_color",
+                        "target_color": 0,"training_set": training_set})
+
+        if (len(object_transformations) > 0 ):
+            if(make_hollow_count == len(object_transformations)):
+
+                change_candidates.append({"change_type": "make_hollow","source_reference": "all_objects", "fill_color": 0, "training_set": training_set})
+            elif(fill_in_count == len(object_transformations)):
+                change_candidates.append({"change_type": "fill_in","source_reference": "all_objects","training_set": training_set})
+            
+        return change_candidates
+    
+    
     def get_input_output_transformations(self, input_shapes: list[dict], output_shapes: list[dict],input_output_relationships: list[dict]) -> list[dict]:
         transformations = []
         relationship_pairs = {}
+        input_shapes_map = {}
+        output_shapes_map = {}
 
         for relationship in input_output_relationships:
             source_id = relationship["source_id"]
             target_id = relationship["target_id"]
-            input_shapes_map = {}
-            output_shapes_map = {}
+            
 
             for shape in input_shapes:
                 input_shapes_map[shape["object_id"]] = shape
@@ -165,11 +594,37 @@ class ArcAgent:
 
             source_shape = input_shapes_map[pair[0]]
             target_shape = output_shapes_map[pair[1]]
+            source_cells = set(source_shape["cells"])
+            target_cells = set(target_shape["cells"])
+
+            if(same_color and source_shape["is_hollow"] != target_shape['is_hollow']):
+                transformation = None
+                if(source_shape["is_hollow"]== False and target_cells.issubset(source_cells)):
+                    transformation = "make_hollow"
+                if(source_shape["is_hollow"]== True and source_cells.issubset(target_cells)):
+                    transformation = "fill_in"
+                if transformation is not None:
+                    transformations.append({"transformation_type": "object","transformation": transformation,
+                        "source_reference": self.get_object_reference(source_shape,input_shapes ), 
+                        "source_id": pair[0],"target_id": pair[1]}) 
+
             if same_color and same_shape:
                 transformations.append({"transformation_type": "object", "transformation": "none", 
                                         "source_id": pair[0], "target_id": pair[1]})
             elif same_shape and different_color:
+                source_reference = self.get_object_reference(source_shape,input_shapes)
+                target_reference = None
+
+                for input_shape in input_shapes:
+                    if(input_shape["color"] != target_shape["color"]):
+                        continue
+
+                    target_reference = self.get_object_reference(input_shape, input_shapes)
+                    if target_reference is not None:
+                        break
+
                 transformations.append({"transformation_type": "object", "transformation": "color_change", 
+                                        "source_reference": source_reference, "target_reference": target_reference,
                                         "from_color": source_shape["color"], "to_color": target_shape["color"],
                                         "source_id": pair[0], "target_id": pair[1]})
             
@@ -340,6 +795,8 @@ class ArcAgent:
 
     def get_grid_regions(self, grid: np.ndarray, parent_grid_id: str, shapes: list[dict], relationships: list[dict]) -> list[dict]:
         # TODO figure out how to properly handle cross grid dividers, my dumbass forgot that we're identifying objects by colors
+        # maybe something like if goes across grid with consistent width, except at intersection point then it's a multi-region divider
+        # i dunno, but that might work. crap, what if we have different colors that cross but act as divider. dang this is annoying
         regions = []
         vertical_dividers = []
         horizontal_dividers = []

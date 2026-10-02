@@ -1,22 +1,104 @@
 
-PROBLEM: b1948b0a
+PROBLEM: 4347f46a
+Training Set 1
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = make_hollow
+source_reference = smallest
+source_id = input_grid_1_object_1
+target_id = output_grid_1_object_1
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = make_hollow
+source_reference = largest
+source_id = input_grid_1_object_2
+target_id = output_grid_1_object_2
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = make_hollow
+source_reference = None
+source_id = input_grid_1_object_3
+target_id = output_grid_1_object_3
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = make_hollow
+source_reference = None
+source_id = input_grid_1_object_4
+target_id = output_grid_1_object_4
+CHANGE CANDIDATES
+change_type = make_hollow
+source_reference = all_objects
+fill_color = 0
+training_set = 1
+
+PROBLEM: 4347f46a
+Training Set 2
+INPUT-OUTPUT OBJECT TRANSFORMATIONS
+transformation_type = object
+transformation = make_hollow
+source_reference = single
+source_id = input_grid_2_object_1
+target_id = output_grid_2_object_1
+CHANGE CANDIDATES
+change_type = make_hollow
+source_reference = all_objects
+fill_color = 0
+training_set = 2
+
+PROBLEM: 4347f46a
 Training Set 3
 INPUT-OUTPUT OBJECT TRANSFORMATIONS
 transformation_type = object
-transformation = none
+transformation = make_hollow
+source_reference = largest
 source_id = input_grid_3_object_1
 target_id = output_grid_3_object_1
 INPUT-OUTPUT OBJECT TRANSFORMATIONS
 transformation_type = object
-transformation = color_change
-from_color = 6
-to_color = 2
+transformation = make_hollow
+source_reference = smallest
 source_id = input_grid_3_object_2
 target_id = output_grid_3_object_2
-INPUT-OUTPUT OBJECT TRANSFORMATIONS
-transformation_type = object
-transformation = color_change
-from_color = 6
-to_color = 2
-source_id = input_grid_3_object_3
-target_id = output_grid_3_object_3
+CHANGE CANDIDATES
+change_type = make_hollow
+source_reference = all_objects
+fill_color = 0
+training_set = 3
+VALIDATED_CHANGES
+change_type = make_hollow
+source_reference = all_objects
+fill_color = 0
+
+PREDICTION: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 8 8 8 8 8 8 0 0 0 0 6 6 6 6 0 0 0 0]
+
+PREDICTION: [0 8 0 0 0 0 8 0 0 0 0 6 0 0 6 0 0 0 0]
+
+PREDICTION: [0 8 8 8 8 8 8 0 0 0 0 6 6 6 6 0 0 0 0]
+
+PREDICTION: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 4 4 4 4 4 4 0 0 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 4 0 0 0 0 4 0 0 1 1 1 1 1 1 1 1 0]
+
+PREDICTION: [0 0 4 0 0 0 0 4 0 0 1 0 0 0 0 0 0 1 0]
+
+PREDICTION: [0 0 4 0 0 0 0 4 0 0 1 0 0 0 0 0 0 1 0]
+
+PREDICTION: [0 0 4 0 0 0 0 4 0 0 1 0 0 0 0 0 0 1 0]
+
+PREDICTION: [0 0 4 0 0 0 0 4 0 0 1 0 0 0 0 0 0 1 0]
+
+PREDICTION: [0 0 4 4 4 4 4 4 0 0 1 1 1 1 1 1 1 1 0]
+
+PREDICTION: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 0 0 0 3 3 3 3 3 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 0 0 0 3 0 0 0 3 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 0 0 0 3 3 3 3 3 0 0 0 0 0 0 0 0 0]
+
+PREDICTION: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
