@@ -1,49 +1,8 @@
-from dataclasses import dataclass
-
 import numpy as np
 
 from ArcProblem import ArcProblem
 from ArcData import ArcData
 from ArcSet import ArcSet
-
-
-@dataclass
-class Shape:
-    id: int
-    object_id: str
-    parent_grid_id: str
-    color: int
-    cells: list[tuple[int, int]]
-    pattern: np.ndarray
-    top: int
-    bottom: int
-    left: int
-    right: int
-    height: int
-    width: int
-    is_hollow: bool
-    region_id: str | None = None
-
-
-@dataclass
-class ProblemAnalysis:
-    input_grid: np.ndarray
-    output_grid: np.ndarray
-    input_grid_analysis: dict
-    output_grid_analysis: dict
-    input_shapes: list[Shape]
-    output_shapes: list[Shape]
-    input_regions: list[dict]
-    output_regions: list[dict]
-    input_relationships: list[dict]
-    output_relationships: list[dict]
-    input_object_relationships: list[dict]
-    output_object_relationships: list[dict]
-    input_output_object_relationships: list[dict]
-    object_transformations: list[dict]
-    grid_transformations: list[dict]
-    region_transformations: list[dict]
-    color_mappings: list[dict]
 
 
 class ArcAgent:
@@ -54,7 +13,6 @@ class ArcAgent:
         """
         # with open("debug_output.txt", "w") as debug_file:
         #     pass
-        print("here")
         pass
 
     def make_predictions(self, arc_problem: ArcProblem) -> list[np.ndarray]:
@@ -81,25 +39,42 @@ class ArcAgent:
         predictions: list[np.ndarray] = []
 
         training_sets = arc_problem.training_set()
-        
 
         # target_problem = "ce4f8723"
         # target_training_sets = {1, 2, 3}
-        training_analyses = []
-        training_change_candidates = []
+        training_change_candidates = []     
 
         count = 1
 
         for training_set in training_sets:
-            analysis = self.analyze_problem(training_set, count)
-            training_analyses.append(analysis)
-            change_candidates = self.get_change_candidates(
-                analysis.object_transformations,
-                analysis.grid_transformations,
-                analysis.region_transformations,
-                analysis.color_mappings,
-                count,
-            )
+            input_grid = training_set.get_input_data().data()
+            output_grid = training_set.get_output_data().data()
+
+            input_grid_id = "input_grid_" + str(count)
+            output_grid_id = "output_grid_" + str(count)
+
+            input_grid_analysis = self.analyze_grid(input_grid, input_grid_id, "full")
+            output_grid_analysis = self.analyze_grid(output_grid, output_grid_id, "full")
+            input_shapes = self.identify_shapes(input_grid, input_grid_id)
+            output_shapes = self.identify_shapes(output_grid, output_grid_id)
+            input_relationships = self.get_object_grid_relationships(input_grid, input_shapes)
+            output_relationships = self.get_object_grid_relationships(output_grid,output_shapes)
+            input_regions = self.get_grid_regions(input_grid, input_grid_id, input_shapes, input_relationships)
+            output_regions = self.get_grid_regions(output_grid, output_grid_id, output_shapes, output_relationships)
+            self.get_shape_regions(input_shapes,input_regions)
+            self.get_shape_regions(output_shapes,output_regions)
+            input_object_relationships = self.get_object_to_object_relationships(input_shapes)
+            output_object_relationships = self.get_object_to_object_relationships(output_shapes)
+            input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
+            input_output_transformations = self.get_input_output_transformations(input_shapes, output_shapes,input_output_object_relationships)
+            grid_transformations = self.get_grid_transformations(input_grid,output_grid,input_grid_analysis, output_grid_analysis, input_shapes, output_shapes, input_output_transformations)
+            region_combo_transformations = []
+            if len(input_regions) == 2:
+                region1 = self.get_region_grid(input_grid, input_regions[0])
+                region2 = self.get_region_grid(input_grid, input_regions[1])
+                region_combo_transformations = self.get_region_combo_transformations(region1, region2, output_grid)
+            color_mappings = self.get_color_mappings(input_grid,output_grid)
+            change_candidates = self.get_change_candidates(input_output_transformations,grid_transformations,region_combo_transformations,color_mappings,count)
             training_change_candidates.append(change_candidates)
             
             
@@ -112,49 +87,49 @@ class ArcAgent:
             #         print(f"\nPROBLEM: {arc_problem.problem_name()}", file=debug_file)
             #         print(f"Training Set {count}", file=debug_file)
 
-                    # self.print_frame(analysis.input_grid_analysis, "INPUT GRID", debug_file)
-                    # self.print_frame(analysis.output_grid_analysis, "OUTPUT GRID", debug_file)
+                    # self.print_frame(input_grid_analysis, "INPUT GRID", debug_file)
+                    # self.print_frame(output_grid_analysis, "OUTPUT GRID", debug_file)
 
-                    # for shape in analysis.input_shapes:
+                    # for shape in input_shapes:
                     #     self.print_frame(shape, "INPUT SHAPES", debug_file)
 
-                    # for shape in analysis.output_shapes:
+                    # for shape in output_shapes:
                     #     self.print_frame(shape, "OUTPUT SHAPES", debug_file)
 
-                    # for relationship in analysis.input_relationships:
+                    # for relationship in input_relationships:
                     #     self.print_frame(relationship, "INPUT RELATIONSHIPS", debug_file)
 
-                    # for relationship in analysis.output_relationships:
+                    # for relationship in output_relationships:
                     #     self.print_frame(relationship, "OUTPUT RELATIONSHIPS", debug_file)
 
-                    # for region in analysis.input_regions:
+                    # for region in input_regions:
                     #     self.print_frame(region, "INPUT REGION", debug_file)
 
-                    # for region in analysis.output_regions:
+                    # for region in output_regions:
                     #     self.print_frame(region, "OUTPUT REGION", debug_file)
 
-                    # for relationship in analysis.input_object_relationships:
+                    # for relationship in input_object_relationships:
                     #     self.print_frame(relationship, "INPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for relationship in analysis.output_object_relationships:
+                    # for relationship in output_object_relationships:
                     #     self.print_frame(relationship, "OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for relationship in analysis.input_output_object_relationships:
+                    # for relationship in input_output_object_relationships:
                     #     self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for transformation in analysis.object_transformations:
+                    # for transformation in input_output_transformations:
                     #     self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
 
-                    # for transformation in analysis.grid_transformations:
+                    # for transformation in grid_transformations:
                     #     self.print_frame(transformation, "GRID TRANSFORMATIONS", debug_file)
 
-                    # for transformation in analysis.region_transformations:
+                    # for transformation in region_combo_transformations:
                     #     self.print_frame(transformation, "REGION COMBO TRANSFORMATIONS", debug_file)
 
                     # for change in change_candidates:
                     #     self.print_frame(change, "CHANGE CANDIDATES", debug_file)
 
-                    # for mapping in analysis.color_mappings:
+                    # for mapping in color_mappings:
                     #     print("COLOR MAPPING", file=debug_file)
                     #     for key, value in mapping.items():
                     #         print(key, "=", value, file=debug_file)          
@@ -197,65 +172,6 @@ class ArcAgent:
         # predictions.append(output)
 
         return predictions
-
-    def analyze_problem(self, training_set: ArcSet, count: int) -> ProblemAnalysis:
-        input_grid = training_set.get_input_data().data()
-        output_grid = training_set.get_output_data().data()
-
-        input_grid_id = "input_grid_" + str(count)
-        output_grid_id = "output_grid_" + str(count)
-
-        input_grid_analysis = self.analyze_grid(input_grid, input_grid_id, "full")
-        output_grid_analysis = self.analyze_grid(output_grid, output_grid_id, "full")
-        input_shapes = self.identify_shapes(input_grid, input_grid_id)
-        output_shapes = self.identify_shapes(output_grid, output_grid_id)
-        input_relationships = self.get_object_grid_relationships(input_grid, input_shapes)
-        output_relationships = self.get_object_grid_relationships(output_grid, output_shapes)
-        input_regions = self.get_grid_regions(input_grid, input_grid_id, input_shapes, input_relationships)
-        output_regions = self.get_grid_regions(output_grid, output_grid_id, output_shapes, output_relationships)
-        self.get_shape_regions(input_shapes, input_regions)
-        self.get_shape_regions(output_shapes, output_regions)
-        input_object_relationships = self.get_object_to_object_relationships(input_shapes)
-        output_object_relationships = self.get_object_to_object_relationships(output_shapes)
-        input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
-        object_transformations = self.get_input_output_transformations(
-            input_shapes, output_shapes, input_output_object_relationships
-        )
-        grid_transformations = self.get_grid_transformations(
-            input_grid,
-            output_grid,
-            input_grid_analysis,
-            output_grid_analysis,
-            input_shapes,
-            output_shapes,
-            object_transformations,
-        )
-        region_transformations = []
-        if len(input_regions) == 2:
-            region1 = self.get_region_grid(input_grid, input_regions[0])
-            region2 = self.get_region_grid(input_grid, input_regions[1])
-            region_transformations = self.get_region_combo_transformations(region1, region2, output_grid)
-        color_mappings = self.get_color_mappings(input_grid, output_grid)
-
-        return ProblemAnalysis(
-            input_grid=input_grid,
-            output_grid=output_grid,
-            input_grid_analysis=input_grid_analysis,
-            output_grid_analysis=output_grid_analysis,
-            input_shapes=input_shapes,
-            output_shapes=output_shapes,
-            input_regions=input_regions,
-            output_regions=output_regions,
-            input_relationships=input_relationships,
-            output_relationships=output_relationships,
-            input_object_relationships=input_object_relationships,
-            output_object_relationships=output_object_relationships,
-            input_output_object_relationships=input_output_object_relationships,
-            object_transformations=object_transformations,
-            grid_transformations=grid_transformations,
-            region_transformations=region_transformations,
-            color_mappings=color_mappings,
-        )
 
     def print_frame(self, frame: dict, label: str = "", file=None):
 
@@ -356,7 +272,7 @@ class ArcAgent:
         return mappings
 
 
-    def get_shape_by_reference(self, shapes: list[Shape], reference: str) -> Shape | None:
+    def get_shape_by_reference(self, shapes:list[dict], reference: str)->dict|None:
         if not shapes:
             return None
         
@@ -365,11 +281,11 @@ class ArcAgent:
                 return shapes[0]
         elif reference == "largest":
             largest_shape = shapes[0]
-            largest_size = largest_shape.height * largest_shape.width
+            largest_size = largest_shape["height"] * largest_shape["width"]
             largest_count = 1
 
             for shape in shapes[1:]:
-                size = shape.height * shape.width
+                size = shape["height"] * shape["width"]
 
                 if (size > largest_size):
                     largest_shape = shape
@@ -384,11 +300,11 @@ class ArcAgent:
 
         elif reference == "smallest":
             smallest_shape = shapes[0]
-            smallest_size = smallest_shape.height * smallest_shape.width
+            smallest_size = smallest_shape["height"] * smallest_shape["width"]
             smallest_count = 1
 
             for shape in shapes[1:]:
-                size = shape.height * shape.width
+                size = shape["height"] * shape["width"]
 
                 if (size < smallest_size):
                     smallest_shape = shape
@@ -405,7 +321,7 @@ class ArcAgent:
 
 
     def get_grid_transformations(self, input_grid:np.ndarray, output_grid:np.ndarray, input_grid_analysis: dict, output_grid_analysis: dict, 
-                                 input_shapes: list[Shape], output_shapes: list[Shape],
+                                 input_shapes: list[dict], output_shapes: list[dict],
                                  input_output_transformations)-> list[dict]:
         transformations = []
         input_shapes_map = {}
@@ -534,10 +450,10 @@ class ArcAgent:
 
 
         for shape in input_shapes:
-            input_shapes_map[shape.object_id] = shape
+            input_shapes_map[shape["object_id"]] = shape
 
         for shape in output_shapes:
-            output_shapes_map[shape.object_id] = shape
+            output_shapes_map[shape["object_id"]] = shape
 
         for transformation in input_output_transformations:
             if transformation["transformation"] not in ("none", "color_change"):
@@ -548,32 +464,32 @@ class ArcAgent:
             if(object_reference is None):
                 continue
 
-            if (output_grid_analysis["height"] == source_shape.height
-                and output_grid_analysis["width"] == source_shape.width):
+            if (output_grid_analysis["height"] == source_shape["height"]
+                and output_grid_analysis["width"] == source_shape["width"]):
 
                 transformations.append({
                     "transformation_type": "grid",
                     "transformation": "crop_to_object",
-                    "source_id": source_shape.object_id,
+                    "source_id": source_shape["object_id"],
                     "object_reference": object_reference
                 })
 
         return transformations
     
-    def get_object_reference(self, source_shape: Shape, shapes: list[Shape]) -> str | None:
+    def get_object_reference(self, source_shape: dict, shapes: list[dict]) -> str|None:
         if(len(shapes) == 1):
             return "single"
 
         largest_shape = shapes[0]
-        largest_size = largest_shape.height * largest_shape.width
+        largest_size = largest_shape["height"]*largest_shape["width"]
         largest_count = 1
 
         smallest_shape = shapes[0]
-        smallest_size = smallest_shape.height * smallest_shape.width
+        smallest_size = smallest_shape["height"]*smallest_shape["width"]
         smallest_count = 1
 
         for shape in shapes[1:]:
-            size = shape.height * shape.width
+            size = shape["height"]*shape["width"]
 
             if(size > largest_size):
                 largest_shape = shape
@@ -589,14 +505,14 @@ class ArcAgent:
             elif size == smallest_size:
                 smallest_count += 1
 
-        if(largest_count == 1 and largest_shape.object_id == source_shape.object_id):
+        if(largest_count == 1 and largest_shape["object_id"] == source_shape["object_id"]):
             return "largest"
-        if(smallest_count == 1 and smallest_shape.object_id == source_shape.object_id):
+        if(smallest_count == 1 and smallest_shape["object_id"] == source_shape["object_id"]):
             return "smallest"
 
         return None
 
-    def select_object_reference(self, test_shapes: list[Shape], change: dict) -> Shape | None:
+    def select_object_reference(self, test_shapes: list[dict], change: dict) -> dict|None:
         if not test_shapes:
             return None
         if (change["object_reference"] == "single"):
@@ -604,11 +520,11 @@ class ArcAgent:
                 return test_shapes[0]
         elif(change["object_reference"] == "largest"):
             largest_shape = test_shapes[0]
-            largest_size = largest_shape.height * largest_shape.width
+            largest_size = largest_shape["height"] * largest_shape["width"]
             largest_count = 1
 
             for shape in test_shapes[1:]:
-                size = shape.height * shape.width
+                size = shape["height"] * shape["width"]
 
                 if(size> largest_size):
                     largest_shape = shape
@@ -620,7 +536,7 @@ class ArcAgent:
         return None
             
 
-    def apply_validated_changes(self, test_grid: np.ndarray, test_shapes: list[Shape], validated_changes: list[dict])-> np.ndarray:
+    def apply_validated_changes(self, test_grid: np.ndarray, test_shapes: list[dict], validated_changes: list[dict])-> np.ndarray:
         output_grid = test_grid.copy()
         mapped_color = None
         mapped_source_color = None
@@ -631,7 +547,7 @@ class ArcAgent:
                 if(change["change_type"] == "crop_to_object"):
                     shape = self.select_object_reference(test_shapes, change)
                     if shape is not None:
-                        output_grid = test_grid[shape.top:shape.bottom + 1, shape.left:shape.right + 1].copy()
+                        output_grid = test_grid[shape["top"]:shape["bottom"] + 1, shape["left"]:shape["right"] + 1].copy()
                 elif change["change_type"] == "rotation_90":
                     output_grid = np.rot90(output_grid, 1).copy()
 
@@ -782,19 +698,19 @@ class ArcAgent:
                     target_shape = self.get_shape_by_reference( test_shapes,change["target_reference"])
 
                     if source_shape is not None and target_shape is not None:
-                        source_color = source_shape.color
-                        target_color = target_shape.color
+                        source_color = source_shape["color"]
+                        target_color = target_shape["color"]
 
                         output_grid[original_grid == source_color] = target_color
             elif change["change_type"] == "make_hollow":
                 if change["source_reference"] == "all_objects":
 
                     for shape in test_shapes:
-                        top = shape.top
-                        bottom = shape.bottom
-                        left = shape.left
-                        right = shape.right
-                        color = shape.color
+                        top = shape["top"]
+                        bottom = shape["bottom"]
+                        left = shape["left"]
+                        right = shape["right"]
+                        color = shape["color"]
 
                         for row in range(top, bottom + 1):
                             for column in range(left, right + 1):
@@ -1084,7 +1000,7 @@ class ArcAgent:
         return change_candidates
     
     
-    def get_input_output_transformations(self, input_shapes: list[Shape], output_shapes: list[Shape],input_output_relationships: list[dict]) -> list[dict]:
+    def get_input_output_transformations(self, input_shapes: list[dict], output_shapes: list[dict],input_output_relationships: list[dict]) -> list[dict]:
         transformations = []
         relationship_pairs = {}
         input_shapes_map = {}
@@ -1096,10 +1012,10 @@ class ArcAgent:
             
 
             for shape in input_shapes:
-                input_shapes_map[shape.object_id] = shape
+                input_shapes_map[shape["object_id"]] = shape
 
             for shape in output_shapes:
-                output_shapes_map[shape.object_id] = shape
+                output_shapes_map[shape["object_id"]] = shape
 
             pair = (source_id, target_id)
             if pair not in relationship_pairs:
@@ -1121,14 +1037,14 @@ class ArcAgent:
 
             source_shape = input_shapes_map[pair[0]]
             target_shape = output_shapes_map[pair[1]]
-            source_cells = set(source_shape.cells)
-            target_cells = set(target_shape.cells)
+            source_cells = set(source_shape["cells"])
+            target_cells = set(target_shape["cells"])
 
-            if(same_color and source_shape.is_hollow != target_shape.is_hollow):
+            if(same_color and source_shape["is_hollow"] != target_shape['is_hollow']):
                 transformation = None
-                if(source_shape.is_hollow == False and target_cells.issubset(source_cells)):
+                if(source_shape["is_hollow"]== False and target_cells.issubset(source_cells)):
                     transformation = "make_hollow"
-                if(source_shape.is_hollow == True and source_cells.issubset(target_cells)):
+                if(source_shape["is_hollow"]== True and source_cells.issubset(target_cells)):
                     transformation = "fill_in"
                 if transformation is not None:
                     transformations.append({
@@ -1154,7 +1070,7 @@ class ArcAgent:
                 target_reference = None
 
                 for input_shape in input_shapes:
-                    if(input_shape.color != target_shape.color):
+                    if(input_shape["color"] != target_shape["color"]):
                         continue
 
                     target_reference = self.get_object_reference(input_shape, input_shapes)
@@ -1166,15 +1082,15 @@ class ArcAgent:
                     "transformation": "color_change",
                     "source_reference": source_reference,
                     "target_reference": target_reference,
-                    "from_color": source_shape.color,
-                    "to_color": target_shape.color,
+                    "from_color": source_shape["color"],
+                    "to_color": target_shape["color"],
                     "source_id": pair[0],
                     "target_id": pair[1],
                 })
             
         return transformations
 
-    def get_object_to_object_relationships(self, shapes: list[Shape], target_shapes: list[Shape] = None) -> list[dict]:
+    def get_object_to_object_relationships(self, shapes:list[dict], target_shapes: list[dict] = None) -> list[dict]:
         relationships = []
         if target_shapes is None:
             target_shapes = shapes
@@ -1185,7 +1101,7 @@ class ArcAgent:
         for source_shape in shapes:
             for target_shape in target_shapes:
 
-                if (same_source and source_shape.id == target_shape.id):
+                if (same_source and source_shape["id"] == target_shape["id"]):
                     continue
 
                 if same_source:
@@ -1204,10 +1120,10 @@ class ArcAgent:
 
         return relationships
 
-    def get_object_object_shapes(self, source_shape: Shape, target_shape: Shape):
+    def get_object_object_shapes(self, source_shape, target_shape):
         shape_relationships =[]
-        source_pattern = source_shape.pattern
-        target_pattern = target_shape.pattern
+        source_pattern = source_shape["pattern"]
+        target_pattern = target_shape["pattern"]
         source_flipped = np.fliplr(source_pattern)
 
         relationship_degrees = [
@@ -1225,11 +1141,11 @@ class ArcAgent:
             if(np.array_equal(transformed, target_pattern)):
                 shape_relationships.append({
                     "source_item": "object",
-                    "source_id": source_shape.object_id,
+                    "source_id": source_shape["object_id"],
                     "relationship_type": "shape",
                     "relationship_degree": degree,
                     "target_item": "object",
-                    "target_id": target_shape.object_id
+                    "target_id": target_shape["object_id"]
                 })  
                 if "same" == degree:
                     return shape_relationships    
@@ -1237,106 +1153,106 @@ class ArcAgent:
         return shape_relationships
 
 
-    def get_object_object_colors(self, source_shape: Shape, target_shape: Shape):
+    def get_object_object_colors(self, source_shape, target_shape):
         color_relationships = []
 
-        if source_shape.color == target_shape.color:
+        if source_shape["color"] == target_shape["color"]:
             relationship_degree = "same_color"
         else:
             relationship_degree = "different_color"
 
         color_relationships.append({
             "source_item": "object",
-            "source_id": source_shape.object_id,
+            "source_id": source_shape["object_id"],
             "relationship_type": "color",
             "relationship_degree": relationship_degree,
             "target_item": "object",
-            "target_id": target_shape.object_id
+            "target_id": target_shape["object_id"]
         })
 
         return color_relationships
 
-    def get_object_object_regions(self, source_shape: Shape, target_shape: Shape):
+    def get_object_object_regions(self, source_shape, target_shape):
         region_relationships = []
         if (
-            source_shape.region_id is not None
-            and target_shape.region_id is not None
-            and source_shape.region_id == target_shape.region_id
+            source_shape["region_id"] is not None
+            and target_shape["region_id"] is not None
+            and source_shape["region_id"] == target_shape["region_id"]
         ):
             region_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape.object_id,
+                "source_id": source_shape["object_id"],
                 "relationship_type": "region",
                 "relationship_degree": "same_region",
                 "target_item": "object",
-                "target_id": target_shape.object_id
+                "target_id": target_shape["object_id"]
             })
 
         return region_relationships
     
-    def get_object_object_positions(self, source_shape: Shape, target_shape: Shape):
+    def get_object_object_positions(self, source_shape, target_shape):
         position_relationships = []
-        if(source_shape.right < target_shape.left):
+        if(source_shape["right"] < target_shape["left"]):
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape.object_id,
+                "source_id": source_shape["object_id"],
                 "relationship_type": "position",
                 "relationship_degree": "left_of",
                 "target_item": "object",
-                "target_id": target_shape.object_id
+                "target_id": target_shape["object_id"]
             })
 
-        if(source_shape.left > target_shape.right):
+        if(source_shape["left"] > target_shape["right"]):
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape.object_id,
+                "source_id": source_shape["object_id"],
                 "relationship_type": "position",
                 "relationship_degree": "right_of",
                 "target_item": "object",
-                "target_id": target_shape.object_id
+                "target_id": target_shape["object_id"]
             })
 
-        if source_shape.bottom < target_shape.top:
+        if source_shape["bottom"] < target_shape["top"]:
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape.object_id,
+                "source_id": source_shape["object_id"],
                 "relationship_type": "position",
                 "relationship_degree": "above",
                 "target_item": "object",
-                "target_id": target_shape.object_id
+                "target_id": target_shape["object_id"]
             })
 
-        if source_shape.top > target_shape.bottom:
+        if source_shape["top"] > target_shape["bottom"]:
             position_relationships.append({
                 "source_item": "object",
-                "source_id": source_shape.object_id,
+                "source_id": source_shape["object_id"],
                 "relationship_type": "position",
                 "relationship_degree": "below",
                 "target_item": "object",
-                "target_id": target_shape.object_id
+                "target_id": target_shape["object_id"]
             })
 
         return position_relationships
 
-    def get_shape_regions(self, shapes: list[Shape], regions:list[dict]):
+    def get_shape_regions(self, shapes: list[dict], regions:list[dict]):
 
         for shape in shapes:
-            shape.region_id = None
+            shape["region_id"] = None
 
             for region in regions:
                 contains_shape = (
-                    shape.top >= region["parent_top"]
-                    and shape.bottom <= region["parent_bottom"]
-                    and shape.left >= region["parent_left"]
-                    and shape.right <= region["parent_right"]
+                    shape["top"] >= region["parent_top"]
+                    and shape["bottom"] <= region["parent_bottom"]
+                    and shape["left"] >= region["parent_left"]
+                    and shape["right"] <= region["parent_right"]
                 )
 
                 if contains_shape:
-                    shape.region_id = region["grid_id"]
+                    shape["region_id"] = region["grid_id"]
                     break
 
 
-    def get_grid_regions(self, grid: np.ndarray, parent_grid_id: str, shapes: list[Shape], relationships: list[dict]) -> list[dict]:
+    def get_grid_regions(self, grid: np.ndarray, parent_grid_id: str, shapes: list[dict], relationships: list[dict]) -> list[dict]:
         # TODO figure out how to properly handle cross grid dividers, my dumbass forgot that we're identifying objects by colors
         # maybe something like if goes across grid with consistent width, except at intersection point then it's a multi-region divider
         # i dunno, but that might work. crap, what if we have different colors that cross but act as divider. dang this is annoying
@@ -1351,7 +1267,7 @@ class ArcAgent:
             divider = None
 
             for shape in shapes:
-                if(shape.object_id == relationship["source_id"]):
+                if(shape["object_id"] == relationship["source_id"]):
                     divider = shape
                     break
 
@@ -1366,8 +1282,8 @@ class ArcAgent:
         if not vertical_dividers and not horizontal_dividers:
             return []
 
-        vertical_dividers.sort(key=lambda shape: shape.left)
-        horizontal_dividers.sort(key=lambda shape: shape.top)
+        vertical_dividers.sort(key=lambda shape: shape["left"])
+        horizontal_dividers.sort(key=lambda shape: shape["top"])
 
         row_splits = self.get_row_splits(grid, horizontal_dividers)
         column_splits = self.get_column_splits(grid, vertical_dividers)
@@ -1384,7 +1300,7 @@ class ArcAgent:
         #     region_number = 1
 
         #     for divider in vertical_dividers:
-        #         end_column = divider.left
+        #         end_column = divider["left"]
         #         region_grid = grid[:, start_column:end_column]
 
         #         if region_grid.shape[1] > 0:
@@ -1393,7 +1309,7 @@ class ArcAgent:
         #             regions.append(self.analyze_grid(region_grid, region_id, "region", parent_grid_id, 0, grid.shape[0]-1,start_column, end_column-1))
         #             region_number +=1
 
-        #         start_column = divider.right+1
+        #         start_column = divider["right"]+1
 
         #     if start_column < grid.shape[1]:
         #         region_grid = grid[:,start_column:]
@@ -1405,7 +1321,7 @@ class ArcAgent:
         #     region_number = 1
 
         #     for divider in horizontal_dividers:
-        #         end_row = divider.top
+        #         end_row = divider["top"]
         #         region_grid = grid[start_row:end_row,:]
 
         #         if region_grid.shape[0] > 0:
@@ -1414,7 +1330,7 @@ class ArcAgent:
         #             regions.append(self.analyze_grid(region_grid, region_id, "region", parent_grid_id, start_row, end_row-1, 0, grid.shape[1]-1))
         #             region_number +=1
 
-        #         start_row = divider.bottom+1
+        #         start_row = divider["bottom"]+1
 
         #     if start_row < grid.shape[0]:
         #             region_grid = grid[start_row:,:]
@@ -1423,34 +1339,34 @@ class ArcAgent:
 
         return regions
 
-    def get_row_splits(self, grid:np.ndarray, horizontal_dividers: list[Shape]) -> list[tuple[int,int]]:
+    def get_row_splits(self, grid:np.ndarray, horizontal_dividers: list[dict]) -> list[tuple[int,int]]:
         row_splits = []
         start_row = 0
 
         for divider in horizontal_dividers:
-            end_row = divider.top-1
+            end_row = divider["top"]-1
 
             if (start_row <= end_row):
                 row_splits.append((start_row, end_row))
 
-            start_row = divider.bottom+1
+            start_row = divider["bottom"]+1
 
         if(start_row <= grid.shape[0] -1):
             row_splits.append((start_row, grid.shape[0]-1))
 
         return row_splits
 
-    def get_column_splits(self, grid:np.ndarray, vertical_dividers: list[Shape]) -> list[tuple[int,int]]:
+    def get_column_splits(self, grid:np.ndarray, vertical_dividers: list[dict]) -> list[tuple[int,int]]:
         column_splits = []
         start_column = 0
 
         for divider in vertical_dividers:
-            end_column = divider.left-1
+            end_column = divider["left"]-1
 
             if (start_column <= end_column):
                 column_splits.append((start_column, end_column))
 
-            start_column = divider.right+1
+            start_column = divider["right"]+1
 
         if(start_column <= grid.shape[1] -1):
             column_splits.append((start_column, grid.shape[1]-1))
@@ -1458,26 +1374,26 @@ class ArcAgent:
         return column_splits
 
 
-    def get_object_grid_relationships(self, grid: np.ndarray, shapes: list[Shape]) -> list[dict]:
+    def get_object_grid_relationships(self, grid: np.ndarray, shapes:list[dict]) -> list[dict]:
         relationships = []
 
         for shape in shapes:
-            fills_grid = (shape.top == 0 and shape.bottom == grid.shape[0]-1 and shape.left == 0 and shape.right ==grid.shape[1]-1)
+            fills_grid = (shape["top"] == 0 and shape["bottom"] == grid.shape[0]-1 and shape["left"] == 0 and shape["right"] ==grid.shape[1]-1)
 
             if fills_grid:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape.object_id,
+                    "source_id": shape["object_id"],
                     "relationship": "fills_grid",
                     "target_item": "grid"
                 }
                 relationships.append(relationship)
 
-            divides_grid_vertical = (shape.top == 0 and shape.bottom == grid.shape[0] - 1 and shape.width == 1 and shape.left > 0 and shape.right < grid.shape[1] - 1)
+            divides_grid_vertical = (shape["top"] == 0 and shape["bottom"] == grid.shape[0] - 1 and shape["width"] == 1 and shape["left"] > 0 and shape["right"] < grid.shape[1] - 1)
             if divides_grid_vertical:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape.object_id,
+                    "source_id": shape["object_id"],
                     "relationship": "divides_grid",
                     "target_item": "grid",
                     "orientation": "vertical",
@@ -1485,11 +1401,11 @@ class ArcAgent:
                 }
                 relationships.append(relationship)
 
-            divides_grid_horizontal = (shape.top > 0 and shape.bottom < grid.shape[0] - 1 and shape.height == 1 and shape.left == 0 and shape.right == grid.shape[1] - 1)
+            divides_grid_horizontal = (shape["top"] > 0 and shape["bottom"] < grid.shape[0] - 1 and shape["height"] == 1 and shape["left"] == 0 and shape["right"] == grid.shape[1] - 1)
             if divides_grid_horizontal:
                 relationship = {
                     "source_item": "object",
-                    "source_id": shape.object_id,
+                    "source_id": shape["object_id"],
                     "relationship": "divides_grid",
                     "target_item": "grid",
                     "orientation": "horizontal",
@@ -1499,7 +1415,7 @@ class ArcAgent:
 
         return relationships
 
-    def identify_shapes(self, grid: np.ndarray, parent_grid_id: str, connections: int = 8) -> list[Shape]:
+    def identify_shapes(self, grid: np.ndarray, parent_grid_id: str, connections: int = 8) -> list[dict]:
 
         shapes = []
         visited_cells = set()
@@ -1550,35 +1466,34 @@ class ArcAgent:
                 for row,column in cells:
                     pattern[row - boundaries["top"], column - boundaries["left"]] = 1
 
-                shape = Shape(
-                    id=shape_id,
-                    object_id=parent_grid_id + "_object_" + str(shape_id),
-                    parent_grid_id=parent_grid_id,
-                    color=color,
-                    cells=cells,
-                    pattern=pattern,
-                    top=boundaries["top"],
-                    bottom=boundaries["bottom"],
-                    left=boundaries["left"],
-                    right=boundaries["right"],
-                    height=boundaries["height"],
-                    width=boundaries["width"],
-                    is_hollow=False,
-                )
-                shape.is_hollow = self.is_hollow(grid, shape)
+                shape = {
+                    "id": shape_id,
+                    "object_id": parent_grid_id + "_object_" + str(shape_id),
+                    "parent_grid_id": parent_grid_id,
+                    "color": color,
+                    "cells": cells,
+                    "pattern": pattern,
+                    "top": boundaries["top"],
+                    "bottom": boundaries["bottom"],
+                    "left": boundaries["left"],
+                    "right": boundaries["right"],
+                    "height": boundaries["height"],
+                    "width": boundaries["width"],
+                }
+                shape["is_hollow"] = self.is_hollow(grid, shape)
                 shapes.append(shape)
 
                 shape_id +=1
         return shapes
 
 
-    def is_hollow(self, grid: np.ndarray, shape: Shape) -> bool:
-        color = shape.color
-        cells = shape.cells
-        top = shape.top
-        bottom = shape.bottom
-        left = shape.left
-        right = shape.right
+    def is_hollow(self, grid: np.ndarray, shape: dict) -> bool:
+        color = shape["color"]
+        cells = shape["cells"]
+        top = shape["top"]
+        bottom = shape["bottom"]
+        left = shape["left"]
+        right = shape["right"]
 
         for row in range(top,bottom+1):
             for column in range(left,right+1):
