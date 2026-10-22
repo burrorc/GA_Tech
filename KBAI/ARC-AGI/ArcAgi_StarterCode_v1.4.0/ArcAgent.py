@@ -52,9 +52,9 @@ class ArcAgent:
         You may add additional variables to this init method. Be aware that it gets called only once
         and then the make_predictions method will get called several times.
         """
-        # with open("debug_output.txt", "w") as debug_file:
-        #     pass
-        print("here")
+        with open("debug_output.txt", "w") as debug_file:
+            pass
+        # print("here6")
         pass
 
     def make_predictions(self, arc_problem: ArcProblem) -> list[np.ndarray]:
@@ -83,8 +83,8 @@ class ArcAgent:
         training_sets = arc_problem.training_set()
         
 
-        # target_problem = "ce4f8723"
-        # target_training_sets = {1, 2, 3}
+        target_problem = "623ea044"
+        target_training_sets = {1, 2, 3}
         training_analyses = []
         training_change_candidates = []
 
@@ -94,23 +94,20 @@ class ArcAgent:
             analysis = self.analyze_problem(training_set, count)
             training_analyses.append(analysis)
             change_candidates = self.get_change_candidates(
-                analysis.object_transformations,
-                analysis.grid_transformations,
-                analysis.region_transformations,
-                analysis.color_mappings,
+                analysis,
                 count,
             )
             training_change_candidates.append(change_candidates)
             
             
             
-            # if (
-            #     arc_problem.problem_name() == target_problem
-            #     and count in target_training_sets
-            # ):
-            #     with open("debug_output.txt", "a") as debug_file:
-            #         print(f"\nPROBLEM: {arc_problem.problem_name()}", file=debug_file)
-            #         print(f"Training Set {count}", file=debug_file)
+            if (
+                arc_problem.problem_name() == target_problem
+                and count in target_training_sets
+            ):
+                with open("debug_output.txt", "a") as debug_file:
+                    print(f"\nPROBLEM: {arc_problem.problem_name()}", file=debug_file)
+                    print(f"Training Set {count}", file=debug_file)
 
                     # self.print_frame(analysis.input_grid_analysis, "INPUT GRID", debug_file)
                     # self.print_frame(analysis.output_grid_analysis, "OUTPUT GRID", debug_file)
@@ -142,8 +139,8 @@ class ArcAgent:
                     # for relationship in analysis.input_output_object_relationships:
                     #     self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for transformation in analysis.object_transformations:
-                    #     self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
+                    for transformation in analysis.object_transformations:
+                        self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
 
                     # for transformation in analysis.grid_transformations:
                     #     self.print_frame(transformation, "GRID TRANSFORMATIONS", debug_file)
@@ -219,7 +216,7 @@ class ArcAgent:
         output_object_relationships = self.get_object_to_object_relationships(output_shapes)
         input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
         object_transformations = self.get_input_output_transformations(
-            input_shapes, output_shapes, input_output_object_relationships
+            input_shapes, output_shapes, input_output_object_relationships, output_grid
         )
         grid_transformations = self.get_grid_transformations(
             input_grid,
@@ -749,7 +746,7 @@ class ArcAgent:
                         else:
                             output_grid[:, middle:] = transformed
 
-                original_grid = output_grid.copy()
+        original_grid = output_grid.copy()
 
         for change in validated_changes:
             if (change["change_type"] == "color_change"and "source_color" in change and change.get("target_reference") == "mapped_color"):
@@ -936,11 +933,12 @@ class ArcAgent:
         
 
 
-    def get_change_candidates(self, object_transformations: list[dict], grid_transformations: list[dict], region_combo_transformations: list[dict], color_mappings: list[dict], training_set: int) -> list[dict]:
+    def get_grid_change_candidates(
+        self,
+        grid_transformations: list[dict],
+        training_set: int,
+    ) -> list[dict]:
         change_candidates = []
-        color_changes = {}
-        make_hollow_count = 0
-        fill_in_count = 0
         exact_grid_changes = [
             "rotation_90",
             "rotation_180",
@@ -950,15 +948,6 @@ class ArcAgent:
             "flipped_h_rotation_90",
             "flipped_h_rotation_270",
         ]
-        region_transform_changes = [
-            "same",
-            "flipped_h",
-            "flipped_v",
-            "rotation_90",
-            "rotation_180",
-            "rotation_270",
-        ]
-        region_candidate_found = False
 
         for preferred_change in exact_grid_changes:
             for transformation in grid_transformations:
@@ -969,6 +958,7 @@ class ArcAgent:
                         "training_set": training_set,
                     })
                     return change_candidates
+
         for transformation in grid_transformations:
             if transformation["transformation"] == "copy_to_empty_half":
                 change_candidates.append({
@@ -988,6 +978,24 @@ class ArcAgent:
                     "training_set": training_set,
                 })
 
+        return change_candidates
+
+    def get_region_change_candidates(
+        self,
+        region_combo_transformations: list[dict],
+        training_set: int,
+    ) -> list[dict]:
+        change_candidates = []
+        region_transform_changes = [
+            "same",
+            "flipped_h",
+            "flipped_v",
+            "rotation_90",
+            "rotation_180",
+            "rotation_270",
+        ]
+        region_candidate_found = False
+
         for preferred_change in region_transform_changes:
             for transformation in region_combo_transformations:
                 if transformation["region2_transform"] != preferred_change:
@@ -1006,6 +1014,18 @@ class ArcAgent:
 
             if region_candidate_found:
                 break
+
+        return change_candidates
+
+    def get_object_change_candidates(
+        self,
+        object_transformations: list[dict],
+        training_set: int,
+    ) -> list[dict]:
+        change_candidates = []
+        color_changes = {}
+        make_hollow_count = 0
+        fill_in_count = 0
 
         for transformation in object_transformations:
             if transformation["transformation"] == "make_hollow":
@@ -1045,6 +1065,31 @@ class ArcAgent:
                 "training_set": training_set,
             })
 
+        if (len(object_transformations) > 0 ):
+            if(make_hollow_count == len(object_transformations)):
+
+                change_candidates.append({
+                    "change_type": "make_hollow",
+                    "source_reference": "all_objects",
+                    "fill_color": 0,
+                    "training_set": training_set,
+                })
+            elif(fill_in_count == len(object_transformations)):
+                change_candidates.append({
+                    "change_type": "fill_in",
+                    "source_reference": "all_objects",
+                    "training_set": training_set,
+                })
+            
+        return change_candidates
+
+    def get_color_change_candidates(
+        self,
+        color_mappings: list[dict],
+        training_set: int,
+    ) -> list[dict]:
+        change_candidates = []
+
         for start_mapping in color_mappings:
             for next_mapping in color_mappings:
                 if start_mapping == next_mapping:
@@ -1065,26 +1110,51 @@ class ArcAgent:
                         "training_set": training_set,
                     })
 
-        if (len(object_transformations) > 0 ):
-            if(make_hollow_count == len(object_transformations)):
+        return change_candidates
 
-                change_candidates.append({
-                    "change_type": "make_hollow",
-                    "source_reference": "all_objects",
-                    "fill_color": 0,
-                    "training_set": training_set,
-                })
-            elif(fill_in_count == len(object_transformations)):
-                change_candidates.append({
-                    "change_type": "fill_in",
-                    "source_reference": "all_objects",
-                    "training_set": training_set,
-                })
-            
+    def get_change_candidates(
+        self,
+        analysis: ProblemAnalysis,
+        training_set: int,
+    ) -> list[dict]:
+        change_candidates = []
+
+        grid_candidates = self.get_grid_change_candidates(
+            analysis.grid_transformations,
+            training_set,
+        )
+        if any(candidate.get("exact_solution") for candidate in grid_candidates):
+            return grid_candidates
+        change_candidates.extend(grid_candidates)
+
+        region_candidates = self.get_region_change_candidates(
+            analysis.region_transformations,
+            training_set,
+        )
+        change_candidates.extend(region_candidates)
+
+        object_candidates = self.get_object_change_candidates(
+            analysis.object_transformations,
+            training_set,
+        )
+        secondary_object_candidates = []
+        for candidate in object_candidates:
+            if candidate["change_type"] in ("make_hollow", "fill_in"):
+                secondary_object_candidates.append(candidate)
+            else:
+                change_candidates.append(candidate)
+
+        color_candidates = self.get_color_change_candidates(
+            analysis.color_mappings,
+            training_set,
+        )
+        change_candidates.extend(color_candidates)
+
+        change_candidates.extend(secondary_object_candidates)
         return change_candidates
     
     
-    def get_input_output_transformations(self, input_shapes: list[Shape], output_shapes: list[Shape],input_output_relationships: list[dict]) -> list[dict]:
+    def get_input_output_transformations(self, input_shapes: list[Shape], output_shapes: list[Shape],input_output_relationships: list[dict], output_grid: np.ndarray) -> list[dict]:
         transformations = []
         relationship_pairs = {}
         input_shapes_map = {}
@@ -1171,6 +1241,71 @@ class ArcAgent:
                     "source_id": pair[0],
                     "target_id": pair[1],
                 })
+
+            if same_color and len(source_shape.cells) == 1 and len(target_shape.cells) > 1:
+                direction_offsets = {
+                    "up": (-1, 0),
+                    "down": (1, 0),
+                    "left": (0, -1),
+                    "right": (0, 1),
+                    "upper_left": (-1, -1),
+                    "upper_right": (-1, 1),
+                    "lower_left": (1, -1),
+                    "lower_right": (1, 1),
+                }
+                seed_row, seed_column = source_shape.cells[0]
+                expected_cells = {(seed_row, seed_column)}
+                extensions = []
+                grid_height, grid_width = output_grid.shape
+
+                for direction_name, (row_offset, column_offset) in direction_offsets.items():
+                    adjacent_row = seed_row + row_offset
+                    adjacent_column = seed_column + column_offset
+
+                    if (adjacent_row < 0 or adjacent_row >= grid_height
+                        or adjacent_column < 0 or adjacent_column >= grid_width):
+                        continue
+
+                    adjacent_cell = (adjacent_row, adjacent_column)
+                    if adjacent_cell not in target_cells:
+                        continue
+
+                    ray_cells = []
+                    current_row = adjacent_row
+                    current_column = adjacent_column
+                    complete_ray = True
+
+                    while (0 <= current_row < grid_height
+                           and 0 <= current_column < grid_width):
+                        current_cell = (current_row, current_column)
+                        if current_cell not in target_cells:
+                            complete_ray = False
+                            break
+
+                        ray_cells.append(current_cell)
+                        current_row += row_offset
+                        current_column += column_offset
+
+                    if complete_ray:
+                        expected_cells.update(ray_cells)
+                        extensions.append({
+                            "direction": direction_name,
+                            "stop_type": "grid_edge",
+                        })
+
+                if len(extensions) > 0 and expected_cells == target_cells:
+                    transformations.append({
+                        "transformation_type": "object",
+                        "transformation": "generate_from_seed",
+                        "source_reference": self.get_object_reference(
+                            source_shape,
+                            input_shapes,
+                        ),
+                        "color": source_shape.color,
+                        "extensions": extensions,
+                        "source_id": pair[0],
+                        "target_id": pair[1],
+                    })
             
         return transformations
 

@@ -1,0 +1,4 @@
+Metric                          Benchmark             TOS
+Cumulative Return                0.012300        5.786100
+Std Daily Return                 0.017004        0.004548
+Mean Daily Return                0.000168        0.003817
