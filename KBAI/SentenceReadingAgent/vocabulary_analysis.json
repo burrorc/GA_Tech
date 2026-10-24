@@ -1,0 +1,3577 @@
+{
+  "names": [
+    "Ada",
+    "Andrew",
+    "Bobbie",
+    "Cason",
+    "David",
+    "Farzana",
+    "Frank",
+    "Hannah",
+    "Ida",
+    "Irene",
+    "Jim",
+    "Jose",
+    "Keith",
+    "Laura",
+    "Lucy",
+    "Meredith",
+    "Nick",
+    "Serena",
+    "Yan",
+    "Yeeling"
+  ],
+  "words": {
+    "I": {
+      "lemma": "i",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "Red": {
+      "lemma": "red",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "a": {
+      "lemma": "a",
+      "pos": [
+        "DET"
+      ]
+    },
+    "able": {
+      "lemma": "able",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "about": {
+      "lemma": "about",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "above": {
+      "lemma": "above",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "act": {
+      "lemma": "act",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "add": {
+      "lemma": "add",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "adult": {
+      "lemma": "adult",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "adults": {
+      "lemma": "adult",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "after": {
+      "lemma": "after",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "again": {
+      "lemma": "again",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "against": {
+      "lemma": "against",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "age": {
+      "lemma": "age",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ago": {
+      "lemma": "ago",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "air": {
+      "lemma": "air",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "all": {
+      "lemma": "all",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "also": {
+      "lemma": "also",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "always": {
+      "lemma": "always",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "am": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "among": {
+      "lemma": "among",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "an": {
+      "lemma": "an",
+      "pos": [
+        "DET"
+      ]
+    },
+    "and": {
+      "lemma": "and",
+      "pos": [
+        "CCONJ"
+      ]
+    },
+    "animal": {
+      "lemma": "animal",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "answer": {
+      "lemma": "answer",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "any": {
+      "lemma": "any",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "appear": {
+      "lemma": "appear",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "are": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "area": {
+      "lemma": "area",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "as": {
+      "lemma": "as",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "ask": {
+      "lemma": "ask",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "at": {
+      "lemma": "at",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "back": {
+      "lemma": "back",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "base": {
+      "lemma": "base",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "be": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "beauty": {
+      "lemma": "beauty",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "bed": {
+      "lemma": "bed",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "been": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "before": {
+      "lemma": "before",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "began": {
+      "lemma": "begin",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "begin": {
+      "lemma": "begin",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "behind": {
+      "lemma": "behind",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "best": {
+      "lemma": "well",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "better": {
+      "lemma": "well",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "between": {
+      "lemma": "between",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "big": {
+      "lemma": "big",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "bird": {
+      "lemma": "bird",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "black": {
+      "lemma": "black",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "blue": {
+      "lemma": "blue",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "boat": {
+      "lemma": "boat",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "body": {
+      "lemma": "body",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "book": {
+      "lemma": "book",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "both": {
+      "lemma": "both",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "box": {
+      "lemma": "box",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "boy": {
+      "lemma": "boy",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "bring": {
+      "lemma": "bring",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "brought": {
+      "lemma": "bring",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "build": {
+      "lemma": "build",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "busy": {
+      "lemma": "busy",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "but": {
+      "lemma": "but",
+      "pos": [
+        "CCONJ"
+      ]
+    },
+    "by": {
+      "lemma": "by",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "call": {
+      "lemma": "call",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "came": {
+      "lemma": "come",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "can": {
+      "lemma": "can",
+      "pos": [
+        "AUX",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "car": {
+      "lemma": "car",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "care": {
+      "lemma": "care",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "carry": {
+      "lemma": "carry",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cause": {
+      "lemma": "cause",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "center": {
+      "lemma": "center",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "certain": {
+      "lemma": "certain",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "change": {
+      "lemma": "change",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "check": {
+      "lemma": "check",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "children": {
+      "lemma": "child",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "city": {
+      "lemma": "city",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "class": {
+      "lemma": "class",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "clear": {
+      "lemma": "clear",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "close": {
+      "lemma": "close",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cold": {
+      "lemma": "cold",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "color": {
+      "lemma": "color",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "come": {
+      "lemma": "come",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "common": {
+      "lemma": "common",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "complete": {
+      "lemma": "complete",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "contain": {
+      "lemma": "contain",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "cool": {
+      "lemma": "cool",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "correct": {
+      "lemma": "correct",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "could": {
+      "lemma": "could",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "country": {
+      "lemma": "country",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "course": {
+      "lemma": "course",
+      "pos": [
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cover": {
+      "lemma": "cover",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cross": {
+      "lemma": "cross",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cry": {
+      "lemma": "cry",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "cut": {
+      "lemma": "cut",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "dark": {
+      "lemma": "dark",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "day": {
+      "lemma": "day",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "decide": {
+      "lemma": "decide",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "deep": {
+      "lemma": "deep",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "develop": {
+      "lemma": "develop",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "did": {
+      "lemma": "do",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "differ": {
+      "lemma": "differ",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "direct": {
+      "lemma": "direct",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "do": {
+      "lemma": "do",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "does": {
+      "lemma": "do",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "dog": {
+      "lemma": "dog",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "dog's": {
+      "lemma": "dog",
+      "pos": [
+        "NOUN",
+        "POSS"
+      ]
+    },
+    "dogs": {
+      "lemma": "dog",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "don't": {
+      "lemma": "do",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "done": {
+      "lemma": "do",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "door": {
+      "lemma": "door",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "down": {
+      "lemma": "down",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "draw": {
+      "lemma": "draw",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "drive": {
+      "lemma": "drive",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "dry": {
+      "lemma": "dry",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "during": {
+      "lemma": "during",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "each": {
+      "lemma": "each",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "early": {
+      "lemma": "early",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "earth": {
+      "lemma": "earth",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ease": {
+      "lemma": "ease",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "east": {
+      "lemma": "east",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "eat": {
+      "lemma": "eat",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "end": {
+      "lemma": "end",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "enough": {
+      "lemma": "enough",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "even": {
+      "lemma": "even",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ever": {
+      "lemma": "ever",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "every": {
+      "lemma": "every",
+      "pos": [
+        "DET"
+      ]
+    },
+    "example": {
+      "lemma": "example",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "eye": {
+      "lemma": "eye",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "face": {
+      "lemma": "face",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "fact": {
+      "lemma": "fact",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "fall": {
+      "lemma": "fall",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "family": {
+      "lemma": "family",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "far": {
+      "lemma": "far",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "farm": {
+      "lemma": "farm",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "fast": {
+      "lemma": "fast",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "father": {
+      "lemma": "father",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "feel": {
+      "lemma": "feel",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "feet": {
+      "lemma": "foot",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "few": {
+      "lemma": "few",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "field": {
+      "lemma": "field",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "figure": {
+      "lemma": "figure",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "fill": {
+      "lemma": "fill",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "final": {
+      "lemma": "final",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "find": {
+      "lemma": "find",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "fine": {
+      "lemma": "fine",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "fire": {
+      "lemma": "fire",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "first": {
+      "lemma": "first",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "fish": {
+      "lemma": "fish",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "five": {
+      "lemma": "five",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "fly": {
+      "lemma": "fly",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "follow": {
+      "lemma": "follow",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "food": {
+      "lemma": "food",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "foot": {
+      "lemma": "foot",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "for": {
+      "lemma": "for",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "force": {
+      "lemma": "force",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "form": {
+      "lemma": "form",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "found": {
+      "lemma": "find",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "four": {
+      "lemma": "four",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "free": {
+      "lemma": "free",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "friend": {
+      "lemma": "friend",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "from": {
+      "lemma": "from",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "front": {
+      "lemma": "front",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "full": {
+      "lemma": "full",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "game": {
+      "lemma": "game",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "gave": {
+      "lemma": "give",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "get": {
+      "lemma": "get",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "girl": {
+      "lemma": "girl",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "give": {
+      "lemma": "give",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "go": {
+      "lemma": "go",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "gold": {
+      "lemma": "gold",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "gone": {
+      "lemma": "go",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "good": {
+      "lemma": "good",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "got": {
+      "lemma": "get",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "govern": {
+      "lemma": "govern",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "great": {
+      "lemma": "great",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "green": {
+      "lemma": "green",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ground": {
+      "lemma": "ground",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "group": {
+      "lemma": "group",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "grow": {
+      "lemma": "grow",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "had": {
+      "lemma": "have",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "half": {
+      "lemma": "half",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "hand": {
+      "lemma": "hand",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "happen": {
+      "lemma": "happen",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "hard": {
+      "lemma": "hard",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "has": {
+      "lemma": "have",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "have": {
+      "lemma": "have",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "he": {
+      "lemma": "he",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "head": {
+      "lemma": "head",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "hear": {
+      "lemma": "hear",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "heard": {
+      "lemma": "hear",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "heat": {
+      "lemma": "heat",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "help": {
+      "lemma": "help",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "her": {
+      "lemma": "she",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "here": {
+      "lemma": "here",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "high": {
+      "lemma": "high",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "him": {
+      "lemma": "he",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "his": {
+      "lemma": "his",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "hold": {
+      "lemma": "hold",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "home": {
+      "lemma": "home",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "horse": {
+      "lemma": "horse",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "hot": {
+      "lemma": "hot",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "hour": {
+      "lemma": "hour",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "house": {
+      "lemma": "house",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "how": {
+      "lemma": "how",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "hundred": {
+      "lemma": "hundred",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "i": {
+      "lemma": "i",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "idea": {
+      "lemma": "idea",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "if": {
+      "lemma": "if",
+      "pos": [
+        "SCONJ"
+      ]
+    },
+    "in": {
+      "lemma": "in",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "inch": {
+      "lemma": "inch",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "interest": {
+      "lemma": "interest",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "is": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "island": {
+      "lemma": "island",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "it": {
+      "lemma": "it",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "just": {
+      "lemma": "just",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "keep": {
+      "lemma": "keep",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "kind": {
+      "lemma": "kind",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "king": {
+      "lemma": "king",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "knew": {
+      "lemma": "know",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "know": {
+      "lemma": "know",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "land": {
+      "lemma": "land",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "language": {
+      "lemma": "language",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "large": {
+      "lemma": "large",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "last": {
+      "lemma": "last",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "late": {
+      "lemma": "late",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "laugh": {
+      "lemma": "laugh",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "lay": {
+      "lemma": "lie",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "lead": {
+      "lemma": "lead",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "learn": {
+      "lemma": "learn",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "leave": {
+      "lemma": "leave",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "left": {
+      "lemma": "leave",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "less": {
+      "lemma": "less",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "let": {
+      "lemma": "let",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "letter": {
+      "lemma": "letter",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "life": {
+      "lemma": "life",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "light": {
+      "lemma": "light",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "like": {
+      "lemma": "like",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "line": {
+      "lemma": "line",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "list": {
+      "lemma": "list",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "listen": {
+      "lemma": "listen",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "little": {
+      "lemma": "little",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "live": {
+      "lemma": "live",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "long": {
+      "lemma": "long",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "look": {
+      "lemma": "look",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "lot": {
+      "lemma": "lot",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "love": {
+      "lemma": "love",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "low": {
+      "lemma": "low",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "machine": {
+      "lemma": "machine",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "made": {
+      "lemma": "make",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "main": {
+      "lemma": "main",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "make": {
+      "lemma": "make",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "man": {
+      "lemma": "man",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "many": {
+      "lemma": "many",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "map": {
+      "lemma": "map",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "mark": {
+      "lemma": "mark",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "may": {
+      "lemma": "may",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "me": {
+      "lemma": "i",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "mean": {
+      "lemma": "mean",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "measure": {
+      "lemma": "measure",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "men": {
+      "lemma": "man",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "might": {
+      "lemma": "might",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "mile": {
+      "lemma": "mile",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "mind": {
+      "lemma": "mind",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "minute": {
+      "lemma": "minute",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "miss": {
+      "lemma": "miss",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "money": {
+      "lemma": "money",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "moon": {
+      "lemma": "moon",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "more": {
+      "lemma": "more",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "morning": {
+      "lemma": "morning",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "most": {
+      "lemma": "most",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "mother": {
+      "lemma": "mother",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "mountain": {
+      "lemma": "mountain",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "move": {
+      "lemma": "move",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "much": {
+      "lemma": "much",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "music": {
+      "lemma": "music",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "must": {
+      "lemma": "must",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "my": {
+      "lemma": "my",
+      "pos": [
+        "DET"
+      ]
+    },
+    "name": {
+      "lemma": "name",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "near": {
+      "lemma": "near",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "need": {
+      "lemma": "need",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "never": {
+      "lemma": "never",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "new": {
+      "lemma": "new",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "next": {
+      "lemma": "next",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "night": {
+      "lemma": "night",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "no": {
+      "lemma": "no",
+      "pos": [
+        "ADV",
+        "DET"
+      ]
+    },
+    "north": {
+      "lemma": "north",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "not": {
+      "lemma": "not",
+      "pos": [
+        "PART"
+      ]
+    },
+    "note": {
+      "lemma": "note",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "nothing": {
+      "lemma": "nothing",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "notice": {
+      "lemma": "notice",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "noun": {
+      "lemma": "noun",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "now": {
+      "lemma": "now",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "number": {
+      "lemma": "number",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "numeral": {
+      "lemma": "numeral",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "object": {
+      "lemma": "object",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "of": {
+      "lemma": "of",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "off": {
+      "lemma": "off",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "often": {
+      "lemma": "often",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "oh": {
+      "lemma": "oh",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "old": {
+      "lemma": "old",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "on": {
+      "lemma": "on",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "once": {
+      "lemma": "once",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "one": {
+      "lemma": "one",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "only": {
+      "lemma": "only",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "open": {
+      "lemma": "open",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "or": {
+      "lemma": "or",
+      "pos": [
+        "CCONJ"
+      ]
+    },
+    "order": {
+      "lemma": "order",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "other": {
+      "lemma": "other",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "our": {
+      "lemma": "our",
+      "pos": [
+        "DET"
+      ]
+    },
+    "out": {
+      "lemma": "out",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "over": {
+      "lemma": "over",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "own": {
+      "lemma": "own",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "page": {
+      "lemma": "page",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "paper": {
+      "lemma": "paper",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "part": {
+      "lemma": "part",
+      "pos": [
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "pass": {
+      "lemma": "pass",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "pattern": {
+      "lemma": "pattern",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "people": {
+      "lemma": "people",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "perhaps": {
+      "lemma": "perhaps",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "person": {
+      "lemma": "person",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "picture": {
+      "lemma": "picture",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "piece": {
+      "lemma": "piece",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "place": {
+      "lemma": "place",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "plain": {
+      "lemma": "plain",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "plan": {
+      "lemma": "plan",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "plane": {
+      "lemma": "plane",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "plant": {
+      "lemma": "plant",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "play": {
+      "lemma": "play",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "point": {
+      "lemma": "point",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "port": {
+      "lemma": "port",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "pose": {
+      "lemma": "pose",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "possible": {
+      "lemma": "possible",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "pound": {
+      "lemma": "pound",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "power": {
+      "lemma": "power",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "press": {
+      "lemma": "press",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "problem": {
+      "lemma": "problem",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "produce": {
+      "lemma": "produce",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "product": {
+      "lemma": "product",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "pull": {
+      "lemma": "pull",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "put": {
+      "lemma": "put",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "question": {
+      "lemma": "question",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "quick": {
+      "lemma": "quick",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "rain": {
+      "lemma": "rain",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ran": {
+      "lemma": "run",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "reach": {
+      "lemma": "reach",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "read": {
+      "lemma": "read",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ready": {
+      "lemma": "ready",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "real": {
+      "lemma": "real",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "record": {
+      "lemma": "record",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "red": {
+      "lemma": "red",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "remember": {
+      "lemma": "remember",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "rest": {
+      "lemma": "rest",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "right": {
+      "lemma": "right",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "river": {
+      "lemma": "river",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "road": {
+      "lemma": "road",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "rock": {
+      "lemma": "rock",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "room": {
+      "lemma": "room",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "round": {
+      "lemma": "round",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "rule": {
+      "lemma": "rule",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "run": {
+      "lemma": "run",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "said": {
+      "lemma": "say",
+      "pos": [
+        "ADJ",
+        "VERB"
+      ]
+    },
+    "same": {
+      "lemma": "same",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "saw": {
+      "lemma": "see",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "say": {
+      "lemma": "say",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "school": {
+      "lemma": "school",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "science": {
+      "lemma": "science",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "sea": {
+      "lemma": "sea",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "second": {
+      "lemma": "second",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "see": {
+      "lemma": "see",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "seem": {
+      "lemma": "seem",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "self": {
+      "lemma": "self",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "sentence": {
+      "lemma": "sentence",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "serve": {
+      "lemma": "serve",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "set": {
+      "lemma": "set",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "several": {
+      "lemma": "several",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "shape": {
+      "lemma": "shape",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "she": {
+      "lemma": "she",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "ship": {
+      "lemma": "ship",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "short": {
+      "lemma": "short",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "should": {
+      "lemma": "should",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "show": {
+      "lemma": "show",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "side": {
+      "lemma": "side",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "simple": {
+      "lemma": "simple",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "since": {
+      "lemma": "since",
+      "pos": [
+        "ADP",
+        "ADV",
+        "SCONJ"
+      ]
+    },
+    "sing": {
+      "lemma": "sing",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "sings": {
+      "lemma": "sing",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "sit": {
+      "lemma": "sit",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "six": {
+      "lemma": "six",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "size": {
+      "lemma": "size",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "sleep": {
+      "lemma": "sleep",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "slow": {
+      "lemma": "slow",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "small": {
+      "lemma": "small",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "snow": {
+      "lemma": "snow",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "so": {
+      "lemma": "so",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "some": {
+      "lemma": "some",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "song": {
+      "lemma": "song",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "soon": {
+      "lemma": "soon",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "sound": {
+      "lemma": "sound",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "south": {
+      "lemma": "south",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "special": {
+      "lemma": "special",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "spell": {
+      "lemma": "spell",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "stand": {
+      "lemma": "stand",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "star": {
+      "lemma": "star",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "start": {
+      "lemma": "start",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "state": {
+      "lemma": "state",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "stay": {
+      "lemma": "stay",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "step": {
+      "lemma": "step",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "still": {
+      "lemma": "still",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "stood": {
+      "lemma": "stand",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "stop": {
+      "lemma": "stop",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "store": {
+      "lemma": "store",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "story": {
+      "lemma": "story",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "street": {
+      "lemma": "street",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "strong": {
+      "lemma": "strong",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "study": {
+      "lemma": "study",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "such": {
+      "lemma": "such",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "sun": {
+      "lemma": "sun",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "sure": {
+      "lemma": "sure",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "surface": {
+      "lemma": "surface",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "table": {
+      "lemma": "table",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "tail": {
+      "lemma": "tail",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "take": {
+      "lemma": "take",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "talk": {
+      "lemma": "talk",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "teach": {
+      "lemma": "teach",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "tell": {
+      "lemma": "tell",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "ten": {
+      "lemma": "ten",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "test": {
+      "lemma": "test",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "than": {
+      "lemma": "than",
+      "pos": [
+        "ADP",
+        "SCONJ"
+      ]
+    },
+    "that": {
+      "lemma": "that",
+      "pos": [
+        "DET",
+        "PRON",
+        "SCONJ"
+      ]
+    },
+    "the": {
+      "lemma": "the",
+      "pos": [
+        "DET"
+      ]
+    },
+    "their": {
+      "lemma": "their",
+      "pos": [
+        "DET"
+      ]
+    },
+    "them": {
+      "lemma": "they",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "then": {
+      "lemma": "then",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "there": {
+      "lemma": "there",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "these": {
+      "lemma": "these",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "they": {
+      "lemma": "they",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "thing": {
+      "lemma": "thing",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "think": {
+      "lemma": "think",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "this": {
+      "lemma": "this",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "those": {
+      "lemma": "those",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "though": {
+      "lemma": "though",
+      "pos": [
+        "SCONJ"
+      ]
+    },
+    "thought": {
+      "lemma": "think",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "thousand": {
+      "lemma": "thousand",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "three": {
+      "lemma": "three",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "through": {
+      "lemma": "through",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "time": {
+      "lemma": "time",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "to": {
+      "lemma": "to",
+      "pos": [
+        "ADP",
+        "PART"
+      ]
+    },
+    "together": {
+      "lemma": "together",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "told": {
+      "lemma": "tell",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "too": {
+      "lemma": "too",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "took": {
+      "lemma": "take",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "top": {
+      "lemma": "top",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "toward": {
+      "lemma": "toward",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "town": {
+      "lemma": "town",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "travel": {
+      "lemma": "travel",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "tree": {
+      "lemma": "tree",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "true": {
+      "lemma": "true",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "try": {
+      "lemma": "try",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "turn": {
+      "lemma": "turn",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "two": {
+      "lemma": "two",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "NUM"
+      ]
+    },
+    "under": {
+      "lemma": "under",
+      "pos": [
+        "ADP",
+        "ADV"
+      ]
+    },
+    "unit": {
+      "lemma": "unit",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "until": {
+      "lemma": "until",
+      "pos": [
+        "ADP",
+        "SCONJ"
+      ]
+    },
+    "up": {
+      "lemma": "up",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "us": {
+      "lemma": "we",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "use": {
+      "lemma": "use",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "usual": {
+      "lemma": "usual",
+      "pos": [
+        "ADJ"
+      ]
+    },
+    "very": {
+      "lemma": "very",
+      "pos": [
+        "ADJ",
+        "ADV"
+      ]
+    },
+    "voice": {
+      "lemma": "voice",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "vowel": {
+      "lemma": "vowel",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "wait": {
+      "lemma": "wait",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "walk": {
+      "lemma": "walk",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "want": {
+      "lemma": "want",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "war": {
+      "lemma": "war",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "warm": {
+      "lemma": "warm",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "VERB"
+      ]
+    },
+    "was": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "watch": {
+      "lemma": "watch",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "water": {
+      "lemma": "water",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "way": {
+      "lemma": "way",
+      "pos": [
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "we": {
+      "lemma": "we",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "week": {
+      "lemma": "week",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "weight": {
+      "lemma": "weight",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "well": {
+      "lemma": "well",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "went": {
+      "lemma": "go",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "were": {
+      "lemma": "be",
+      "pos": [
+        "AUX",
+        "VERB"
+      ]
+    },
+    "west": {
+      "lemma": "west",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "what": {
+      "lemma": "what",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "wheel": {
+      "lemma": "wheel",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "when": {
+      "lemma": "when",
+      "pos": [
+        "ADV",
+        "SCONJ"
+      ]
+    },
+    "where": {
+      "lemma": "where",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "which": {
+      "lemma": "which",
+      "pos": [
+        "DET",
+        "PRON"
+      ]
+    },
+    "while": {
+      "lemma": "while",
+      "pos": [
+        "SCONJ"
+      ]
+    },
+    "white": {
+      "lemma": "white",
+      "pos": [
+        "ADJ",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "who": {
+      "lemma": "who",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "whole": {
+      "lemma": "whole",
+      "pos": [
+        "ADJ",
+        "ADV",
+        "NOUN"
+      ]
+    },
+    "why": {
+      "lemma": "why",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "will": {
+      "lemma": "will",
+      "pos": [
+        "AUX",
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "wind": {
+      "lemma": "wind",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "with": {
+      "lemma": "with",
+      "pos": [
+        "ADP"
+      ]
+    },
+    "wonder": {
+      "lemma": "wonder",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "wood": {
+      "lemma": "wood",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "word": {
+      "lemma": "word",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "work": {
+      "lemma": "work",
+      "pos": [
+        "NOUN",
+        "VERB"
+      ]
+    },
+    "world": {
+      "lemma": "world",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "would": {
+      "lemma": "would",
+      "pos": [
+        "AUX"
+      ]
+    },
+    "write": {
+      "lemma": "write",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "wrote": {
+      "lemma": "write",
+      "pos": [
+        "VERB"
+      ]
+    },
+    "year": {
+      "lemma": "year",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "yes": {
+      "lemma": "yes",
+      "pos": [
+        "NOUN"
+      ]
+    },
+    "yet": {
+      "lemma": "yet",
+      "pos": [
+        "ADV"
+      ]
+    },
+    "you": {
+      "lemma": "you",
+      "pos": [
+        "PRON"
+      ]
+    },
+    "young": {
+      "lemma": "young",
+      "pos": [
+        "ADJ",
+        "NOUN"
+      ]
+    },
+    "your": {
+      "lemma": "your",
+      "pos": [
+        "DET"
+      ]
+    }
+  }
+}
