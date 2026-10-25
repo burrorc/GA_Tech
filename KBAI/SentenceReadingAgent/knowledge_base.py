@@ -12,3 +12,13 @@ AUXILIARIES = ['am', 'are', 'be', 'been', 'can', 'could', 'did', 'do', 'does', '
 ADVERBS = ['again', 'always', 'early', 'fast', 'just', 'late', 'never', 'often', 'soon', 'still', 'together', 'well']
 
 NEGATIVES = ["don't", 'never', 'no', 'not']
+
+WORD_TYPES["miles"] = ["NOUN"]
+LEMMAS["miles"] = "mile"
+
+
+WORD_TYPES["walked"] = ["VERB"]
+LEMMAS["walked"] = "walk"
+
+WORD_TYPES["flew"] = ["VERB"]
+LEMMAS["flew"] = "fly"
