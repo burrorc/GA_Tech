@@ -83,7 +83,7 @@ class ArcAgent:
         training_sets = arc_problem.training_set()
         
 
-        target_problem = "623ea044"
+        target_problem = "25d487eb"
         target_training_sets = {1, 2, 3}
         training_analyses = []
         training_change_candidates = []
@@ -112,11 +112,14 @@ class ArcAgent:
                     # self.print_frame(analysis.input_grid_analysis, "INPUT GRID", debug_file)
                     # self.print_frame(analysis.output_grid_analysis, "OUTPUT GRID", debug_file)
 
+                    
                     # for shape in analysis.input_shapes:
-                    #     self.print_frame(shape, "INPUT SHAPES", debug_file)
+                    #     print("INPUT SHAPE", file=debug_file)
+                    #     print(shape, file=debug_file)
 
                     # for shape in analysis.output_shapes:
-                    #     self.print_frame(shape, "OUTPUT SHAPES", debug_file)
+                    #     print("OUTPUT SHAPE", file=debug_file)
+                    #     print(shape, file=debug_file)
 
                     # for relationship in analysis.input_relationships:
                     #     self.print_frame(relationship, "INPUT RELATIONSHIPS", debug_file)
@@ -139,8 +142,8 @@ class ArcAgent:
                     # for relationship in analysis.input_output_object_relationships:
                     #     self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    for transformation in analysis.object_transformations:
-                        self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
+                    # for transformation in analysis.object_transformations:
+                    #     self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
 
                     # for transformation in analysis.grid_transformations:
                     #     self.print_frame(transformation, "GRID TRANSFORMATIONS", debug_file)
@@ -148,27 +151,28 @@ class ArcAgent:
                     # for transformation in analysis.region_transformations:
                     #     self.print_frame(transformation, "REGION COMBO TRANSFORMATIONS", debug_file)
 
-                    # for change in change_candidates:
-                    #     self.print_frame(change, "CHANGE CANDIDATES", debug_file)
+                    for change in change_candidates:
+                        self.print_frame(change, "CHANGE CANDIDATES", debug_file)
 
                     # for mapping in analysis.color_mappings:
                     #     print("COLOR MAPPING", file=debug_file)
                     #     for key, value in mapping.items():
                     #         print(key, "=", value, file=debug_file)          
 
-                    # for change in validated_changes:
-                    #     self.print_frame(change, "VALIDATED_CHANGES", debug_file)
+                    
 
 
             count += 1
 
         validated_changes = self.validate_change_candidates(training_change_candidates)
-        # if (
-        #     arc_problem.problem_name() == target_problem
-        # ):
-        #     with open("debug_output.txt", "a") as debug_file:
-        #         for change in validated_changes:
-        #             self.print_frame(change, "VALIDATED_CHANGES", debug_file)
+
+        
+        if (
+            arc_problem.problem_name() == target_problem
+        ):
+            with open("debug_output.txt", "a") as debug_file:
+                for change in validated_changes:
+                    self.print_frame(change, "VALIDATED_CHANGES", debug_file)
 
 
         
@@ -182,12 +186,12 @@ class ArcAgent:
         test_shapes = self.identify_shapes(test_grid, "test_grid")
         my_predictions = self. apply_validated_changes(test_grid, test_shapes, validated_changes)
 
-        # if (
-        #     arc_problem.problem_name() == target_problem
-        # ):
-        #     with open("debug_output.txt", "a") as debug_file:
-        #         for prediction in my_predictions:
-        #             print(f"\nPREDICTION: {prediction}", file=debug_file)
+        if (
+            arc_problem.problem_name() == target_problem
+        ):
+            with open("debug_output.txt", "a") as debug_file:
+                for prediction in my_predictions:
+                    print(f"\nPREDICTION: {prediction}", file=debug_file)
 
         predictions.append(my_predictions)
         # output = np.zeros_like(arc_problem.test_set().get_input_data().data())
@@ -216,7 +220,7 @@ class ArcAgent:
         output_object_relationships = self.get_object_to_object_relationships(output_shapes)
         input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
         object_transformations = self.get_input_output_transformations(
-            input_shapes, output_shapes, input_output_object_relationships, output_grid
+            input_shapes, output_shapes, input_object_relationships, input_output_object_relationships, input_grid, output_grid
         )
         grid_transformations = self.get_grid_transformations(
             input_grid,
@@ -536,25 +540,153 @@ class ArcAgent:
         for shape in output_shapes:
             output_shapes_map[shape.object_id] = shape
 
+        # for source_shape in input_shapes:
+
+            # object_reference = self.get_object_reference(
+            #     source_shape,
+            #     input_shapes,
+            # )
+
+            # if object_reference is None:
+            #     continue
+
+            # cropped_grid = input_grid[
+            #     source_shape.top:source_shape.bottom + 1,
+            #     source_shape.left:source_shape.right + 1
+            # ]
+
+            # if np.array_equal(cropped_grid, output_grid):
+            #     transformations.append({
+            #         "transformation_type": "grid",
+            #         "transformation": "crop_to_object",
+            #         "source_id": source_shape.object_id,
+            #         "object_reference": object_reference,
+            #     })
         for transformation in input_output_transformations:
+
             if transformation["transformation"] not in ("none", "color_change"):
                 continue
-            source_shape = input_shapes_map[transformation["source_id"]]
-            object_reference = self.get_object_reference(source_shape, input_shapes)
 
-            if(object_reference is None):
+            source_shape = input_shapes_map[transformation["source_id"]]
+
+            object_reference = self.get_object_reference(
+                source_shape,
+                input_shapes,
+            )
+
+            if object_reference is None:
                 continue
 
-            if (output_grid_analysis["height"] == source_shape.height
-                and output_grid_analysis["width"] == source_shape.width):
-
+            if (
+                output_grid.shape[0] == source_shape.height
+                and output_grid.shape[1] == source_shape.width
+            ):
                 transformations.append({
                     "transformation_type": "grid",
                     "transformation": "crop_to_object",
                     "source_id": source_shape.object_id,
-                    "object_reference": object_reference
+                    "object_reference": object_reference,
                 })
 
+        marker_colors = {}
+
+        for shape in input_shapes:
+
+            if len(shape.cells) != 1:
+                continue
+
+            if shape.color not in marker_colors:
+                marker_colors[shape.color] = []
+
+            marker_colors[shape.color].append(shape)
+
+
+        for marker_color, marker_shapes in marker_colors.items():
+
+            if len(marker_shapes) != 4:
+                continue
+
+            marker_rows = []
+            marker_columns = []
+
+            for shape in marker_shapes:
+                marker_rows.append(shape.top)
+                marker_columns.append(shape.left)
+
+            unique_rows = sorted(set(marker_rows))
+            unique_columns = sorted(set(marker_columns))
+
+            if len(unique_rows) != 2:
+                continue
+
+            if len(unique_columns) != 2:
+                continue
+
+            top = unique_rows[0]
+            bottom = unique_rows[1]
+            left = unique_columns[0]
+            right = unique_columns[1]
+
+            expected_corners = {
+                (top, left),
+                (top, right),
+                (bottom, left),
+                (bottom, right),
+            }
+
+            actual_corners = set()
+
+            for shape in marker_shapes:
+                actual_corners.add(
+                    (shape.top, shape.left)
+                )
+
+            if actual_corners != expected_corners:
+                continue
+
+            interior_grid = input_grid[
+                top + 1:bottom,
+                left + 1:right
+            ]
+            interior_pattern = interior_grid != 0
+            output_pattern = output_grid != 0
+
+            if np.array_equal(interior_pattern, output_pattern):
+
+                with open("debug_output.txt", "a") as debug_file:
+                    print("BOUNDED REGION PATTERN MATCH", file=debug_file)
+                    print(
+                        f"marker color = {marker_color}",
+                        file=debug_file,
+                    )
+                transformations.append({
+                    "transformation_type": "grid",
+                    "transformation": "crop_to_bounded_region",
+                    "marker_reference": {
+                        "count": 4,
+                        "cell_count": 1,
+                        "same_color": True,
+                        "arrangement": "rectangle_corners",
+                    },
+                    "crop_area": "inside_markers",
+                    "recolor_to": "marker_color",
+                })
+
+            with open("debug_output.txt", "a") as debug_file:
+                print("BOUNDED REGION FOUND", file=debug_file)
+                print(
+                    f"marker color = {marker_color}",
+                    file=debug_file,
+                )
+                print(
+                    f"bounds = top {top}, bottom {bottom}, "
+                    f"left {left}, right {right}",
+                    file=debug_file,
+                )
+                print(
+                    f"interior shape = {interior_grid.shape}",
+                    file=debug_file,
+                )
         return transformations
     
     def get_object_reference(self, source_shape: Shape, shapes: list[Shape]) -> str | None:
@@ -629,6 +761,78 @@ class ArcAgent:
                     shape = self.select_object_reference(test_shapes, change)
                     if shape is not None:
                         output_grid = test_grid[shape.top:shape.bottom + 1, shape.left:shape.right + 1].copy()
+                elif change["change_type"] == "crop_to_bounded_region":
+
+                    marker_colors = {}
+
+                    for shape in test_shapes:
+
+                        if len(shape.cells) != change["marker_reference"]["cell_count"]:
+                            continue
+
+                        if shape.color not in marker_colors:
+                            marker_colors[shape.color] = []
+
+                        marker_colors[shape.color].append(shape)
+
+
+                    for marker_color, marker_shapes in marker_colors.items():
+
+                        if len(marker_shapes) != change["marker_reference"]["count"]:
+                            continue
+
+                        marker_rows = []
+                        marker_columns = []
+
+                        for shape in marker_shapes:
+                            marker_rows.append(shape.top)
+                            marker_columns.append(shape.left)
+
+                        unique_rows = sorted(set(marker_rows))
+                        unique_columns = sorted(set(marker_columns))
+
+                        if len(unique_rows) != 2:
+                            continue
+
+                        if len(unique_columns) != 2:
+                            continue
+
+                        top = unique_rows[0]
+                        bottom = unique_rows[1]
+                        left = unique_columns[0]
+                        right = unique_columns[1]
+
+                        expected_corners = {
+                            (top, left),
+                            (top, right),
+                            (bottom, left),
+                            (bottom, right),
+                        }
+
+                        actual_corners = set()
+
+                        for shape in marker_shapes:
+                            actual_corners.add(
+                                (shape.top, shape.left)
+                            )
+
+                        if actual_corners != expected_corners:
+                            continue
+
+                        output_grid = test_grid[
+                            top + 1:bottom,
+                            left + 1:right
+                        ].copy()
+
+                        if change["recolor_to"] == "marker_color":
+
+                            for row in range(output_grid.shape[0]):
+                                for column in range(output_grid.shape[1]):
+
+                                    if output_grid[row, column] != 0:
+                                        output_grid[row, column] = marker_color
+
+                        break
                 elif change["change_type"] == "rotation_90":
                     output_grid = np.rot90(output_grid, 1).copy()
 
@@ -746,6 +950,348 @@ class ArcAgent:
                         else:
                             output_grid[:, middle:] = transformed
 
+                elif change["change_type"] == "generate_from_seed":
+                    source_type = change.get(
+                        "source_type",
+                        "standalone",
+                    )
+
+                    if source_type == "embedded":
+
+                        non_background_colors = []
+
+                        for color in np.unique(test_grid):
+                            if color != 0:
+                                non_background_colors.append(int(color))
+
+                        for seed_color in non_background_colors:
+
+                            seed_cells = np.argwhere(
+                                test_grid == seed_color
+                            )
+
+                            if len(seed_cells) != 1:
+                                continue
+
+                            seed_row = int(seed_cells[0][0])
+                            seed_column = int(seed_cells[0][1])
+
+                            surrounding_colors = set()
+
+                            neighbors = [
+                                (seed_row - 1, seed_column),
+                                (seed_row + 1, seed_column),
+                                (seed_row, seed_column - 1),
+                                (seed_row, seed_column + 1),
+                            ]
+
+                            for neighbor_row, neighbor_column in neighbors:
+
+                                if (
+                                    0 <= neighbor_row < test_grid.shape[0]
+                                    and 0 <= neighbor_column < test_grid.shape[1]
+                                ):
+                                    neighbor_color = int(
+                                        test_grid[
+                                            neighbor_row,
+                                            neighbor_column,
+                                        ]
+                                    )
+
+                                    if (
+                                        neighbor_color != 0
+                                        and neighbor_color != seed_color
+                                    ):
+                                        surrounding_colors.add(
+                                            neighbor_color
+                                        )
+
+                            if len(surrounding_colors) == 0:
+                                continue
+
+                            direction = None
+
+                            if seed_row == 0:
+                                direction = "down"
+
+                            elif seed_row == test_grid.shape[0] - 1:
+                                direction = "up"
+
+                            elif seed_column == 0:
+                                direction = "right"
+
+                            elif seed_column == test_grid.shape[1] - 1:
+                                direction = "left"
+
+                            else:
+
+                                up_color = test_grid[
+                                    seed_row - 1,
+                                    seed_column,
+                                ]
+                                down_color = test_grid[
+                                    seed_row + 1,
+                                    seed_column,
+                                ]
+                                left_color = test_grid[
+                                    seed_row,
+                                    seed_column - 1,
+                                ]
+                                right_color = test_grid[
+                                    seed_row,
+                                    seed_column + 1,
+                                ]
+
+                                if (
+                                    up_color != 0
+                                    and down_color == 0
+                                ):
+                                    direction = "up"
+
+                                elif (
+                                    down_color != 0
+                                    and up_color == 0
+                                ):
+                                    direction = "down"
+
+                                elif (
+                                    left_color != 0
+                                    and right_color == 0
+                                ):
+                                    direction = "left"
+
+                                elif (
+                                    right_color != 0
+                                    and left_color == 0
+                                ):
+                                    direction = "right"
+
+                            if direction is None:
+                                continue
+                            with open("debug_output.txt", "a") as debug_file:
+                                print("EMBEDDED TEST SEED", file=debug_file)
+                                print(f"seed color = {seed_color}", file=debug_file)
+                                print(f"direction = {direction}", file=debug_file)
+                            direction_offsets = {
+                                "up": (-1, 0),
+                                "down": (1, 0),
+                                "left": (0, -1),
+                                "right": (0, 1),
+                            }
+
+                            row_offset, column_offset = direction_offsets[direction]
+
+                            current_row = seed_row + row_offset
+                            current_column = seed_column + column_offset
+
+                            while (
+                                0 <= current_row < output_grid.shape[0]
+                                and 0 <= current_column < output_grid.shape[1]
+                            ):
+
+                                if output_grid[current_row, current_column] == 0:
+                                    output_grid[current_row, current_column] = seed_color
+
+                                current_row += row_offset
+                                current_column += column_offset
+
+                            break
+                    source_shape = self.get_shape_by_reference(
+                        test_shapes,
+                        change["source_reference"],
+                    )
+
+                    if source_shape is not None and len(source_shape.cells) == 1:
+                        seed_row, seed_column = source_shape.cells[0]
+                        source_color = source_shape.color
+
+                        direction_offsets = {
+                            "up": (-1, 0),
+                            "down": (1, 0),
+                            "left": (0, -1),
+                            "right": (0, 1),
+                            "upper_left": (-1, -1),
+                            "upper_right": (-1, 1),
+                            "lower_left": (1, -1),
+                            "lower_right": (1, 1),
+                        }
+
+                        for extension in change["extensions"]:
+                            direction = extension["direction"]
+                            stop_type = extension["stop_type"]
+
+                            if direction not in direction_offsets:
+                                continue
+
+                            row_offset, column_offset = direction_offsets[direction]
+
+                            current_row = seed_row + row_offset
+                            current_column = seed_column + column_offset
+
+                            if stop_type == "grid_edge":
+                                while (
+                                    0 <= current_row < output_grid.shape[0]
+                                    and 0 <= current_column < output_grid.shape[1]
+                                ):
+                                    output_grid[current_row, current_column] = source_color
+
+                                    current_row += row_offset
+                                    current_column += column_offset
+
+                elif change["change_type"] == "expand_objects":
+                    source_reference = change["source_reference"]
+                    distance = change["distance"]
+                    target_color = change["target_color"]
+
+                    for shape in test_shapes:
+                        if (
+                            source_reference["scope"] == "all_matching"
+                            and shape.height == source_reference["height"]
+                            and shape.width == source_reference["width"]
+                            and len(shape.cells) == source_reference["cell_count"]
+                            and shape.color == source_reference["color"]
+                        ):
+
+                            for row, column in shape.cells:
+                                for row_offset in range(-distance, distance + 1):
+                                    for column_offset in range(-distance, distance + 1):
+
+                                        new_row = row + row_offset
+                                        new_column = column + column_offset
+
+                                        if (
+                                            0 <= new_row < output_grid.shape[0]
+                                            and 0 <= new_column < output_grid.shape[1]
+                                        ):
+                                            output_grid[new_row, new_column] = target_color
+                elif change["change_type"] == "move_toward_object":
+
+                    source_reference = change["source_reference"]
+                    target_relationship = change.get("target_relationship")
+                    target_reference = change.get("target_reference")
+                    move_type = change.get("move_type", "until")
+                    stop_type = change.get("stop_type")
+                    distance = change["distance"]
+
+                    test_object_relationships = self.get_object_to_object_relationships(test_shapes)
+
+                    for source_shape in test_shapes:
+
+                        if len(source_shape.cells) != source_reference["cell_count"]:
+                            continue
+                        if (
+                            "color" in source_reference
+                            and source_shape.color != source_reference["color"]
+                        ):
+                            continue
+
+                        target_shape = None
+                        if target_relationship is not None:
+
+                            for relationship in test_object_relationships:
+
+                                if relationship["source_id"] != source_shape.object_id:
+                                    continue
+
+                                if relationship["relationship_type"] != target_relationship["relationship_type"]:
+                                    continue
+
+                                if relationship["relationship_degree"] != target_relationship["relationship_degree"]:
+                                    continue
+
+                                for shape in test_shapes:
+                                    if shape.object_id == relationship["target_id"]:
+                                        if len(shape.cells) > len(source_shape.cells):
+                                            target_shape = shape
+                                            break
+
+                                if target_shape is not None:
+                                    break
+
+                        elif target_reference is not None:
+
+                            for shape in test_shapes:
+
+                                if shape.object_id == source_shape.object_id:
+                                    continue
+
+                                if shape.color != target_reference["color"]:
+                                    continue
+
+                                if len(shape.cells) != target_reference["cell_count"]:
+                                    continue
+
+                                target_shape = shape
+                                break
+                        
+                        # Remove unmatched small objects.
+                        if target_shape is None:
+                            for row, column in source_shape.cells:
+                                output_grid[row, column] = 0
+                            continue
+                        if move_type == "step":
+
+                            source_row, source_column = source_shape.cells[0]
+
+                            row_step = 0
+                            column_step = 0
+
+                            if target_shape.top > source_row:
+                                row_step = 1
+                            elif target_shape.top < source_row:
+                                row_step = -1
+
+                            if target_shape.left > source_column:
+                                column_step = 1
+                            elif target_shape.left < source_column:
+                                column_step = -1
+
+                            moved_row = source_row + row_step
+                            moved_column = source_column + column_step
+
+                            output_grid[source_row, source_column] = 0
+                            output_grid[moved_row, moved_column] = source_shape.color
+
+                            continue
+
+                        source_row, source_column = source_shape.cells[0]
+
+                        moved_row = None
+                        moved_column = None
+
+                        if (
+                            target_shape.left == target_shape.right
+                            and target_shape.top <= source_row <= target_shape.bottom
+                        ):
+                            if source_column < target_shape.left:
+                                moved_row = source_row
+                                moved_column = target_shape.left - distance
+
+                            elif source_column > target_shape.right:
+                                moved_row = source_row
+                                moved_column = target_shape.right + distance
+
+                        elif (
+                            target_shape.top == target_shape.bottom
+                            and target_shape.left <= source_column <= target_shape.right
+                        ):
+                            if source_row < target_shape.top:
+                                moved_row = target_shape.top - distance
+                                moved_column = source_column
+
+                            elif source_row > target_shape.bottom:
+                                moved_row = target_shape.bottom + distance
+                                moved_column = source_column
+
+                        if moved_row is None or moved_column is None:
+                            continue
+
+                        # Remove source from its old position.
+                        output_grid[source_row, source_column] = 0
+
+                        # Place it at the new position.
+                        output_grid[moved_row, moved_column] = source_shape.color
+                
         original_grid = output_grid.copy()
 
         for change in validated_changes:
@@ -870,6 +1416,53 @@ class ArcAgent:
                             and change["output_color"] == other["output_color"]):
                             found = True
                             break
+                    elif change["change_type"] == "generate_from_seed":
+
+                        if change["source_reference"] != other["source_reference"]:
+                            continue
+
+                        if change.get("source_type", "standalone") != other.get(
+                            "source_type",
+                            "standalone",
+                        ):
+                            continue
+
+                        if change.get("extensions") != other.get("extensions"):
+                            continue
+
+                        if change.get("stop_type") != other.get("stop_type"):
+                            continue
+
+                        found = True
+                        break
+                    elif change["change_type"] == "expand_objects":
+                        if (
+                            change["source_reference"] == other["source_reference"]
+                            and change["target_color"] == other["target_color"]
+                            and change["distance"] == other["distance"]
+                        ):
+                            found = True
+                            break
+                    elif change["change_type"] == "move_toward_object":
+                        if (
+                            change["source_reference"] == other["source_reference"]
+                            and change.get("target_relationship") == other.get("target_relationship")
+                            and change.get("target_reference") == other.get("target_reference")
+                            and change.get("move_type", "until") == other.get("move_type", "until")
+                            and change.get("stop_type") == other.get("stop_type")
+                            and change["distance"] == other["distance"]
+                        ):
+                            found = True
+                            break
+                    elif change["change_type"] == "crop_to_bounded_region":
+
+                        if (
+                            change["marker_reference"] == other["marker_reference"]
+                            and change["crop_area"] == other["crop_area"]
+                            and change["recolor_to"] == other["recolor_to"]
+                        ):
+                            found = True
+                            break
 
                 if not found:
                     found_in_all = False
@@ -926,6 +1519,58 @@ class ArcAgent:
                         "operation": change["operation"],
                         "output_color": change["output_color"],
                     })
+                elif change["change_type"] == "generate_from_seed":
+
+                    validated_change = {
+                        "change_type": "generate_from_seed",
+                        "source_reference": change["source_reference"],
+                        "source_type": change.get(
+                            "source_type",
+                            "standalone",
+                        ),
+                    }
+
+                    if "extensions" in change:
+                        validated_change["extensions"] = change["extensions"]
+
+                    if "stop_type" in change:
+                        validated_change["stop_type"] = change["stop_type"]
+
+                    validated_changes.append(validated_change)
+                elif change["change_type"] == "expand_objects":
+                    validated_changes.append({
+                        "change_type": "expand_objects",
+                        "source_reference": change["source_reference"],
+                        "target_color": change["target_color"],
+                        "distance": change["distance"],
+                    })
+                elif change["change_type"] == "move_toward_object":
+
+                    validated_change = {
+                        "change_type": "move_toward_object",
+                        "source_reference": change["source_reference"],
+                        "move_type": change.get("move_type", "until"),
+                        "distance": change["distance"],
+                    }
+
+                    if "target_relationship" in change:
+                        validated_change["target_relationship"] = change["target_relationship"]
+
+                    if "target_reference" in change:
+                        validated_change["target_reference"] = change["target_reference"]
+
+                    if "stop_type" in change:
+                        validated_change["stop_type"] = change["stop_type"]
+
+                    validated_changes.append(validated_change)
+                elif change["change_type"] == "crop_to_bounded_region":
+
+                    validated_changes.append({
+                        "change_type": "crop_to_bounded_region",
+                        "marker_reference": change["marker_reference"],
+                        "crop_area": change["crop_area"],
+                        "recolor_to": change["recolor_to"],
+                    })
 
         return validated_changes
 
@@ -977,6 +1622,15 @@ class ArcAgent:
                     "object_reference": transformation["object_reference"],
                     "training_set": training_set,
                 })
+            elif transformation["transformation"] == "crop_to_bounded_region":
+
+                change_candidates.append({
+                    "change_type": "crop_to_bounded_region",
+                    "marker_reference": transformation["marker_reference"],
+                    "crop_area": transformation["crop_area"],
+                    "recolor_to": transformation["recolor_to"],
+                    "training_set": training_set,
+                })
 
         return change_candidates
 
@@ -1026,6 +1680,7 @@ class ArcAgent:
         color_changes = {}
         make_hollow_count = 0
         fill_in_count = 0
+        move_toward_object_found = False
 
         for transformation in object_transformations:
             if transformation["transformation"] == "make_hollow":
@@ -1034,6 +1689,66 @@ class ArcAgent:
             elif transformation["transformation"] == "fill_in":
                 fill_in_count += 1
                 continue
+
+            elif transformation["transformation"] == "generate_from_seed":
+
+                change_candidate = {
+                    "change_type": "generate_from_seed",
+                    "source_reference": transformation["source_reference"],
+                    "source_type": transformation.get(
+                        "source_type",
+                        "standalone",
+                    ),
+                    "training_set": training_set,
+                }
+
+                if "extensions" in transformation:
+                    change_candidate["extensions"] = transformation["extensions"]
+
+                if "direction" in transformation:
+                    change_candidate["direction"] = transformation["direction"]
+
+                if "stop_type" in transformation:
+                    change_candidate["stop_type"] = transformation["stop_type"]
+
+                change_candidates.append(change_candidate)
+
+            elif transformation["transformation"] == "expand_objects":
+                change_candidates.append({
+                    "change_type": "expand_objects",
+                    "source_reference": transformation["source_reference"],
+                    "target_color": transformation["target_color"],
+                    "distance": transformation["distance"],
+                    "training_set": training_set,
+                })
+                continue
+            elif transformation["transformation"] == "move_toward_object":
+
+                if move_toward_object_found:
+                    continue
+
+                change_candidate = {
+                    "change_type": "move_toward_object",
+                    "source_reference": transformation["source_reference"],
+                    "move_type": transformation.get("move_type", "until"),
+                    "distance": transformation["distance"],
+                    "training_set": training_set,
+                }
+
+                if "target_relationship" in transformation:
+                    change_candidate["target_relationship"] = transformation["target_relationship"]
+
+                if "target_reference" in transformation:
+                    change_candidate["target_reference"] = transformation["target_reference"]
+
+                if "stop_type" in transformation:
+                    change_candidate["stop_type"] = transformation["stop_type"]
+
+                change_candidates.append(change_candidate)
+
+                move_toward_object_found = True
+                continue
+
 
             if(transformation["transformation"] != "color_change"):
                 continue
@@ -1154,7 +1869,7 @@ class ArcAgent:
         return change_candidates
     
     
-    def get_input_output_transformations(self, input_shapes: list[Shape], output_shapes: list[Shape],input_output_relationships: list[dict], output_grid: np.ndarray) -> list[dict]:
+    def get_input_output_transformations(self, input_shapes: list[Shape], output_shapes: list[Shape],input_object_relationships: list[dict],input_output_relationships: list[dict], input_grid: np.ndarray, output_grid: np.ndarray) -> list[dict]:
         transformations = []
         relationship_pairs = {}
         input_shapes_map = {}
@@ -1212,14 +1927,36 @@ class ArcAgent:
                         "target_id": pair[1],
                     })
 
-            if same_color and same_shape:
+            same_grid_size = input_grid.shape == output_grid.shape
+
+            if (
+                same_color
+                and same_shape
+                and (
+                    not same_grid_size
+                    or (
+                        source_shape.top == target_shape.top
+                        and source_shape.left == target_shape.left
+                    )
+                )
+            ):
                 transformations.append({
                     "transformation_type": "object",
                     "transformation": "none",
                     "source_id": pair[0],
                     "target_id": pair[1],
                 })
-            elif same_shape and different_color:
+            elif (
+                same_shape
+                and different_color
+                and (
+                    not same_grid_size
+                    or (
+                        source_shape.top == target_shape.top
+                        and source_shape.left == target_shape.left
+                    )
+                )
+            ):
                 source_reference = self.get_object_reference(source_shape,input_shapes)
                 target_reference = None
 
@@ -1307,6 +2044,336 @@ class ArcAgent:
                         "target_id": pair[1],
                     })
             
+        if len(input_shapes) > 0:
+
+            first_shape = input_shapes[0]
+
+            same_source_pattern = True
+
+            for shape in input_shapes:
+                if (
+                    shape.height != first_shape.height
+                    or shape.width != first_shape.width
+                    or len(shape.cells) != len(first_shape.cells)
+                    or shape.color != first_shape.color
+                ):
+                    same_source_pattern = False
+                    break
+
+            if same_source_pattern:
+
+                output_colors = np.unique(output_grid)
+                non_background_colors = []
+
+                for color in output_colors:
+                    if color != 0:
+                        non_background_colors.append(int(color))
+
+                if len(non_background_colors) == 1:
+                    target_color = non_background_colors[0]
+
+                    grid_height, grid_width = output_grid.shape
+
+                    max_distance = max(grid_height, grid_width)
+
+                    for distance in range(1, max_distance + 1):
+
+                        expected_cells = set()
+
+                        for shape in input_shapes:
+                            for row, column in shape.cells:
+
+                                for row_offset in range(-distance, distance + 1):
+                                    for column_offset in range(-distance, distance + 1):
+
+                                        new_row = row + row_offset
+                                        new_column = column + column_offset
+
+                                        if (
+                                            0 <= new_row < grid_height
+                                            and 0 <= new_column < grid_width
+                                        ):
+                                            expected_cells.add(
+                                                (new_row, new_column)
+                                            )
+
+                        actual_cells = set()
+
+                        for row in range(grid_height):
+                            for column in range(grid_width):
+                                if output_grid[row, column] == target_color:
+                                    actual_cells.add((row, column))
+
+                        if expected_cells == actual_cells:
+                            transformations.append({
+                                "transformation_type": "object",
+                                "transformation": "expand_objects",
+                                "source_reference": {
+                                    "scope": "all_matching",
+                                    "height": first_shape.height,
+                                    "width": first_shape.width,
+                                    "cell_count": len(first_shape.cells),
+                                    "color": first_shape.color,
+                                },
+                                "target_color": target_color,
+                                "distance": distance,
+                            })
+
+                            break
+
+            for source_shape in input_shapes:
+
+                if len(source_shape.cells) != 1:
+                    continue
+
+                source_relationships = []
+
+                for relationship in input_object_relationships:
+                    if relationship["source_id"] == source_shape.object_id:
+                        source_relationships.append(relationship)
+
+                for relationship in source_relationships:
+
+                    if relationship["relationship_type"] != "color":
+                        continue
+
+                    if relationship["relationship_degree"] != "same_color":
+                        continue
+
+                    target_id = relationship["target_id"]
+
+                    target_shape = None
+
+                    for shape in input_shapes:
+                        if shape.object_id == target_id:
+                            target_shape = shape
+                            break
+
+                    if target_shape is None:
+                        continue
+
+                    # Don't treat another single-cell object as the movement target.
+                    if len(target_shape.cells) == 1:
+                        continue
+
+                    source_row, source_column = source_shape.cells[0]
+
+                    moved_row = None
+                    moved_column = None
+                    move_direction = None
+
+                    if (
+                        target_shape.left == target_shape.right
+                        and target_shape.top <= source_row <= target_shape.bottom
+                    ):
+                        if source_column < target_shape.left:
+                            moved_row = source_row
+                            moved_column = target_shape.left - 1
+                            move_direction = "right"
+
+                        elif source_column > target_shape.right:
+                            moved_row = source_row
+                            moved_column = target_shape.right + 1
+                            move_direction = "left"
+
+                    elif (
+                        target_shape.top == target_shape.bottom
+                        and target_shape.left <= source_column <= target_shape.right
+                    ):
+                        if source_row < target_shape.top:
+                            moved_row = target_shape.top - 1
+                            moved_column = source_column
+                            move_direction = "down"
+
+                        elif source_row > target_shape.bottom:
+                            moved_row = target_shape.bottom + 1
+                            moved_column = source_column
+                            move_direction = "up"
+
+                    if (
+                        moved_row is not None
+                        and moved_column is not None
+                        and 0 <= moved_row < output_grid.shape[0]
+                        and 0 <= moved_column < output_grid.shape[1]
+                        and output_grid[moved_row, moved_column] == source_shape.color
+                    ):
+                        transformations.append({
+                            "transformation_type": "object",
+                            "transformation": "move_toward_object",
+                            "source_reference": {
+                                "cell_count": 1,
+                            },
+                            "target_relationship": {
+                                "relationship_type": relationship["relationship_type"],
+                                "relationship_degree": relationship["relationship_degree"],
+                            },
+                            "stop_type": "before_target",
+                            "distance": 1,
+                            "source_id": source_shape.object_id,
+                            "target_id": target_shape.object_id,
+                        })
+            for source_shape in input_shapes:
+
+                moved_output_shape = None
+
+                for output_shape in output_shapes:
+
+                    if source_shape.color != output_shape.color:
+                        continue
+
+                    if source_shape.pattern.shape != output_shape.pattern.shape:
+                        continue
+
+                    if not np.array_equal(source_shape.pattern, output_shape.pattern):
+                        continue
+
+                    if (
+                        source_shape.top == output_shape.top
+                        and source_shape.left == output_shape.left
+                    ):
+                        continue
+
+                    moved_output_shape = output_shape
+                    break
+
+                if moved_output_shape is None:
+                    continue
+                for target_shape in input_shapes:
+
+                    if target_shape.object_id == source_shape.object_id:
+                        continue
+
+                    target_is_stationary = False
+
+                    for output_shape in output_shapes:
+
+                        if target_shape.color != output_shape.color:
+                            continue
+
+                        if not np.array_equal(target_shape.pattern, output_shape.pattern):
+                            continue
+
+                        if (
+                            target_shape.top == output_shape.top
+                            and target_shape.left == output_shape.left
+                        ):
+                            target_is_stationary = True
+                            break
+
+                    if not target_is_stationary:
+                        continue
+
+                    row_step = 0
+                    column_step = 0
+
+                    if target_shape.top > source_shape.top:
+                        row_step = 1
+                    elif target_shape.top < source_shape.top:
+                        row_step = -1
+
+                    if target_shape.left > source_shape.left:
+                        column_step = 1
+                    elif target_shape.left < source_shape.left:
+                        column_step = -1
+
+                    expected_row = source_shape.top + row_step
+                    expected_column = source_shape.left + column_step
+
+                    if (
+                        moved_output_shape.top == expected_row
+                        and moved_output_shape.left == expected_column
+                    ):
+                        transformations.append({
+                            "transformation_type": "object",
+                            "transformation": "move_toward_object",
+                            "source_reference": {
+                                "color": source_shape.color,
+                                "cell_count": len(source_shape.cells),
+                            },
+                            "target_reference": {
+                                "color": target_shape.color,
+                                "cell_count": len(target_shape.cells),
+                            },
+                            "move_type": "step",
+                            "distance": 1,
+                            "source_id": source_shape.object_id,
+                            "target_id": target_shape.object_id,
+                        })
+            if input_grid.shape == output_grid.shape:
+                for row in range(input_grid.shape[0]):
+                    for column in range(input_grid.shape[1]):
+
+                        input_color = input_grid[row, column]
+                        output_color = output_grid[row, column]
+
+                        if input_color == 0:
+                            continue
+
+                        if input_color != output_color:
+                            continue
+
+                        ray_color = int(input_color)
+
+                        directions = {
+                            "up": (-1, 0),
+                            "down": (1, 0),
+                            "left": (0, -1),
+                            "right": (0, 1),
+                        }
+
+                        for direction, (row_offset, column_offset) in directions.items():
+
+                            generated_grid = input_grid.copy()
+                            painted_cells = 0
+
+                            current_row = row + row_offset
+                            current_column = column + column_offset
+
+                            while (
+                                0 <= current_row < input_grid.shape[0]
+                                and 0 <= current_column < input_grid.shape[1]
+                            ):
+
+                                if generated_grid[current_row, current_column] == 0:
+                                    generated_grid[current_row, current_column] = ray_color
+                                    painted_cells += 1
+
+                                current_row += row_offset
+                                current_column += column_offset
+
+                            if painted_cells == 0:
+                                continue
+                            if not np.array_equal(
+                                generated_grid,
+                                output_grid,
+                            ):
+                                continue
+                            transformations.append({
+                                "transformation_type": "object",
+                                "transformation": "generate_from_seed",
+                                "source_type": "embedded",
+                                "source_reference": {
+                                    "cell_count": 1,
+                                },
+                                "direction": direction,
+                                "stop_type": "grid_edge",
+                                "source_color": ray_color,
+                            })
+
+                            # with open("debug_output.txt", "a") as debug_file:
+                            #     print("RAY SOURCE FOUND", file=debug_file)
+                            #     print(
+                            #         f"source color = {ray_color}",
+                            #         file=debug_file,
+                            #     )
+                            #     print(
+                            #         f"source cell = {(row, column)}",
+                            #         file=debug_file,
+                            #     )
+                            #     print(
+                            #         f"direction = {direction}",
+                            #         file=debug_file,
+                            #     )
         return transformations
 
     def get_object_to_object_relationships(self, shapes: list[Shape], target_shapes: list[Shape] = None) -> list[dict]:

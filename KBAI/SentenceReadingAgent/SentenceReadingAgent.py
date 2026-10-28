@@ -1,36 +1,652 @@
 import re
-from knowledge_base import NAMES, LEMMAS, WORD_TYPES, AUXILIARIES, ADVERBS, NEGATIVES
 
+
+# Sources
+# 1. WordNet 3.0 - Princeton University
+#    Copyright 2006 Princeton University.
+#    https://wordnet.princeton.edu/
+#
+#    WordNet was used for preprocessing.
+# 2. spaCy - Explosion AI
+#    https://spacy.io/
+#
+#    spaCy was used for preprocessing.
+# 3. OpenAI ChatGPT
+#    https://chatgpt.com/
+#
+#    ChatGPT assisted with expanding the vocabulary lists.
+
+NAMES = ['Ada',
+ 'Andrew',
+ 'Bobbie',
+ 'Cason',
+ 'David',
+ 'Farzana',
+ 'Frank',
+ 'Hannah',
+ 'Ida',
+ 'Irene',
+ 'Jim',
+ 'Jose',
+ 'Keith',
+ 'Laura',
+ 'Lucy',
+ 'Meredith',
+ 'Nick',
+ 'Serena',
+ 'Yan',
+ 'Yeeling']
+
+LEMMAS = {'adults': 'adult',
+ 'am': 'be',
+ 'are': 'be',
+ 'been': 'be',
+ 'began': 'begin',
+ 'best': 'well',
+ 'better': 'well',
+ 'brought': 'bring',
+ 'came': 'come',
+ 'children': 'child',
+ 'did': 'do',
+ 'does': 'do',
+ "dog's": 'dog',
+ 'dogs': 'dog',
+ "don't": 'do',
+ 'done': 'do',
+ 'feet': 'foot',
+ 'flew': 'fly',
+ 'found': 'find',
+ 'gave': 'give',
+ 'gone': 'go',
+ 'got': 'get',
+ 'had': 'have',
+ 'has': 'have',
+ 'heard': 'hear',
+ 'her': 'she',
+ 'him': 'he',
+ 'is': 'be',
+ 'knew': 'know',
+ 'lay': 'lie',
+ 'left': 'leave',
+ 'made': 'make',
+ 'me': 'i',
+ 'men': 'man',
+ 'miles': 'mile',
+ 'ran': 'run',
+ 'said': 'say',
+ 'saw': 'see',
+ 'sings': 'sing',
+ 'stood': 'stand',
+ 'them': 'they',
+ 'thought': 'think',
+ 'told': 'tell',
+ 'took': 'take',
+ 'us': 'we',
+ 'walked': 'walk',
+ 'was': 'be',
+ 'went': 'go',
+ 'were': 'be',
+ 'wrote': 'write'}
+
+WORD_TYPES = {'a': ['DET'],
+ 'able': ['ADJ'],
+ 'about': ['ADJ', 'ADV'],
+ 'above': ['ADJ', 'ADV', 'NOUN'],
+ 'act': ['NOUN', 'VERB'],
+ 'add': ['NOUN', 'VERB'],
+ 'adult': ['ADJ', 'NOUN'],
+ 'adults': ['NOUN'],
+ 'after': ['ADP', 'ADV'],
+ 'again': ['ADV'],
+ 'against': ['ADP'],
+ 'age': ['NOUN', 'VERB'],
+ 'ago': ['ADJ', 'ADV'],
+ 'air': ['NOUN', 'VERB'],
+ 'all': ['DET', 'PRON'],
+ 'also': ['ADV'],
+ 'always': ['ADV'],
+ 'am': ['AUX', 'VERB'],
+ 'among': ['ADP'],
+ 'an': ['DET'],
+ 'and': ['CCONJ'],
+ 'animal': ['ADJ', 'NOUN'],
+ 'answer': ['NOUN', 'VERB'],
+ 'any': ['ADJ', 'ADV'],
+ 'appear': ['VERB'],
+ 'are': ['AUX', 'VERB'],
+ 'area': ['NOUN'],
+ 'as': ['ADV', 'NOUN'],
+ 'ask': ['VERB'],
+ 'at': ['ADP'],
+ 'back': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'base': ['ADJ', 'NOUN', 'VERB'],
+ 'be': ['AUX', 'VERB'],
+ 'beauty': ['NOUN'],
+ 'bed': ['NOUN', 'VERB'],
+ 'been': ['AUX', 'VERB'],
+ 'before': ['ADP', 'ADV'],
+ 'began': ['VERB'],
+ 'begin': ['NOUN', 'VERB'],
+ 'behind': ['ADJ', 'ADV', 'NOUN'],
+ 'best': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'better': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'between': ['ADP'],
+ 'big': ['ADJ', 'ADV'],
+ 'bird': ['NOUN', 'VERB'],
+ 'black': ['ADJ', 'NOUN', 'VERB'],
+ 'blue': ['ADJ', 'NOUN', 'VERB'],
+ 'boat': ['NOUN', 'VERB'],
+ 'body': ['NOUN', 'VERB'],
+ 'book': ['NOUN', 'VERB'],
+ 'both': ['ADJ'],
+ 'box': ['NOUN', 'VERB'],
+ 'boy': ['NOUN'],
+ 'bring': ['VERB'],
+ 'brought': ['VERB'],
+ 'build': ['NOUN', 'VERB'],
+ 'busy': ['ADJ', 'VERB'],
+ 'but': ['CCONJ'],
+ 'by': ['ADP'],
+ 'call': ['NOUN', 'VERB'],
+ 'came': ['VERB'],
+ 'can': ['AUX', 'NOUN', 'VERB'],
+ 'car': ['NOUN'],
+ 'care': ['NOUN', 'VERB'],
+ 'carry': ['NOUN', 'VERB'],
+ 'cause': ['NOUN', 'VERB'],
+ 'center': ['ADJ', 'NOUN', 'VERB'],
+ 'certain': ['ADJ'],
+ 'change': ['NOUN', 'VERB'],
+ 'check': ['NOUN', 'VERB'],
+ 'children': ['NOUN'],
+ 'city': ['NOUN'],
+ 'class': ['NOUN', 'VERB'],
+ 'clear': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'close': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'cold': ['ADJ', 'NOUN'],
+ 'color': ['ADJ', 'NOUN', 'VERB'],
+ 'come': ['NOUN', 'VERB'],
+ 'common': ['ADJ', 'NOUN'],
+ 'complete': ['ADJ', 'VERB'],
+ 'contain': ['VERB'],
+ 'cool': ['ADJ', 'NOUN', 'VERB'],
+ 'correct': ['ADJ', 'VERB'],
+ 'could': ['AUX'],
+ 'country': ['NOUN'],
+ 'course': ['ADV', 'NOUN', 'VERB'],
+ 'cover': ['NOUN', 'VERB'],
+ 'cross': ['ADJ', 'NOUN', 'VERB'],
+ 'cry': ['NOUN', 'VERB'],
+ 'cut': ['ADJ', 'NOUN', 'VERB'],
+ 'dark': ['ADJ', 'NOUN'],
+ 'day': ['NOUN'],
+ 'decide': ['VERB'],
+ 'deep': ['ADJ', 'ADV', 'NOUN'],
+ 'develop': ['VERB'],
+ 'did': ['AUX', 'VERB'],
+ 'differ': ['VERB'],
+ 'direct': ['ADJ', 'ADV', 'VERB'],
+ 'do': ['AUX', 'VERB'],
+ 'does': ['AUX', 'VERB'],
+ 'dog': ['NOUN', 'VERB'],
+ "dog's": ['NOUN', 'POSS'],
+ 'dogs': ['NOUN', 'VERB'],
+ "don't": ['AUX'],
+ 'done': ['ADJ', 'VERB'],
+ 'door': ['NOUN'],
+ 'down': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'draw': ['NOUN', 'VERB'],
+ 'drive': ['NOUN', 'VERB'],
+ 'dry': ['ADJ', 'NOUN', 'VERB'],
+ 'during': ['ADP'],
+ 'each': ['DET', 'PRON'],
+ 'early': ['ADJ', 'ADV'],
+ 'earth': ['NOUN', 'VERB'],
+ 'ease': ['NOUN', 'VERB'],
+ 'east': ['ADJ', 'ADV', 'NOUN'],
+ 'eat': ['VERB'],
+ 'end': ['NOUN', 'VERB'],
+ 'enough': ['ADJ', 'ADV', 'NOUN'],
+ 'even': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'ever': ['ADV'],
+ 'every': ['DET'],
+ 'example': ['NOUN'],
+ 'eye': ['NOUN', 'VERB'],
+ 'face': ['NOUN', 'VERB'],
+ 'fact': ['NOUN'],
+ 'fall': ['NOUN', 'VERB'],
+ 'family': ['NOUN'],
+ 'far': ['ADJ', 'ADV', 'NOUN'],
+ 'farm': ['NOUN', 'VERB'],
+ 'fast': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'father': ['NOUN', 'VERB'],
+ 'feel': ['NOUN', 'VERB'],
+ 'feet': ['NOUN'],
+ 'few': ['ADJ', 'NOUN'],
+ 'field': ['NOUN', 'VERB'],
+ 'figure': ['NOUN', 'VERB'],
+ 'fill': ['NOUN', 'VERB'],
+ 'final': ['ADJ', 'NOUN'],
+ 'find': ['NOUN', 'VERB'],
+ 'fine': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'fire': ['NOUN', 'VERB'],
+ 'first': ['ADJ', 'ADV', 'NOUN'],
+ 'fish': ['NOUN', 'VERB'],
+ 'five': ['ADJ', 'NOUN', 'NUM'],
+ 'flew': ['VERB'],
+ 'fly': ['ADJ', 'NOUN', 'VERB'],
+ 'follow': ['VERB'],
+ 'food': ['NOUN'],
+ 'foot': ['NOUN', 'VERB'],
+ 'for': ['ADP'],
+ 'force': ['NOUN', 'VERB'],
+ 'form': ['NOUN', 'VERB'],
+ 'found': ['ADJ', 'NOUN', 'VERB'],
+ 'four': ['ADJ', 'NOUN', 'NUM'],
+ 'free': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'friend': ['NOUN'],
+ 'from': ['ADP'],
+ 'front': ['ADJ', 'NOUN', 'VERB'],
+ 'full': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'game': ['ADJ', 'NOUN', 'VERB'],
+ 'gave': ['VERB'],
+ 'get': ['NOUN', 'VERB'],
+ 'girl': ['NOUN'],
+ 'give': ['NOUN', 'VERB'],
+ 'go': ['ADJ', 'NOUN', 'VERB'],
+ 'gold': ['ADJ', 'NOUN'],
+ 'gone': ['ADJ', 'VERB'],
+ 'good': ['ADJ', 'ADV', 'NOUN'],
+ 'got': ['VERB'],
+ 'govern': ['VERB'],
+ 'great': ['ADJ', 'NOUN'],
+ 'green': ['ADJ', 'NOUN', 'VERB'],
+ 'ground': ['NOUN', 'VERB'],
+ 'group': ['NOUN', 'VERB'],
+ 'grow': ['VERB'],
+ 'had': ['AUX', 'VERB'],
+ 'half': ['ADJ', 'ADV', 'NOUN'],
+ 'hand': ['NOUN', 'VERB'],
+ 'happen': ['VERB'],
+ 'hard': ['ADJ', 'ADV'],
+ 'has': ['AUX', 'VERB'],
+ 'have': ['AUX', 'VERB'],
+ 'he': ['PRON'],
+ 'head': ['NOUN', 'VERB'],
+ 'hear': ['VERB'],
+ 'heard': ['ADJ', 'VERB'],
+ 'heat': ['NOUN', 'VERB'],
+ 'help': ['NOUN', 'VERB'],
+ 'her': ['DET', 'PRON'],
+ 'here': ['ADJ', 'ADV', 'NOUN'],
+ 'high': ['ADJ', 'ADV', 'NOUN'],
+ 'him': ['PRON'],
+ 'his': ['DET', 'PRON'],
+ 'hold': ['NOUN', 'VERB'],
+ 'home': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'horse': ['NOUN', 'VERB'],
+ 'hot': ['ADJ'],
+ 'hour': ['NOUN'],
+ 'house': ['NOUN', 'VERB'],
+ 'how': ['ADV'],
+ 'hundred': ['ADJ', 'NOUN', 'NUM'],
+ 'i': ['PRON'],
+ 'idea': ['NOUN'],
+ 'if': ['SCONJ'],
+ 'in': ['ADP', 'ADV'],
+ 'inch': ['NOUN', 'VERB'],
+ 'interest': ['NOUN', 'VERB'],
+ 'is': ['AUX', 'VERB'],
+ 'island': ['NOUN'],
+ 'it': ['PRON'],
+ 'just': ['ADJ', 'ADV'],
+ 'keep': ['NOUN', 'VERB'],
+ 'kind': ['ADJ', 'NOUN'],
+ 'king': ['NOUN'],
+ 'knew': ['VERB'],
+ 'know': ['NOUN', 'VERB'],
+ 'land': ['NOUN', 'VERB'],
+ 'language': ['NOUN'],
+ 'large': ['ADJ', 'ADV', 'NOUN'],
+ 'last': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'late': ['ADJ', 'ADV'],
+ 'laugh': ['NOUN', 'VERB'],
+ 'lay': ['ADJ', 'NOUN', 'VERB'],
+ 'lead': ['NOUN', 'VERB'],
+ 'learn': ['VERB'],
+ 'leave': ['NOUN', 'VERB'],
+ 'left': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'less': ['ADJ', 'ADV'],
+ 'let': ['NOUN', 'VERB'],
+ 'letter': ['NOUN', 'VERB'],
+ 'life': ['NOUN'],
+ 'light': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'like': ['ADJ', 'NOUN', 'VERB'],
+ 'line': ['NOUN', 'VERB'],
+ 'list': ['NOUN', 'VERB'],
+ 'listen': ['VERB'],
+ 'little': ['ADJ', 'ADV', 'NOUN'],
+ 'live': ['ADJ', 'ADV', 'VERB'],
+ 'long': ['ADJ', 'ADV', 'VERB'],
+ 'look': ['NOUN', 'VERB'],
+ 'lot': ['NOUN', 'VERB'],
+ 'love': ['NOUN', 'VERB'],
+ 'low': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'machine': ['NOUN', 'VERB'],
+ 'made': ['ADJ', 'VERB'],
+ 'main': ['ADJ', 'NOUN'],
+ 'make': ['NOUN', 'VERB'],
+ 'man': ['NOUN', 'VERB'],
+ 'many': ['ADJ'],
+ 'map': ['NOUN', 'VERB'],
+ 'mark': ['NOUN', 'VERB'],
+ 'may': ['AUX'],
+ 'me': ['PRON'],
+ 'mean': ['ADJ', 'NOUN', 'VERB'],
+ 'measure': ['NOUN', 'VERB'],
+ 'men': ['NOUN'],
+ 'might': ['AUX'],
+ 'mile': ['NOUN'],
+ 'miles': ['NOUN'],
+ 'mind': ['NOUN', 'VERB'],
+ 'minute': ['ADJ', 'NOUN'],
+ 'miss': ['NOUN', 'VERB'],
+ 'money': ['NOUN'],
+ 'moon': ['NOUN', 'VERB'],
+ 'more': ['ADJ', 'ADV', 'NOUN'],
+ 'morning': ['NOUN'],
+ 'most': ['ADJ', 'ADV'],
+ 'mother': ['NOUN', 'VERB'],
+ 'mountain': ['NOUN'],
+ 'move': ['NOUN', 'VERB'],
+ 'much': ['ADJ', 'ADV', 'NOUN'],
+ 'music': ['NOUN'],
+ 'must': ['AUX'],
+ 'my': ['DET'],
+ 'name': ['NOUN', 'VERB'],
+ 'near': ['ADJ', 'ADV', 'VERB'],
+ 'need': ['NOUN', 'VERB'],
+ 'never': ['ADV'],
+ 'new': ['ADJ', 'ADV'],
+ 'next': ['ADJ', 'ADV'],
+ 'night': ['NOUN'],
+ 'no': ['ADV', 'DET'],
+ 'north': ['ADJ', 'ADV', 'NOUN'],
+ 'not': ['PART'],
+ 'note': ['NOUN', 'VERB'],
+ 'nothing': ['ADV', 'NOUN'],
+ 'notice': ['NOUN', 'VERB'],
+ 'noun': ['NOUN'],
+ 'now': ['ADV', 'NOUN'],
+ 'number': ['NOUN', 'VERB'],
+ 'numeral': ['ADJ', 'NOUN'],
+ 'object': ['NOUN', 'VERB'],
+ 'of': ['ADP'],
+ 'off': ['ADJ', 'ADV', 'VERB'],
+ 'often': ['ADV'],
+ 'oh': ['NOUN'],
+ 'old': ['ADJ', 'NOUN'],
+ 'on': ['ADP', 'ADV'],
+ 'once': ['ADV'],
+ 'one': ['ADJ', 'NOUN', 'NUM'],
+ 'only': ['ADJ', 'ADV'],
+ 'open': ['ADJ', 'NOUN', 'VERB'],
+ 'or': ['CCONJ'],
+ 'order': ['NOUN', 'VERB'],
+ 'other': ['ADJ'],
+ 'our': ['DET'],
+ 'out': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'over': ['ADP', 'ADV'],
+ 'own': ['ADJ', 'VERB'],
+ 'page': ['NOUN', 'VERB'],
+ 'paper': ['NOUN', 'VERB'],
+ 'part': ['ADV', 'NOUN', 'VERB'],
+ 'pass': ['ADJ', 'NOUN', 'VERB'],
+ 'pattern': ['NOUN', 'VERB'],
+ 'people': ['NOUN', 'VERB'],
+ 'perhaps': ['ADV'],
+ 'person': ['NOUN'],
+ 'picture': ['NOUN', 'VERB'],
+ 'piece': ['NOUN', 'VERB'],
+ 'place': ['NOUN', 'VERB'],
+ 'plain': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'plan': ['NOUN', 'VERB'],
+ 'plane': ['ADJ', 'NOUN', 'VERB'],
+ 'plant': ['NOUN', 'VERB'],
+ 'play': ['NOUN', 'VERB'],
+ 'point': ['NOUN', 'VERB'],
+ 'port': ['ADJ', 'NOUN', 'VERB'],
+ 'pose': ['NOUN', 'VERB'],
+ 'possible': ['ADJ', 'NOUN'],
+ 'pound': ['NOUN', 'VERB'],
+ 'power': ['NOUN', 'VERB'],
+ 'press': ['NOUN', 'VERB'],
+ 'problem': ['NOUN'],
+ 'produce': ['NOUN', 'VERB'],
+ 'product': ['NOUN'],
+ 'pull': ['NOUN', 'VERB'],
+ 'put': ['NOUN', 'VERB'],
+ 'question': ['NOUN', 'VERB'],
+ 'quick': ['ADJ', 'ADV', 'NOUN'],
+ 'rain': ['NOUN', 'VERB'],
+ 'ran': ['VERB'],
+ 'reach': ['NOUN', 'VERB'],
+ 'read': ['NOUN', 'VERB'],
+ 'ready': ['ADJ', 'NOUN', 'VERB'],
+ 'real': ['ADJ', 'ADV', 'NOUN'],
+ 'record': ['NOUN', 'VERB'],
+ 'red': ['ADJ', 'NOUN'],
+ 'remember': ['VERB'],
+ 'rest': ['NOUN', 'VERB'],
+ 'right': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'river': ['NOUN'],
+ 'road': ['NOUN'],
+ 'rock': ['NOUN', 'VERB'],
+ 'room': ['NOUN', 'VERB'],
+ 'round': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'rule': ['NOUN', 'VERB'],
+ 'run': ['NOUN', 'VERB'],
+ 'said': ['ADJ', 'VERB'],
+ 'same': ['ADJ', 'NOUN'],
+ 'saw': ['NOUN', 'VERB'],
+ 'say': ['NOUN', 'VERB'],
+ 'school': ['NOUN', 'VERB'],
+ 'science': ['NOUN'],
+ 'sea': ['NOUN'],
+ 'second': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'see': ['NOUN', 'VERB'],
+ 'seem': ['VERB'],
+ 'self': ['ADJ', 'NOUN'],
+ 'sentence': ['NOUN', 'VERB'],
+ 'serve': ['NOUN', 'VERB'],
+ 'set': ['ADJ', 'NOUN', 'VERB'],
+ 'several': ['ADJ'],
+ 'shape': ['NOUN', 'VERB'],
+ 'she': ['PRON'],
+ 'ship': ['NOUN', 'VERB'],
+ 'short': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'should': ['AUX'],
+ 'show': ['NOUN', 'VERB'],
+ 'side': ['ADJ', 'NOUN', 'VERB'],
+ 'simple': ['ADJ', 'NOUN'],
+ 'since': ['ADP', 'ADV', 'SCONJ'],
+ 'sing': ['VERB'],
+ 'sings': ['VERB'],
+ 'sit': ['VERB'],
+ 'six': ['ADJ', 'NOUN', 'NUM'],
+ 'size': ['ADJ', 'NOUN', 'VERB'],
+ 'sleep': ['NOUN', 'VERB'],
+ 'slow': ['ADJ', 'ADV', 'VERB'],
+ 'small': ['ADJ', 'ADV', 'NOUN'],
+ 'snow': ['NOUN', 'VERB'],
+ 'so': ['ADV', 'NOUN'],
+ 'some': ['DET', 'PRON'],
+ 'song': ['NOUN'],
+ 'soon': ['ADV'],
+ 'sound': ['ADJ', 'NOUN', 'VERB'],
+ 'south': ['ADJ', 'ADV', 'NOUN'],
+ 'special': ['ADJ', 'NOUN'],
+ 'spell': ['NOUN', 'VERB'],
+ 'stand': ['NOUN', 'VERB'],
+ 'star': ['ADJ', 'NOUN', 'VERB'],
+ 'start': ['NOUN', 'VERB'],
+ 'state': ['NOUN', 'VERB'],
+ 'stay': ['NOUN', 'VERB'],
+ 'step': ['NOUN', 'VERB'],
+ 'still': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'stood': ['VERB'],
+ 'stop': ['NOUN', 'VERB'],
+ 'store': ['NOUN', 'VERB'],
+ 'story': ['NOUN'],
+ 'street': ['NOUN'],
+ 'strong': ['ADJ'],
+ 'study': ['NOUN', 'VERB'],
+ 'such': ['ADJ', 'ADV'],
+ 'sun': ['NOUN', 'VERB'],
+ 'sure': ['ADJ', 'ADV'],
+ 'surface': ['ADJ', 'NOUN', 'VERB'],
+ 'table': ['NOUN', 'VERB'],
+ 'tail': ['NOUN', 'VERB'],
+ 'take': ['NOUN', 'VERB'],
+ 'talk': ['NOUN', 'VERB'],
+ 'teach': ['NOUN', 'VERB'],
+ 'tell': ['NOUN', 'VERB'],
+ 'ten': ['ADJ', 'NOUN', 'NUM'],
+ 'test': ['NOUN', 'VERB'],
+ 'than': ['ADP', 'SCONJ'],
+ 'that': ['DET', 'PRON', 'SCONJ'],
+ 'the': ['DET'],
+ 'their': ['DET'],
+ 'them': ['PRON'],
+ 'then': ['ADJ', 'ADV', 'NOUN'],
+ 'there': ['ADV', 'NOUN'],
+ 'these': ['DET', 'PRON'],
+ 'they': ['PRON'],
+ 'thing': ['NOUN'],
+ 'think': ['NOUN', 'VERB'],
+ 'this': ['DET', 'PRON'],
+ 'those': ['DET', 'PRON'],
+ 'though': ['SCONJ'],
+ 'thought': ['NOUN', 'VERB'],
+ 'thousand': ['ADJ', 'NOUN', 'NUM'],
+ 'three': ['ADJ', 'NOUN', 'NUM'],
+ 'through': ['ADP', 'ADV'],
+ 'time': ['NOUN', 'VERB'],
+ 'to': ['ADP', 'PART'],
+ 'together': ['ADJ', 'ADV'],
+ 'told': ['VERB'],
+ 'too': ['ADV'],
+ 'took': ['VERB'],
+ 'top': ['ADJ', 'NOUN', 'VERB'],
+ 'toward': ['ADP'],
+ 'town': ['NOUN'],
+ 'travel': ['NOUN', 'VERB'],
+ 'tree': ['NOUN', 'VERB'],
+ 'true': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'try': ['NOUN', 'VERB'],
+ 'turn': ['NOUN', 'VERB'],
+ 'two': ['ADJ', 'NOUN', 'NUM'],
+ 'under': ['ADP', 'ADV'],
+ 'unit': ['NOUN'],
+ 'until': ['ADP', 'SCONJ'],
+ 'up': ['ADJ', 'ADV', 'VERB'],
+ 'us': ['PRON'],
+ 'use': ['NOUN', 'VERB'],
+ 'usual': ['ADJ'],
+ 'very': ['ADJ', 'ADV'],
+ 'voice': ['NOUN', 'VERB'],
+ 'vowel': ['NOUN'],
+ 'wait': ['NOUN', 'VERB'],
+ 'walk': ['NOUN', 'VERB'],
+ 'walked': ['VERB'],
+ 'want': ['NOUN', 'VERB'],
+ 'war': ['NOUN', 'VERB'],
+ 'warm': ['ADJ', 'ADV', 'VERB'],
+ 'was': ['AUX', 'VERB'],
+ 'watch': ['NOUN', 'VERB'],
+ 'water': ['NOUN', 'VERB'],
+ 'way': ['ADV', 'NOUN'],
+ 'we': ['PRON'],
+ 'week': ['NOUN'],
+ 'weight': ['NOUN', 'VERB'],
+ 'well': ['ADJ', 'ADV', 'NOUN', 'VERB'],
+ 'went': ['VERB'],
+ 'were': ['AUX', 'VERB'],
+ 'west': ['ADJ', 'ADV', 'NOUN'],
+ 'what': ['PRON'],
+ 'wheel': ['NOUN', 'VERB'],
+ 'when': ['ADV', 'SCONJ'],
+ 'where': ['ADV'],
+ 'which': ['DET', 'PRON'],
+ 'while': ['SCONJ'],
+ 'white': ['ADJ', 'NOUN', 'VERB'],
+ 'who': ['PRON'],
+ 'whole': ['ADJ', 'ADV', 'NOUN'],
+ 'why': ['ADV'],
+ 'will': ['AUX', 'NOUN', 'VERB'],
+ 'wind': ['NOUN', 'VERB'],
+ 'with': ['ADP'],
+ 'wonder': ['NOUN', 'VERB'],
+ 'wood': ['NOUN'],
+ 'word': ['NOUN', 'VERB'],
+ 'work': ['NOUN', 'VERB'],
+ 'world': ['ADJ', 'NOUN'],
+ 'would': ['AUX'],
+ 'write': ['VERB'],
+ 'wrote': ['VERB'],
+ 'year': ['NOUN'],
+ 'yes': ['NOUN'],
+ 'yet': ['ADV'],
+ 'you': ['PRON'],
+ 'young': ['ADJ', 'NOUN'],
+ 'your': ['DET']}
+
+AUXILIARIES = ['am',
+ 'are',
+ 'be',
+ 'been',
+ 'can',
+ 'could',
+ 'did',
+ 'do',
+ 'does',
+ 'had',
+ 'has',
+ 'have',
+ 'is',
+ 'may',
+ 'might',
+ 'must',
+ 'should',
+ 'was',
+ 'were',
+ 'will',
+ 'would']
+
+ADVERBS = ['again',
+ 'always',
+ 'early',
+ 'fast',
+ 'just',
+ 'late',
+ 'never',
+ 'often',
+ 'soon',
+ 'still',
+ 'together',
+ 'well']
+
+NEGATIVES = ["don't", 'never', 'no', 'not']
 
 MODIFIER_TYPES = {
-    "color": {
-        "red", "blue", "green", "black", "white",
-        "yellow", "orange", "purple", "pink", "brown",
-        "gray", "grey", "gold", "silver"
-    },
-    "size": {
-        "small", "big", "large", "little", "tiny",
-        "huge", "giant", "short", "long", "tall",
-        "large", "wide", "narrow", "thin", "thick"
-    },
-    "quantity": {
-        "zero", "one", "two", "three", "four", "five",
-        "six", "seven", "eight", "nine", "ten",
-        "eleven", "twelve", "twenty", "hundred",
-        "many", "few", "several"
-    },
-    "shape": {
-        "round", "square", "circle", "circular",
-        "triangle", "triangular", "rectangular",
-        "oval", "flat", "straight", "curved"
-    },
-    "age": {
-        "young", "old", "new", "ancient", "modern"
-    },
-    "speed": {
-        "fast", "slow", "quick", "rapid"
-    }
+    'color': {'black', 'blue', 'brown', 'gold', 'gray', 'green', 'grey', 'orange', 'pink', 'purple', 'red', 'silver', 'white', 'yellow'},
+    'size': {'big', 'giant', 'huge', 'large', 'little', 'long', 'narrow', 'short', 'small', 'tall', 'thick', 'thin', 'tiny', 'wide'},
+    'quantity': {'eight', 'eleven', 'few', 'five', 'four', 'hundred', 'many', 'nine', 'one', 'seven', 'several', 'six', 'ten', 'three', 'twelve', 'twenty', 'two', 'zero'},
+    'shape': {'circle', 'circular', 'curved', 'flat', 'oval', 'rectangular', 'round', 'square', 'straight', 'triangle', 'triangular'},
+    'age': {'ancient', 'modern', 'new', 'old', 'young'},
+    'speed': {'fast', 'quick', 'rapid', 'slow'},
 }
+
 
 
 class SentenceReadingAgent:
@@ -216,8 +832,6 @@ class SentenceReadingAgent:
                 if(noun_segment["start"] != current_index+1):
                     continue
                 
-                
-
                 segments.append({
                     "start": current_index,
                     "end": noun_segment["end"],
@@ -315,15 +929,9 @@ class SentenceReadingAgent:
                         used_as_aux = True
                         break
                 if used_as_aux:
-                    is_linking_verb = (
-                        verb["base"] == "be"
-                        and any(
-                            other["key_index"] > verb_index
-                            and other["start"] <= verb_index
-                            and tokens[verb_index] in other["auxiliaries"]
-                            and "ADJ" in self.classify_word(
-                                tokens[other["key_index"]]
-                            )
+                    is_linking_verb = ( verb["base"] == "be"
+                        and any(other["key_index"] > verb_index and other["start"] <= verb_index and 
+                                tokens[verb_index] in other["auxiliaries"] and "ADJ" in self.classify_word( tokens[other["key_index"]] )
                             for other in filtered_verbs
                         )
                     )
@@ -355,8 +963,6 @@ class SentenceReadingAgent:
         if not resolved_verbs:
             return None
 
-        # best_candidate = None
-        # best_score = -1
 
         candidates = []
 
@@ -398,9 +1004,6 @@ class SentenceReadingAgent:
                         score += 3
                         break
 
-            # if best_candidate is None or score > best_score:
-                # best_candidate = verb
-                # best_score = score
             candidates.append({
                   "verb": verb,
                   "score": score
@@ -522,7 +1125,7 @@ class SentenceReadingAgent:
             preposition = None
 
         if (question_type == "HOW" and len(words) >1):
-            if(words[1] in ("long", "far")):
+            if(words[1] in ("long", "far", "many")):
                 question_type = "HOW_"+ words[1].upper()
 
         for word in words:
@@ -626,7 +1229,18 @@ class SentenceReadingAgent:
             if subject is not None and subject["nouns"]:
                 return subject["nouns"][0]['original']
 
-        if question_info["type"] == "WHAT":
+        if (question_info["type"] == "WHAT"):
+          if (subject is not None and predicate is not None and predicate["base"] == "be"):
+            question_words = [word.lower() for word in question_tokens]
+
+            for modifier in predicate["modifiers"]:
+                if modifier.lower() in question_words:
+                    return subject["nouns"][0]["original"]
+
+            for noun in object_relationships["objects"]:
+                if ( "ADJ" in self.classify_word(noun["original"]) and noun["original"].lower() in question_words):
+                    return subject["nouns"][0]["original"]
+                  
           if subject is not None:
               for noun in subject["nouns"]:
 
@@ -657,7 +1271,7 @@ class SentenceReadingAgent:
                     continue
 
                 for noun in resolved_nouns:
-                    if (noun["end"] == person_or_name["start"] - 1):
+                    if (noun["end"] == person_or_name["start"] - 1 and (object_relationships is None or not object_relationships["objects"])):
                         if ("NOUN" in self.classify_word(noun["original"])):
                             return noun["original"]
 
@@ -693,8 +1307,14 @@ class SentenceReadingAgent:
 
           return None
 
-        
-        if question_info["type"] == "WHERE":
+        if (question_info["type"] == "HOW_MANY"):
+                  for noun in resolved_nouns:
+                      for modifier in reversed(noun["modifiers"]):
+                          if ("NUM" in self.classify_word(modifier)):
+                              return modifier
+
+                          
+        if (question_info["type"] == "WHERE"):
 
             if object_relationships is None:
                 return None
@@ -711,7 +1331,7 @@ class SentenceReadingAgent:
 
             return destination
 
-        if question_info["type"] == "HOW_FAR":
+        if (question_info["type"] == "HOW_FAR"):
 
           if object_relationships is None:
               return None
@@ -725,7 +1345,7 @@ class SentenceReadingAgent:
           return None
 
         
-        if question_info["type"] == "HOW":
+        if (question_info["type"] == "HOW"):
 
             for word in question_tokens:
               word = word.lower()
@@ -743,7 +1363,7 @@ class SentenceReadingAgent:
 
             return None
 
-        if question_info["type"] == "TIME":
+        if (question_info["type"] == "TIME"):
 
           for word in sentence_tokens:
               if "TIME" in self.classify_word(word):
@@ -778,12 +1398,6 @@ class SentenceReadingAgent:
         try:
             sentence_tokens = self.tokenize_text(sentence)
             question_tokens = self.tokenize_text(question)
-
-            # for word in sentence_tokens:
-            #     print(word, self.normalize_word(word), self.classify_word(word))
-
-            # for word in question_tokens:
-            #     print(word, self.normalize_word(word), self.classify_word(word))
 
             noun_segments = self.get_noun_segments(sentence, sentence_tokens)
             verb_segments = self.get_verb_segments(sentence, sentence_tokens)
@@ -826,47 +1440,6 @@ class SentenceReadingAgent:
 
             question_info = self.analyze_question(question_tokens)
 
-            # print("QUESTION:", question)
-            # print("QUESTION INFO:", question_info)
-            # print("\nSENTENCE:", sentence)
-
-            # print("INFINITIVE CANDIDATES:")
-            # for infinitive in infinitive_segments:
-            #     print(infinitive)
-
-            # print("\nSENTENCE:", sentence)
-
-            # print("NOUN SEGMENTS")
-            # for segment in noun_segments:
-            #     print(segment)
-
-            # print("resolved Nouns")
-            # for segment in resolved_nouns:
-            #     print(segment)
-
-
-            # print("RAW PREPOSITIONS:")
-            # for preposition in preposition_segments:
-            #     print(preposition)
-
-            # print("RESOLVED PREPOSITIONS:")
-            # for preposition in resolved_prepositions:
-            #     print(preposition)
-
-            # print("VERB SEGMENTS")
-            # for segment in verb_segments:
-            #     print(segment)
-
-            # print("Resolved VERBS:")
-            # for segment in resolved_verbs:
-            #     print(segment)
-
-            # print("SUBJECT:", subject)
-
-            # print("PREDICATE:", predicate)
-
-            # print("OBJECT RELATIONSHIPS:", object_relationships)
-
             answer = self.answer_question(
                 question_tokens,
                 question_info,
@@ -877,297 +1450,44 @@ class SentenceReadingAgent:
                 resolved_nouns
             )
 
-            # print("QUESTION:", question)
-            # print("ANSWER:", answer)
-
             return answer if answer is not None else ""
-        except Exception as error:
-          print(f"Agent error: {type(error).__name__}: {error}")
+        except Exception:
           return ""
+
 
 
 
 if __name__ == "__main__":
     agent = SentenceReadingAgent()
 
-    sentence_1 = "Ada brought a short note to Irene."
-    sentence_2 = (
-        "David and Lucy walk one mile to go to school "
-        "every day at 8:00AM when there is no snow."
-    )
-
-    suites = {
-        "Original Assignment (9)": [
-            (sentence_1, "Who brought the note?", "Ada"),
-            (sentence_1, "What did Ada bring?", "note"),
-            (sentence_1, "Who did Ada bring the note to?", "Irene"),
-            (sentence_1, "How long was the note?", "short"),
-
-            (sentence_2, "Who does Lucy go to school with?", "David"),
-            (sentence_2, "Where do David and Lucy go?", "school"),
-            (sentence_2, "How far do David and Lucy walk?", "mile"),
-            (sentence_2, "How do David and Lucy get to school?", "walk"),
-            (sentence_2, "At what time do David and Lucy walk to school?", "8:00AM")
-        ],
-
-        "Additional Gradescope (11)": [
-            ("Serena saw a home last night with her friend.",
-             "Who was with Serena?", "friend"),
-
-            ("She will write him a love letter.",
-             "What will she write to him?", "letter"),
-
-            ("Frank took the horse to the farm.",
-             "Where did Frank take the horse?", "farm"),
-
-            ("The blue bird will sing in the morning.",
-             "What color is the bird who sings?", "blue"),
-
-            ("There are three men in the car.",
-             "Where are the men?", "car"),
-
-            ("A tree is made of wood.",
-             "What is made of wood?", "tree"),
-
-            ("Their children are in school.",
-             "Who is in school?", "children"),
-
-            ("She told her friend a story.",
-             "Who was told a story?", "friend"),
-
-            ("This tree came from the island.",
-             "What came from the island?", "tree"),
-
-            ("My dog Red is very large.",
-             "How big is Red?", "large"),
-
-            ("My dog Red is very large.",
-             "What animal is Red?", "dog")
-        ],
-
-        "Our Generalization Tests (25)": [
-            ("David brought a note to Ada.",
-             "Who brought the note?", "David"),
-
-            ("Lucy saw a small dog.",
-             "What did Lucy see?", "dog"),
-
-            ("Ada brought a long note to David.",
-             "How long was the note?", "long"),
-
-            ("Lucy went to school.",
-             "Where did Lucy go?", "school"),
-
-            ("David walked home.",
-             "Who walked home?", "David"),
-
-            ("Ada will bring a note.",
-             "What will Ada bring?", "note"),
-
-            ("David did not bring a note.",
-             "Who did not bring a note?", "David"),
-
-            ("Lucy saw two dogs.",
-             "What did Lucy see?", "dogs"),
-
-            ("David walked two miles.",
-             "How far did David walk?", "miles"),
-
-            ("Lucy ran three miles.",
-             "How far did Lucy run?", "miles"),
-
-            ("Ada and Lucy walk to school.",
-             "Who does Lucy walk with?", "Ada"),
-
-            ("David and Ada went home.",
-             "Who did David go home with?", "Ada"),
-
-            ("Lucy and David brought a note.",
-             "Who brought the note?", "Lucy"),
-
-            ("Ada and Irene went to school.",
-             "Where did Ada and Irene go?", "school"),
-
-            ("David and Lucy walk one mile.",
-             "How far do David and Lucy walk?", "mile"),
-
-            ("Ada brought a note to Lucy.",
-             "Who did Ada bring the note to?", "Lucy"),
-
-            ("David went from home to school.",
-             "Where did David go?", "school"),
-
-            ("Lucy walked to school with Ada.",
-             "Who did Lucy walk with?", "Ada"),
-
-            ("Ada brought a note from David.",
-             "Who did Ada bring a note from?", "David"),
-
-            ("David went to school at 8:00AM.",
-             "What time did David go to school?", "8:00AM"),
-
-            ("Ada brought a short note to Irene at 8:00AM.",
-             "How long was the note?", "short"),
-
-            ("David and Lucy walk one mile to school every day.",
-             "Where do David and Lucy walk?", "school"),
-
-            ("Ada saw a small dog and a big cat.",
-             "What did Ada see?", "dog"),
-
-            ("Lucy walked two miles to school at 9:30AM.",
-             "At what time did Lucy walk to school?", "9:30AM"),
-
-            ("David and Ada went to school when there was no snow.",
-             "Who did Ada go to school with?", "David")
-        ],
-
-        "Gradescope Variations (30)": [
-            ("Ada saw a home with her friend.",
-             "Who was with Ada?", "friend"),
-
-            ("David went to school with Lucy.",
-             "Who went to school with Lucy?", "David"),
-
-            ("Lucy walked home with Irene.",
-             "Who walked home with Lucy?", "Irene"),
-
-            ("She gave him a note.",
-             "What did she give him?", "note"),
-
-            ("David gave Lucy a book.",
-             "What did David give Lucy?", "book"),
-
-            ("Ada wrote a short letter.",
-             "What did Ada write?", "letter"),
-
-            ("The red bird will sing in the morning.",
-             "What color is the bird?", "red"),
-
-            ("The small dog ran home.",
-             "What size is the dog?", "small"),
-
-            ("The black horse is very fast.",
-             "What color is the horse?", "black"),
-
-            ("The children are in the house.",
-             "Where are the children?", "house"),
-
-            ("The bird is on the tree.",
-             "Where is the bird?", "tree"),
-
-            ("David went from school to town.",
-             "Where did David go?", "town"),
-
-            ("A boat is made of wood.",
-             "What is made of wood?", "boat"),
-
-            ("The dog came from the house.",
-             "What came from the house?", "dog"),
-
-            ("A bird flew over the house.",
-             "What flew over the house?", "bird"),
-
-            ("The men are in school.",
-             "Who is in school?", "men"),
-
-            ("The girl is at home.",
-             "Who is at home?", "girl"),
-
-            ("The children are on the boat.",
-             "Who is on the boat?", "children"),
-
-            ("She gave her friend a note.",
-             "Who was given a note?", "friend"),
-
-            ("Ada told David a story.",
-             "Who was told a story?", "David"),
-
-            ("Lucy gave Irene a book.",
-             "Who was given a book?", "Irene"),
-
-            ("The horse is very large.",
-             "How big is the horse?", "large"),
-
-            ("The dog is very small.",
-             "How big is the dog?", "small"),
-
-            ("The horse is very fast.",
-             "How fast is the horse?", "fast"),
-
-            ("My dog Red is small.",
-             "What animal is Red?", "dog"),
-
-            ("My horse Frank is fast.",
-             "What animal is Frank?", "horse"),
-
-            ("The boy David is tall.",
-             "What is David?", "boy"),
-
-            ("The small blue bird flew to the tree.",
-             "What color is the bird?", "blue"),
-
-            ("David gave Lucy a short note at 8:00AM.",
-             "What did David give Lucy?", "note"),
-
-            ("The three men went to the farm with Frank.",
-             "Where did the men go?", "farm")
-        ]
-    }
-
-    total_passed = 0
-    total_failed = 0
-    total_tests = 0
-    all_failures = []
-
-    for suite_name, tests in suites.items():
-        print(f"\n========== {suite_name.upper()} ==========")
-
-        suite_passed = 0
-        suite_failures = []
-
-        for index, (sentence, question, expected) in enumerate(tests, start=1):
-            try:
-                actual = agent.solve(sentence, question)
-            except Exception as error:
-                actual = f"ERROR: {type(error).__name__}: {error}"
-
-            if actual == expected:
-                suite_passed += 1
-                status = "PASS"
-            else:
-                status = "FAIL"
-                suite_failures.append(
-                    (suite_name, index, sentence, question, expected, actual)
-                )
-
-            print(f"TEST {index}: {status}")
-
-        suite_failed = len(tests) - suite_passed
-
-        print(f"Passed: {suite_passed}/{len(tests)}")
-        print(f"Failed: {suite_failed}")
-
-        total_passed += suite_passed
-        total_failed += suite_failed
-        total_tests += len(tests)
-        all_failures.extend(suite_failures)
-
-    print("\n========== OVERALL SUMMARY ==========")
-    print(f"Total:  {total_tests}")
-    print(f"Passed: {total_passed}")
-    print(f"Failed: {total_failed}")
-    print(f"Score:  {total_passed}/{total_tests}")
-
-    if all_failures:
-        print("\n========== FAILED TESTS ==========")
-
-        for suite_name, index, sentence, question, expected, actual in all_failures:
-            print(f"\n{suite_name} - Test {index}")
-            print(f"Sentence: {sentence}")
-            print(f"Question: {question}")
-            print(f"Expected: {expected}")
-            print(f"Actual: {actual}")
-
-    print("\n====================================")
-
+    examples = [
+        ("Ada brought a short note to Irene.", [
+            "Who brought the note?",
+            "What did Ada bring?",
+            "Who did Ada bring the note to?",
+            "How long was the note?"
+        ]),
+        ("David and Lucy walk one mile to school at 8:00AM.", [
+            "Who does Lucy walk with?",
+            "Where do David and Lucy walk?",
+            "How far do David and Lucy walk?",
+            "At what time do David and Lucy walk to school?"
+        ]),
+        ("The blue bird will sing in the morning.", [
+            "What color is the bird?"
+        ]),
+        ("My dog Red is very large.", [
+            "What animal is Red?",
+            "How big is Red?"
+        ])
+    ]
+
+    for sentence, questions in examples:
+        print(f"\n{'=' * 60}")
+        print(f"SENTENCE: {sentence}")
+        print("-" * 60)
+
+        for question in questions:
+            answer = agent.solve(sentence, question)
+            print(f"Q: {question}")
+            print(f"A: {answer}\n")

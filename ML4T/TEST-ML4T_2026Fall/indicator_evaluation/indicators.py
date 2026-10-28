@@ -20,7 +20,7 @@ def study_group():
     """
     return "rburrows3"# Change this to your user ID  		
 
-def price_over_sma(prices, window=10):
+def price_over_sma(prices, window=20):
     sma = prices.rolling(window).mean()
     results = prices/sma
     return results
@@ -54,7 +54,7 @@ def macd_histo(prices, small=12, large=26, sig=9):
     return results
 
 def cci(high, low, close, window=20):
-    typical_price = (high-low + close)/3
+    typical_price = (high + low + close)/3
 
     typical_sma = typical_price.rolling(window).mean()
 

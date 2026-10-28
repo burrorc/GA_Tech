@@ -58,33 +58,104 @@ def load_arc_problems(path: str, problem_data: list[str]) -> list[ArcProblem]:
 
 
 if __name__ == "__main__":
-    
-    # Here you can use this to open other milestone data directories for running against
-    #  you'll should copy this code and change the path to the milestone you want to load (B, C or D)
-    milestone_path = os.path.join('Milestones', 'B')
-    milestone_data: list[str] = os.listdir(milestone_path)
 
-    arc_milestone_problems: list[ArcProblem] = load_arc_problems(milestone_path, milestone_data)
+    milestone_groups = ["B", "C"]
 
-    # instantiate the agent once
+    arc_milestone_problems = []
+    problem_groups = {}
+
+    for milestone_group in milestone_groups:
+
+        milestone_path = os.path.join(
+            "Milestones",
+            milestone_group,
+        )
+
+        milestone_data = os.listdir(milestone_path)
+
+        milestone_problems = load_arc_problems(
+            milestone_path,
+            milestone_data,
+        )
+
+        arc_milestone_problems.extend(
+            milestone_problems
+        )
+
+        for problem in milestone_problems:
+            problem_groups[problem.problem_name()] = milestone_group
+
+
     arc_agent: ArcAgent = ArcAgent()
 
-    milestone_data_set = run_training_data(arc_agent, arc_milestone_problems)
-    milestone_file = open('Milestone_Results.csv', 'w')
-    milestone_file.write("Problem Name, Correct, Correct Answer, Prediction 1, Prediction 2, Prediction 3\n")
+    milestone_data_set = run_training_data(
+        arc_agent,
+        arc_milestone_problems,
+    )
+
+    milestone_file = open(
+        "Milestone_Results.csv",
+        "w",
+    )
+
+    milestone_file.write(
+        "Problem Name, Correct, Correct Answer, Prediction 1, Prediction 2, Prediction 3\n"
+    )
+
+    current_group = None
+
     for m_answer_set in milestone_data_set.keys():
-        m_correct, predictions = milestone_data_set[m_answer_set]
-        m_cor_ans = m_answer_set.test_set().get_output_data().data().tolist()
-        milestone_file.write(f'{m_answer_set.problem_name()},'
-                             f'{m_correct},'
-                             f'"{m_cor_ans}",')
+
+        problem_group = problem_groups[
+            m_answer_set.problem_name()
+        ]
+
+        if problem_group != current_group:
+
+            if current_group is not None:
+                milestone_file.write("\n")
+
+            milestone_file.write(
+                f"--- Milestone {problem_group} ---\n"
+            )
+
+            current_group = problem_group
+
+
+        m_correct, predictions = milestone_data_set[
+            m_answer_set
+        ]
+
+        m_cor_ans = (
+            m_answer_set
+            .test_set()
+            .get_output_data()
+            .data()
+            .tolist()
+        )
+
+        milestone_file.write(
+            f"{m_answer_set.problem_name()},"
+            f"{m_correct},"
+            f'"{m_cor_ans}",'
+        )
+
         if len(predictions) == 0:
             milestone_file.write("empty\n")
             continue
-        for idx, pred in enumerate(predictions, 1):
+
+        for idx, pred in enumerate(
+            predictions,
+            1,
+        ):
+
             if len(predictions) == idx:
-                milestone_file.write(f'"{pred.tolist()}"\n')
+                milestone_file.write(
+                    f'"{pred.tolist()}"\n'
+                )
             else:
-                milestone_file.write(f'"{pred.tolist()}",')
+                milestone_file.write(
+                    f'"{pred.tolist()}",'
+                )
 
     milestone_file.close()

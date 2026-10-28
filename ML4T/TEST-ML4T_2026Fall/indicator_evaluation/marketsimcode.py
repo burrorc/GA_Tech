@@ -119,58 +119,8 @@ def compute_portvals(
     return portvals_df		  	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
-def test_code():  		  	   		 		  		  		  		    	 		 		   		 		  
-    """  		  	   		 		  		  		  		    	 		 		   		 		  
-    Helper function to test code  		  	   		 		  		  		  		    	 		 		   		 		  
-    """  		  	   		 		  		  		  		    	 		 		   		 		  
-    # this is a helper function you can use to test your code  		  	   		 		  		  		  		    	 		 		   		 		  
-    # note that during autograding his function will not be called.  		  	   		 		  		  		  		    	 		 		   		 		  
-    # Define input parameters  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-    of = "./orders/orders-02.csv"  		  	   		 		  		  		  		    	 		 		   		 		  
-    sv = 1000000  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-    # Process orders  		  	   		 		  		  		  		    	 		 		   		 		  
-    portvals = compute_portvals(orders_file=of, start_val=sv)  		  	   		 		  		  		  		    	 		 		   		 		  
-    if isinstance(portvals, pd.DataFrame):  		  	   		 		  		  		  		    	 		 		   		 		  
-        portvals = portvals[portvals.columns[0]]  # just get the first column  		  	   		 		  		  		  		    	 		 		   		 		  
-    else:  		  	   		 		  		  		  		    	 		 		   		 		  
-        "warning, code did not return a DataFrame"  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-    # Get portfolio stats  		  	   		 		  		  		  		    	 		 		   		 		  
-    # Here we just fake the data. you should use your code from previous assignments.  		  	   		 		  		  		  		    	 		 		   		 		  
-    start_date = dt.datetime(2008, 1, 1)  		  	   		 		  		  		  		    	 		 		   		 		  
-    end_date = dt.datetime(2008, 6, 1)  		  	   		 		  		  		  		    	 		 		   		 		  
-    cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio = [  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.2,  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.01,  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.02,  		  	   		 		  		  		  		    	 		 		   		 		  
-        1.5,  		  	   		 		  		  		  		    	 		 		   		 		  
-    ]  		  	   		 		  		  		  		    	 		 		   		 		  
-    cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY = [  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.2,  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.01,  		  	   		 		  		  		  		    	 		 		   		 		  
-        0.02,  		  	   		 		  		  		  		    	 		 		   		 		  
-        1.5,  		  	   		 		  		  		  		    	 		 		   		 		  
-    ]  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-    # Compare portfolio against $SPX  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Date Range: {start_date} to {end_date}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print()  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Sharpe Ratio of Fund: {sharpe_ratio}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Sharpe Ratio of SPY : {sharpe_ratio_SPY}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print()  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Cumulative Return of Fund: {cum_ret}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Cumulative Return of SPY : {cum_ret_SPY}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print()  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Standard Deviation of Fund: {std_daily_ret}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Standard Deviation of SPY : {std_daily_ret_SPY}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print()  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Average Daily Return of Fund: {avg_daily_ret}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Average Daily Return of SPY : {avg_daily_ret_SPY}")  		  	   		 		  		  		  		    	 		 		   		 		  
-    print()  		  	   		 		  		  		  		    	 		 		   		 		  
-    print(f"Final Portfolio Value: {portvals[-1]}")  		  	   		 		  		  		  		    	 		 		   		 		  
+ 	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 		  		  		  		    	 		 		   		 		  
-    test_code()  		  	   		 		  		  		  		    	 		 		   		 		  
+    pass		  	   		 		  		  		  		    	 		 		   		 		  
