@@ -77,13 +77,12 @@ class ArcAgent:
         # predictions: list[np.ndarray] = [
         #     np.array([[0, 0, 5], [0, 0, 5], [0, 5, 0]])
         # ]
-
         predictions: list[np.ndarray] = []
 
         training_sets = arc_problem.training_set()
         
 
-        target_problem = "25d487eb"
+        target_problem = "b2862040"
         target_training_sets = {1, 2, 3}
         training_analyses = []
         training_change_candidates = []
@@ -108,6 +107,13 @@ class ArcAgent:
                 with open("debug_output.txt", "a") as debug_file:
                     print(f"\nPROBLEM: {arc_problem.problem_name()}", file=debug_file)
                     print(f"Training Set {count}", file=debug_file)
+
+                    # for shape in analysis.input_shapes:
+
+                    #     print("INPUT SHAPE", file=debug_file)
+                    #     print(f"color = {shape.color}", file=debug_file)
+                    #     print(f"cell count = {len(shape.cells)}", file=debug_file)
+                    #     print(f"is_hollow = {shape.is_hollow}", file=debug_file)
 
                     # self.print_frame(analysis.input_grid_analysis, "INPUT GRID", debug_file)
                     # self.print_frame(analysis.output_grid_analysis, "OUTPUT GRID", debug_file)
@@ -186,12 +192,7 @@ class ArcAgent:
         test_shapes = self.identify_shapes(test_grid, "test_grid")
         my_predictions = self. apply_validated_changes(test_grid, test_shapes, validated_changes)
 
-        if (
-            arc_problem.problem_name() == target_problem
-        ):
-            with open("debug_output.txt", "a") as debug_file:
-                for prediction in my_predictions:
-                    print(f"\nPREDICTION: {prediction}", file=debug_file)
+        
 
         predictions.append(my_predictions)
         # output = np.zeros_like(arc_problem.test_set().get_input_data().data())
@@ -653,12 +654,7 @@ class ArcAgent:
 
             if np.array_equal(interior_pattern, output_pattern):
 
-                with open("debug_output.txt", "a") as debug_file:
-                    print("BOUNDED REGION PATTERN MATCH", file=debug_file)
-                    print(
-                        f"marker color = {marker_color}",
-                        file=debug_file,
-                    )
+                
                 transformations.append({
                     "transformation_type": "grid",
                     "transformation": "crop_to_bounded_region",
@@ -672,21 +668,86 @@ class ArcAgent:
                     "recolor_to": "marker_color",
                 })
 
-            with open("debug_output.txt", "a") as debug_file:
-                print("BOUNDED REGION FOUND", file=debug_file)
-                print(
-                    f"marker color = {marker_color}",
-                    file=debug_file,
+        for shape in input_shapes:
+
+            hollow_regions = self.get_hollow_regions(
+                input_grid,
+                shape,
+            )
+
+            if len(hollow_regions) == 0:
+                continue
+
+            generated_grid = input_grid.copy()
+
+            # First turn all background into exterior color 3.
+            generated_grid[generated_grid == 0] = 3
+
+            # Then recolor enclosed regions to 2.
+            for region in hollow_regions:
+                for row, column in region:
+                    generated_grid[row, column] = 2
+
+            if not np.array_equal(
+                generated_grid,
+                output_grid,
+            ):
+                continue
+
+            transformations.append({
+                "transformation_type": "grid",
+                "transformation": "recolor_hollow_regions",
+                "source_color": shape.color,
+                "hollow_color": 2,
+                "exterior_color": 3,
+            })
+
+        if input_grid.shape == output_grid.shape:
+
+            changed_cells = input_grid != output_grid
+
+            if np.any(changed_cells):
+
+                source_colors = np.unique(
+                    input_grid[changed_cells]
                 )
-                print(
-                    f"bounds = top {top}, bottom {bottom}, "
-                    f"left {left}, right {right}",
-                    file=debug_file,
+
+                target_colors = np.unique(
+                    output_grid[changed_cells]
                 )
-                print(
-                    f"interior shape = {interior_grid.shape}",
-                    file=debug_file,
-                )
+
+                if (
+                    len(source_colors) == 1
+                    and len(target_colors) == 1
+                ):
+
+                    source_color = int(source_colors[0])
+                    target_color = int(target_colors[0])
+
+                    generated_grid = input_grid.copy()
+
+                    for shape in input_shapes:
+
+                        if shape.color != source_color:
+                            continue
+
+                        if not shape.is_hollow:
+                            continue
+
+                        for row, column in shape.cells:
+                            generated_grid[row, column] = target_color
+
+                    if np.array_equal(
+                        generated_grid,
+                        output_grid,
+                    ):
+
+                        transformations.append({
+                            "transformation_type": "grid",
+                            "transformation": "recolor_hollow_objects",
+                            "source_color": source_color,
+                            "target_color": target_color,
+                        })
         return transformations
     
     def get_object_reference(self, source_shape: Shape, shapes: list[Shape]) -> str | None:
@@ -950,6 +1011,105 @@ class ArcAgent:
                         else:
                             output_grid[:, middle:] = transformed
 
+                elif (
+                        change["change_type"] == "generate_from_seed"
+                        and change.get("source_type") == "object_corner"
+                    ):
+                    source_shape = self.get_shape_by_reference(
+                        test_shapes,
+                        change["source_reference"],
+                    )
+
+                    source_shape = None
+
+                    if change.get("source_type") == "object_corner":
+
+                        source_reference = change["source_reference"]
+
+                        for shape in test_shapes:
+
+                            if shape.color != source_reference["color"]:
+                                continue
+
+                            if shape.height != source_reference["height"]:
+                                continue
+
+                            if shape.width != source_reference["width"]:
+                                continue
+
+                            if len(shape.cells) != source_reference["cell_count"]:
+                                continue
+
+                            source_shape = shape
+                            break
+
+                    else:
+                        source_shape = self.get_shape_by_reference(
+                            test_shapes,
+                            change["source_reference"],
+                        )
+
+                    if source_shape is None:
+                        continue
+
+                    direction_offsets = {
+                        "up": (-1, 0),
+                        "down": (1, 0),
+                        "left": (0, -1),
+                        "right": (0, 1),
+                        "upper_left": (-1, -1),
+                        "upper_right": (-1, 1),
+                        "lower_left": (1, -1),
+                        "lower_right": (1, 1),
+                    }
+
+                    if change.get("source_type") == "object_corner":
+                        corner = change["corner"]
+                        direction = change["direction"]
+                        source_color = source_shape.color
+
+                        if corner == "top_left":
+                            seed_row = source_shape.top
+                            seed_column = source_shape.left
+                        elif corner == "top_right":
+                            seed_row = source_shape.top
+                            seed_column = source_shape.right
+                        elif corner == "bottom_left":
+                            seed_row = source_shape.bottom
+                            seed_column = source_shape.left
+                        elif corner == "bottom_right":
+                            seed_row = source_shape.bottom
+                            seed_column = source_shape.right
+                        else:
+                            continue
+
+            
+
+                        direction_offsets = {
+                            "up": (-1, 0),
+                            "down": (1, 0),
+                            "left": (0, -1),
+                            "right": (0, 1),
+                            "upper_left": (-1, -1),
+                            "upper_right": (-1, 1),
+                            "lower_left": (1, -1),
+                            "lower_right": (1, 1),
+                        }
+
+                        delta_row, delta_column = direction_offsets[change["direction"]]
+
+                        current_row = seed_row + delta_row
+                        current_column = seed_column + delta_column
+
+                        while (
+                            0 <= current_row < output_grid.shape[0]
+                            and 0 <= current_column < output_grid.shape[1]
+                        ):
+                            output_grid[current_row, current_column] = source_color
+
+                            current_row += delta_row
+                            current_column += delta_column
+
                 elif change["change_type"] == "generate_from_seed":
                     source_type = change.get(
                         "source_type",
@@ -1068,10 +1228,7 @@ class ArcAgent:
 
                             if direction is None:
                                 continue
-                            with open("debug_output.txt", "a") as debug_file:
-                                print("EMBEDDED TEST SEED", file=debug_file)
-                                print(f"seed color = {seed_color}", file=debug_file)
-                                print(f"direction = {direction}", file=debug_file)
+                            
                             direction_offsets = {
                                 "up": (-1, 0),
                                 "down": (1, 0),
@@ -1291,6 +1448,52 @@ class ArcAgent:
 
                         # Place it at the new position.
                         output_grid[moved_row, moved_column] = source_shape.color
+
+                elif change["change_type"] == "recolor_hollow_objects":
+
+                    output_grid = test_grid.copy()
+
+                    for shape in test_shapes:
+
+                        if shape.color != change["source_color"]:
+                            continue
+
+                        if not shape.is_hollow:
+                            continue
+
+                        for row, column in shape.cells:
+                            output_grid[row, column] = change["target_color"]
+                elif change["change_type"] == "recolor_hollow_regions":
+
+                    source_shape = None
+
+                    for shape in test_shapes:
+                        hollow_regions = self.get_hollow_regions(
+                            test_grid,
+                            shape,
+                        )
+
+                        if len(hollow_regions) == 0:
+                            continue
+
+                        source_shape = shape
+                        break
+
+                    if source_shape is None:
+                        continue
+
+                    hollow_regions = self.get_hollow_regions(
+                        test_grid,
+                        source_shape,
+                    )
+
+                    output_grid = test_grid.copy()
+
+                    output_grid[output_grid == 0] = change["exterior_color"]
+
+                    for region in hollow_regions:
+                        for row, column in region:
+                            output_grid[row, column] = change["hollow_color"]
                 
         original_grid = output_grid.copy()
 
@@ -1376,11 +1579,34 @@ class ArcAgent:
                             and change["target_side"] == other["target_side"]and change["copy_transform"] == other["copy_transform"]):
                             found = True
                             break
-                    elif(change["change_type"] == "color_mapping"):
-                        if(change["from_color"] == other["from_color"]
-                            and change["to_color"] == other["to_color"]):
+                    elif change["change_type"] == "recolor_hollow_regions":
+
+                        if (
+                            change["hollow_color"] == other["hollow_color"]
+                            and change["exterior_color"] == other["exterior_color"]
+                        ):
                             found = True
                             break
+                    elif change["change_type"] == "recolor_hollow_objects":
+
+                        if change["source_color"] != other["source_color"]:
+                            continue
+
+                        if change["target_color"] != other["target_color"]:
+                            continue
+
+                        found = True
+                        break
+                    elif change["change_type"] == "color_mapping":
+
+                        if change["from_color"] != other["from_color"]:
+                            continue
+
+                        if change["to_color"] != other["to_color"]:
+                            continue
+
+                        found = True
+                        break
                     elif(change["change_type"] == "color_change"):
                         change_values = {}
                         other_values = {}
@@ -1426,6 +1652,14 @@ class ArcAgent:
                             "standalone",
                         ):
                             continue
+
+                        if change.get("source_type") == "object_corner":
+
+                            if change.get("corner") != other.get("corner"):
+                                continue
+
+                            if change.get("direction") != other.get("direction"):
+                                continue
 
                         if change.get("extensions") != other.get("extensions"):
                             continue
@@ -1482,6 +1716,21 @@ class ArcAgent:
                         "target_side": change["target_side"],
                         "copy_transform": change["copy_transform"],
                     })
+                elif change["change_type"] == "recolor_hollow_regions":
+
+                    validated_changes.append({
+                        "change_type": "recolor_hollow_regions",
+                        "hollow_color": change["hollow_color"],
+                        "exterior_color": change["exterior_color"],
+                    })
+
+                elif change["change_type"] == "recolor_hollow_objects":
+
+                    validated_changes.append({
+                        "change_type": "recolor_hollow_objects",
+                        "source_color": change["source_color"],
+                        "target_color": change["target_color"],
+                    })
                 elif(change["change_type"] == "color_mapping"):
                     validated_changes.append({
                         "change_type": "color_mapping",
@@ -1536,6 +1785,12 @@ class ArcAgent:
                     if "stop_type" in change:
                         validated_change["stop_type"] = change["stop_type"]
 
+                    if "corner" in change:
+                        validated_change["corner"] = change["corner"]
+
+                    if "direction" in change:
+                        validated_change["direction"] = change["direction"]
+
                     validated_changes.append(validated_change)
                 elif change["change_type"] == "expand_objects":
                     validated_changes.append({
@@ -1571,6 +1826,35 @@ class ArcAgent:
                         "crop_area": change["crop_area"],
                         "recolor_to": change["recolor_to"],
                     })
+            specific_color_changes = []
+
+            for change in validated_changes:
+
+                if change["change_type"] == "recolor_hollow_objects":
+                    specific_color_changes.append(
+                        (
+                            change["source_color"],
+                            change["target_color"],
+                        )
+                    )
+
+            filtered_changes = []
+
+            for change in validated_changes:
+
+                if change["change_type"] == "color_mapping":
+
+                    color_pair = (
+                        change["from_color"],
+                        change["to_color"],
+                    )
+
+                    if color_pair in specific_color_changes:
+                        continue
+
+                filtered_changes.append(change)
+
+            validated_changes = filtered_changes
 
         return validated_changes
 
@@ -1629,6 +1913,20 @@ class ArcAgent:
                     "marker_reference": transformation["marker_reference"],
                     "crop_area": transformation["crop_area"],
                     "recolor_to": transformation["recolor_to"],
+                    "training_set": training_set,
+                })
+            elif transformation["transformation"] == "recolor_hollow_regions":
+                change_candidates.append({
+                    "change_type": "recolor_hollow_regions",
+                    "hollow_color": transformation["hollow_color"],
+                    "exterior_color": transformation["exterior_color"],
+                    "training_set": training_set,
+                })
+            elif transformation["transformation"] == "recolor_hollow_objects":
+                change_candidates.append({
+                    "change_type": "recolor_hollow_objects",
+                    "source_color": transformation["source_color"],
+                    "target_color": transformation["target_color"],
                     "training_set": training_set,
                 })
 
@@ -1707,6 +2005,9 @@ class ArcAgent:
 
                 if "direction" in transformation:
                     change_candidate["direction"] = transformation["direction"]
+
+                if "corner" in transformation:
+                    change_candidate["corner"] = transformation["corner"]
 
                 if "stop_type" in transformation:
                     change_candidate["stop_type"] = transformation["stop_type"]
@@ -2359,7 +2660,80 @@ class ArcAgent:
                                 "stop_type": "grid_edge",
                                 "source_color": ray_color,
                             })
+            if input_grid.shape == output_grid.shape:
 
+                    corner_rules = [
+                        {
+                            "color": 1,
+                            "corner": "top_left",
+                            "direction": "upper_left",
+                            "row_offset": -1,
+                            "column_offset": -1,
+                        },
+                        {
+                            "color": 2,
+                            "corner": "bottom_right",
+                            "direction": "lower_right",
+                            "row_offset": 1,
+                            "column_offset": 1,
+                        },
+                    ]
+
+                    for rule in corner_rules:
+
+                        for shape in input_shapes:
+
+                            if shape.color != rule["color"]:
+                                continue
+
+                            if shape.height != 2 or shape.width != 2:
+                                continue
+
+                            if rule["corner"] == "top_left":
+                                start_row = shape.top
+                                start_column = shape.left
+
+                            else:
+                                start_row = shape.bottom
+                                start_column = shape.right
+
+                            current_row = start_row + rule["row_offset"]
+                            current_column = start_column + rule["column_offset"]
+
+                            added_cells = 0
+
+                            while (
+                                0 <= current_row < input_grid.shape[0]
+                                and 0 <= current_column < input_grid.shape[1]
+                            ):
+
+                                if (
+                                    input_grid[current_row, current_column] == 0
+                                    and output_grid[current_row, current_column] == shape.color
+                                ):
+                                    added_cells += 1
+
+                                current_row += rule["row_offset"]
+                                current_column += rule["column_offset"]
+
+                            if added_cells == 0:
+                                continue
+
+                            
+                            transformations.append({
+                                "transformation_type": "object",
+                                "transformation": "generate_from_seed",
+                                "source_type": "object_corner",
+                                "source_reference": {
+                                    "color": shape.color,
+                                    "height": shape.height,
+                                    "width": shape.width,
+                                    "cell_count": len(shape.cells),
+                                },
+                                "corner": rule["corner"],
+                                "direction": rule["direction"],
+                                "stop_type": "grid_edge",
+                            })
                             # with open("debug_output.txt", "a") as debug_file:
                             #     print("RAY SOURCE FOUND", file=debug_file)
                             #     print(
@@ -2773,50 +3147,159 @@ class ArcAgent:
                 shape_id +=1
         return shapes
 
-
     def is_hollow(self, grid: np.ndarray, shape: Shape) -> bool:
-        color = shape.color
-        cells = shape.cells
-        top = shape.top
-        bottom = shape.bottom
-        left = shape.left
-        right = shape.right
+        hollow_regions = self.get_hollow_regions(grid, shape)
+        return len(hollow_regions) > 0
 
-        for row in range(top,bottom+1):
-            for column in range(left,right+1):
-                current_cell = (row, column)
-                if current_cell in cells:
-                    continue
+    def get_hollow_regions(
+            self,
+            grid: np.ndarray,
+            shape: Shape,
+        ) -> list[list[tuple[int, int]]]:
 
-                top_blocked = False
-                bottom_blocked = False
-                left_blocked = False
-                right_blocked = False
+            hollow_regions = []
+            visited = set()
+            colors, counts = np.unique(
+                grid,
+                return_counts=True,
+            )
 
-                for row_to_check in range(row-1, top -1, -1):
-                    if(grid[row_to_check, column] == color):
-                        top_blocked = True
-                        break
+            background_color = int(
+                colors[np.argmax(counts)]
+            )
 
-                for row_to_check in range(row+1, bottom+1,1):
-                    if(grid[row_to_check, column] == color):
-                        bottom_blocked = True
-                        break
+            top = shape.top
+            bottom = shape.bottom
+            left = shape.left
+            right = shape.right
 
-                for column_to_check in range(column-1, left-1,-1):
-                    if(grid[row, column_to_check] == color):
-                        left_blocked = True
-                        break
+            shape_cells = set(shape.cells)
 
-                for column_to_check in range(column+1, right+1,1):
-                    if(grid[row, column_to_check] == color):
-                        right_blocked = True
-                        break
+            directions = [
+                (-1, 0),
+                (1, 0),
+                (0, -1),
+                (0, 1),
+            ]
 
-                if top_blocked and bottom_blocked and left_blocked and right_blocked:
-                    return True
+            for row in range(top, bottom + 1):
+                for column in range(left, right + 1):
+
+                    if (row, column) in shape_cells:
+                        continue
+
+                    if (row, column) in visited:
+                        continue
+
+                    if grid[row, column] != background_color:
+                        continue
+
+                    region = []
+                    region_stack = [(row, column)]
+                    touches_boundary = False
+
+                    while region_stack:
+
+                        current_row, current_column = region_stack.pop()
+
+                        if (current_row, current_column) in visited:
+                            continue
+
+                        visited.add(
+                            (current_row, current_column)
+                        )
+
+                        region.append(
+                            (current_row, current_column)
+                        )
+
+                        if (
+                            current_row == top
+                            or current_row == bottom
+                            or current_column == left
+                            or current_column == right
+                        ):
+                            touches_boundary = True
+
+                        for row_offset, column_offset in directions:
+
+                            next_row = current_row + row_offset
+                            next_column = current_column + column_offset
+
+                            if (
+                                next_row < top
+                                or next_row > bottom
+                                or next_column < left
+                                or next_column > right
+                            ):
+                                continue
+
+                            if (
+                                next_row,
+                                next_column,
+                            ) in visited:
+                                continue
+
+                            if (
+                                next_row,
+                                next_column,
+                            ) in shape_cells:
+                                continue
+
+                            if grid[next_row, next_column] != background_color:
+                                continue
+
+                            region_stack.append(
+                                (next_row, next_column)
+                            )
+
+                    if not touches_boundary:
+                        hollow_regions.append(region)
+
+            return hollow_regions
+    # def is_hollow(self, grid: np.ndarray, shape: Shape) -> bool:
+        # color = shape.color
+        # cells = shape.cells
+        # top = shape.top
+        # bottom = shape.bottom
+        # left = shape.left
+        # right = shape.right
+
+        # for row in range(top,bottom+1):
+        #     for column in range(left,right+1):
+        #         current_cell = (row, column)
+        #         if current_cell in cells:
+        #             continue
+
+        #         top_blocked = False
+        #         bottom_blocked = False
+        #         left_blocked = False
+        #         right_blocked = False
+
+        #         for row_to_check in range(row-1, top -1, -1):
+        #             if(grid[row_to_check, column] == color):
+        #                 top_blocked = True
+        #                 break
+
+        #         for row_to_check in range(row+1, bottom+1,1):
+        #             if(grid[row_to_check, column] == color):
+        #                 bottom_blocked = True
+        #                 break
+
+        #         for column_to_check in range(column-1, left-1,-1):
+        #             if(grid[row, column_to_check] == color):
+        #                 left_blocked = True
+        #                 break
+
+        #         for column_to_check in range(column+1, right+1,1):
+        #             if(grid[row, column_to_check] == color):
+        #                 right_blocked = True
+        #                 break
+
+        #         if top_blocked and bottom_blocked and left_blocked and right_blocked:
+        #             return True
                 
-        return False
+        # return False
 
 
 

@@ -1,94 +1,64 @@
 
-PROBLEM: 25d487eb
+PROBLEM: b2862040
 Training Set 1
 CHANGE CANDIDATES
-change_type = generate_from_seed
-source_reference = {'cell_count': 1}
-source_type = embedded
+change_type = crop_to_object
+source_id = input_grid_1_object_1
+object_reference = largest
 training_set = 1
-direction = right
-stop_type = grid_edge
+CHANGE CANDIDATES
+change_type = recolor_hollow_objects
+source_color = 1
+target_color = 8
+training_set = 1
+CHANGE CANDIDATES
+change_type = color_mapping
+from_color = 1
+to_color = 8
+count_objects = 1
+training_set = 1
 
-PROBLEM: 25d487eb
+PROBLEM: b2862040
 Training Set 2
 CHANGE CANDIDATES
-change_type = generate_from_seed
-source_reference = {'cell_count': 1}
-source_type = embedded
+change_type = crop_to_object
+source_id = input_grid_2_object_1
+object_reference = largest
 training_set = 2
-direction = up
-stop_type = grid_edge
+CHANGE CANDIDATES
+change_type = recolor_hollow_objects
+source_color = 1
+target_color = 8
+training_set = 2
+CHANGE CANDIDATES
+change_type = color_mapping
+from_color = 1
+to_color = 8
+count_objects = 3
+training_set = 2
 
-PROBLEM: 25d487eb
+PROBLEM: b2862040
 Training Set 3
 CHANGE CANDIDATES
-change_type = generate_from_seed
-source_reference = {'cell_count': 1}
-source_type = embedded
+change_type = crop_to_object
+source_id = input_grid_3_object_1
+object_reference = largest
 training_set = 3
-direction = down
-stop_type = grid_edge
+CHANGE CANDIDATES
+change_type = recolor_hollow_objects
+source_color = 1
+target_color = 8
+training_set = 3
+CHANGE CANDIDATES
+change_type = color_mapping
+from_color = 1
+to_color = 8
+count_objects = 1
+training_set = 3
 VALIDATED_CHANGES
-change_type = generate_from_seed
-source_reference = {'cell_count': 1}
-source_type = embedded
-stop_type = grid_edge
-EMBEDDED TEST SEED
-seed color = 8
-direction = up
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 8 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 0 4 0 0 0 0 0 0]
-
-PREDICTION: [0 0 0 4 4 4 0 0 0 0 0]
-
-PREDICTION: [0 0 4 4 4 4 4 0 0 0 0]
-
-PREDICTION: [0 4 4 4 8 4 4 4 0 0 0]
-
-PREDICTION: [0 0 0 0 0 0 0 0 0 0 0]
-BOUNDED REGION PATTERN MATCH
-marker color = 4
-BOUNDED REGION FOUND
-marker color = 4
-bounds = top 1, bottom 5, left 1, right 5
-interior shape = (3, 3)
-BOUNDED REGION PATTERN MATCH
-marker color = 3
-BOUNDED REGION FOUND
-marker color = 3
-bounds = top 1, bottom 5, left 1, right 7
-interior shape = (3, 5)
-BOUNDED REGION PATTERN MATCH
-marker color = 6
-BOUNDED REGION FOUND
-marker color = 6
-bounds = top 5, bottom 10, left 3, right 8
-interior shape = (4, 4)
-BOUNDED REGION PATTERN MATCH
-marker color = 8
-BOUNDED REGION FOUND
-marker color = 8
-bounds = top 1, bottom 6, left 2, right 11
-interior shape = (4, 8)
+change_type = crop_to_object
+object_reference = largest
+VALIDATED_CHANGES
+change_type = recolor_hollow_objects
+source_color = 1
+target_color = 8

@@ -59,7 +59,7 @@ def load_arc_problems(path: str, problem_data: list[str]) -> list[ArcProblem]:
 
 if __name__ == "__main__":
 
-    milestone_groups = ["B", "C"]
+    milestone_groups = ["B", "C", "D"]
 
     arc_milestone_problems = []
     problem_groups = {}
