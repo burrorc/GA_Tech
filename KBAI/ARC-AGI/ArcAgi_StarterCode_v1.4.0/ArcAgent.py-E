@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from itertools import permutations
 
 import numpy as np
 
@@ -8,7 +7,7 @@ from ArcData import ArcData
 from ArcSet import ArcSet
 
 
-DIRECTION_OFFSETS = {
+DIRECTIONS = {
     "up": (-1, 0),
     "down": (1, 0),
     "left": (0, -1),
@@ -53,9 +52,9 @@ class ProblemAnalysis:
     input_object_relationships: list[dict]
     output_object_relationships: list[dict]
     input_output_object_relationships: list[dict]
-    object_transformations: list[dict]
+    input_output_transformations: list[dict]
     grid_transformations: list[dict]
-    region_transformations: list[dict]
+    region_combo_transformations: list[dict]
     color_mappings: list[dict]
 
 
@@ -161,13 +160,13 @@ class ArcAgent:
                     # for relationship in analysis.input_output_object_relationships:
                     #     self.print_frame(relationship, "INPUT-OUTPUT OBJECT RELATIONSHIPS", debug_file)
 
-                    # for transformation in analysis.object_transformations:
+                    # for transformation in analysis.input_output_transformations:
                     #     self.print_frame(transformation, "INPUT-OUTPUT OBJECT TRANSFORMATIONS", debug_file)
 
                     # for transformation in analysis.grid_transformations:
                     #     self.print_frame(transformation, "GRID TRANSFORMATIONS", debug_file)
 
-                    # for transformation in analysis.region_transformations:
+                    # for transformation in analysis.region_combo_transformations:
                     #     self.print_frame(transformation, "REGION COMBO TRANSFORMATIONS", debug_file)
 
                     for change in change_candidates:
@@ -186,8 +185,10 @@ class ArcAgent:
         validated_changes = self.validate_change_candidates(training_change_candidates)
 
         if arc_problem.problem_name() in ("e98196ab", "cf98881b", "6430c8c4"):
-            shared_structure = self.extract_equal_divided_panels(
-                training_sets[0].get_input_data().data()
+            shared_structure = self.get_divided_panels(
+                training_analyses[0].input_grid,
+                training_analyses[0].input_regions,
+                training_analyses[0].input_relationships,
             )
 
             with open("debug_output.txt", "a") as debug_file:
@@ -214,20 +215,35 @@ class ArcAgent:
                     )
 
                     panel_test_grid = arc_problem.test_set().get_input_data().data()
-                    panel_test_info = self.extract_equal_divided_panels(panel_test_grid)
+                    panel_test_shapes = self.identify_shapes(panel_test_grid, "test_grid")
+                    test_relationships = self.get_object_grid_relationships(
+                        panel_test_grid,
+                        panel_test_shapes,
+                    )
+                    test_regions = self.get_grid_regions(
+                        panel_test_grid,
+                        "test_grid",
+                        panel_test_shapes,
+                        test_relationships,
+                    )
+                    panel_test_info = self.get_divided_panels(
+                        panel_test_grid,
+                        test_regions,
+                        test_relationships,
+                    )
                     distinct_predictions = []
 
                     if panel_test_info is not None:
                         for hypothesis in panel_change["valid_hypotheses"]:
                             if hypothesis["operation"] == "ordered_overlay":
-                                hypothesis_prediction = self.apply_panel_combination(
+                                hypothesis_prediction = self.apply_panel_combo(
                                     panel_test_info["panels"],
                                     panel_test_info["background_color"],
                                     "ordered_overlay",
                                     panel_order=hypothesis["panel_order"],
                                 )
                             else:
-                                hypothesis_prediction = self.apply_panel_combination(
+                                hypothesis_prediction = self.apply_panel_combo(
                                     panel_test_info["panels"],
                                     panel_test_info["background_color"],
                                     hypothesis["operation"],
@@ -243,8 +259,10 @@ class ArcAgent:
                             ):
                                 distinct_predictions.append(hypothesis_prediction)
 
-                    executed_prediction = self.apply_validated_panel_combination(
+                    executed_prediction = self.apply_validated_panel_combo(
                         panel_test_grid,
+                        test_regions,
+                        test_relationships,
                         panel_change,
                     )
                     expected_panel_output = arc_problem.test_set().get_output_data()
@@ -262,9 +280,12 @@ class ArcAgent:
                 for detection_set_number, detection_set in enumerate(training_sets, start=1):
                     detection_input = detection_set.get_input_data().data()
                     detection_output = detection_set.get_output_data().data()
-                    detection_change = self.detect_panel_combination(
+                    detection_analysis = training_analyses[detection_set_number - 1]
+                    detection_change = self.find_panel_combo_transformations(
                         detection_input,
                         detection_output,
+                        detection_analysis.input_regions,
+                        detection_analysis.input_relationships,
                     )
 
                     print("\nPANEL COMBINATION DETECTION", file=debug_file)
@@ -304,7 +325,7 @@ class ArcAgent:
 
                     if arc_problem.problem_name() == "6430c8c4":
                         for combination_operation in ["xor", "or", "and", "nor", "nand", "xnor"]:
-                            combination_output = self.apply_panel_combination(
+                            combination_output = self.apply_panel_combo(
                                 combination_panels,
                                 combination_background,
                                 combination_operation,
@@ -322,7 +343,7 @@ class ArcAgent:
                                 print("\nexpected grid =", file=debug_file)
                                 print(combination_expected, file=debug_file)
                     else:
-                        combination_output = self.apply_panel_combination(
+                        combination_output = self.apply_panel_combo(
                             combination_panels,
                             combination_background,
                             "ordered_overlay",
@@ -349,7 +370,7 @@ class ArcAgent:
                 for tile_set_number, tile_analysis in enumerate(training_analyses, start=1):
                     tile_input = tile_analysis.input_grid
                     tile_output = tile_analysis.output_grid
-                    transformed_tile_change = self.detect_transformed_tile(
+                    transformed_tile_change = self.find_tile_transformations(
                         tile_input,
                         tile_output,
                     )
@@ -366,7 +387,7 @@ class ArcAgent:
                         print("prediction matches output = False", file=debug_file)
                     else:
                         tile_layout = transformed_tile_change["transform_layout"]
-                        tile_prediction = self.apply_transformed_tile(tile_input, tile_layout)
+                        tile_prediction = self.apply_tile_transformations(tile_input, tile_layout)
                         print(f"transform layout = {tile_layout}", file=debug_file)
                         print(
                             f"prediction matches output = {np.array_equal(tile_prediction, tile_output)}",
@@ -428,7 +449,7 @@ class ArcAgent:
                     print(f"features = {ray_features}", file=debug_file)
                     print(f"output color = {ray_output_color}", file=debug_file)
                     print(
-                        f"explanations = {self.get_cell_explanations(ray_features, ray_output_color)}",
+                        f"explanations = {self.get_cell_rule_candidates(ray_features, ray_output_color)}",
                         file=debug_file,
                     )
 
@@ -663,9 +684,9 @@ class ArcAgent:
                 input_object_relationships=[],
                 output_object_relationships=[],
                 input_output_object_relationships=[],
-                object_transformations=[],
+                input_output_transformations=[],
                 grid_transformations=[],
-                region_transformations=[],
+                region_combo_transformations=[],
                 color_mappings=[],
             )
 
@@ -730,7 +751,7 @@ class ArcAgent:
         input_object_relationships = self.get_object_to_object_relationships(input_shapes)
         output_object_relationships = self.get_object_to_object_relationships(output_shapes)
         input_output_object_relationships = self.get_object_to_object_relationships(input_shapes, output_shapes)
-        object_transformations = self.get_input_output_transformations(
+        input_output_transformations = self.get_input_output_transformations(
             input_shapes, output_shapes, input_object_relationships, input_output_object_relationships, input_grid, output_grid
         )
         grid_transformations = self.get_grid_transformations(
@@ -740,13 +761,13 @@ class ArcAgent:
             output_grid_analysis,
             input_shapes,
             output_shapes,
-            object_transformations,
+            input_output_transformations,
         )
-        region_transformations = []
+        region_combo_transformations = []
         if len(input_regions) == 2:
             region1 = self.get_region_grid(input_grid, input_regions[0])
             region2 = self.get_region_grid(input_grid, input_regions[1])
-            region_transformations = self.get_region_combo_transformations(region1, region2, output_grid)
+            region_combo_transformations = self.get_region_combo_transformations(region1, region2, output_grid)
         color_mappings = self.get_color_mappings(input_grid, output_grid)
 
         return ProblemAnalysis(
@@ -763,9 +784,9 @@ class ArcAgent:
             input_object_relationships=input_object_relationships,
             output_object_relationships=output_object_relationships,
             input_output_object_relationships=input_output_object_relationships,
-            object_transformations=object_transformations,
+            input_output_transformations=input_output_transformations,
             grid_transformations=grid_transformations,
-            region_transformations=region_transformations,
+            region_combo_transformations=region_combo_transformations,
             color_mappings=color_mappings,
         )
 
@@ -916,7 +937,7 @@ class ArcAgent:
         return None
 
 
-    def detect_grid_symmetry(
+    def find_grid_rotation_flip_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -965,7 +986,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_copy_to_empty_half(
+    def find_copy_to_empty_half(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -1051,7 +1072,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_crop_to_object(
+    def detect_crop_to_object_transformations(
         self,
         output_grid: np.ndarray,
         input_shapes: list[Shape],
@@ -1092,7 +1113,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_crop_to_bounded_region(
+    def find_crop_to_region_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -1182,7 +1203,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_recolor_hollow_regions(
+    def find_recolor_hollow_region_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -1227,7 +1248,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_recolor_hollow_objects(
+    def find_recolor_hollow_object_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -1294,14 +1315,14 @@ class ArcAgent:
 
         
         transformations.extend(
-            self.detect_grid_symmetry(
+            self.find_grid_rotation_flip_transformations(
                 input_grid,
                 output_grid,
             )
         )
 
         transformations.extend(
-            self.detect_copy_to_empty_half(
+            self.find_copy_to_empty_half(
                 input_grid,
                 output_grid,
             )
@@ -1337,7 +1358,7 @@ class ArcAgent:
             #         "object_reference": object_reference,
             #     })
         transformations.extend(
-            self.detect_crop_to_object(
+            self.detect_crop_to_object_transformations(
                 output_grid,
                 input_shapes,
                 input_output_transformations,
@@ -1345,7 +1366,7 @@ class ArcAgent:
         )
 
         transformations.extend(
-            self.detect_crop_to_bounded_region(
+            self.find_crop_to_region_transformations(
                 input_grid,
                 output_grid,
                 input_shapes,
@@ -1354,7 +1375,7 @@ class ArcAgent:
 
 
         transformations.extend(
-            self.detect_recolor_hollow_regions(
+            self.find_recolor_hollow_region_transformations(
                 input_grid,
                 output_grid,
                 input_shapes,
@@ -1362,7 +1383,7 @@ class ArcAgent:
         )
 
         transformations.extend(
-            self.detect_recolor_hollow_objects(
+            self.find_recolor_hollow_object_transformations(
                 input_grid,
                 output_grid,
                 input_shapes,
@@ -1483,7 +1504,7 @@ class ArcAgent:
             else:
                 return output_grid
 
-            delta_row, delta_column = DIRECTION_OFFSETS[change["direction"]]
+            delta_row, delta_column = DIRECTIONS[change["direction"]]
 
             current_row = seed_row + delta_row
             current_column = seed_column + delta_column
@@ -1608,10 +1629,10 @@ class ArcAgent:
                 if direction is None:
                     continue
 
-                row_offset, column_offset = DIRECTION_OFFSETS[direction]
+                row_step, column_step = DIRECTIONS[direction]
 
-                current_row = seed_row + row_offset
-                current_column = seed_column + column_offset
+                current_row = seed_row + row_step
+                current_column = seed_column + column_step
 
                 while (
                     0 <= current_row < output_grid.shape[0]
@@ -1620,8 +1641,8 @@ class ArcAgent:
                     if output_grid[current_row, current_column] == 0:
                         output_grid[current_row, current_column] = seed_color
 
-                    current_row += row_offset
-                    current_column += column_offset
+                    current_row += row_step
+                    current_column += column_step
 
                 break
 
@@ -1638,13 +1659,13 @@ class ArcAgent:
                 direction = extension["direction"]
                 stop_type = extension["stop_type"]
 
-                if direction not in DIRECTION_OFFSETS:
+                if direction not in DIRECTIONS:
                     continue
 
-                row_offset, column_offset = DIRECTION_OFFSETS[direction]
+                row_step, column_step = DIRECTIONS[direction]
 
-                current_row = seed_row + row_offset
-                current_column = seed_column + column_offset
+                current_row = seed_row + row_step
+                current_column = seed_column + column_step
 
                 if stop_type == "grid_edge":
                     while (
@@ -1653,8 +1674,8 @@ class ArcAgent:
                     ):
                         output_grid[current_row, current_column] = source_color
 
-                        current_row += row_offset
-                        current_column += column_offset
+                        current_row += row_step
+                        current_column += column_step
 
         return output_grid
 
@@ -1677,7 +1698,7 @@ class ArcAgent:
 
         return test_grid.copy()
 
-    def apply_crop_to_bounded_region(
+    def apply_crop_to_region(
         self,
         input_grid: np.ndarray,
         test_shapes: list[Shape],
@@ -1758,7 +1779,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_combine_regions(
+    def apply_region_combo(
         self,
         input_grid: np.ndarray,
         test_regions: list[dict],
@@ -1849,7 +1870,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_expand_objects(
+    def apply_expand_object(
         self,
         input_grid: np.ndarray,
         test_shapes: list[Shape],
@@ -1870,11 +1891,11 @@ class ArcAgent:
             ):
 
                 for row, column in shape.cells:
-                    for row_offset in range(-distance, distance + 1):
-                        for column_offset in range(-distance, distance + 1):
+                    for row_step in range(-distance, distance + 1):
+                        for column_step in range(-distance, distance + 1):
 
-                            new_row = row + row_offset
-                            new_column = column + column_offset
+                            new_row = row + row_step
+                            new_column = column + column_step
 
                             if (
                                 0 <= new_row < output_grid.shape[0]
@@ -1884,7 +1905,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_move_toward_object(
+    def apply_move_to_object(
         self,
         input_grid: np.ndarray,
         test_shapes: list[Shape],
@@ -2020,7 +2041,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_recolor_hollow_objects(
+    def apply_recolor_hollow_object(
         self,
         input_grid: np.ndarray,
         test_shapes: list[Shape],
@@ -2041,7 +2062,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_recolor_hollow_regions(
+    def apply_recolor_hollow_region(
         self,
         input_grid: np.ndarray,
         test_shapes: list[Shape],
@@ -2159,7 +2180,7 @@ class ArcAgent:
                         change,
                     )
                 elif change["change_type"] == "crop_to_bounded_region":
-                    output_grid = self.apply_crop_to_bounded_region(
+                    output_grid = self.apply_crop_to_region(
                         output_grid,
                         test_shapes,
                         change,
@@ -2195,8 +2216,26 @@ class ArcAgent:
                     )
 
                 elif change["change_type"] == "combine_panels":
-                    combined_panels_grid = self.apply_validated_panel_combination(
+                    if np.array_equal(output_grid, test_grid):
+                        panel_regions = test_regions
+                        panel_relationships = test_relationships
+                    else:
+                        panel_shapes = self.identify_shapes(output_grid, "test_grid")
+                        panel_relationships = self.get_object_grid_relationships(
+                            output_grid,
+                            panel_shapes,
+                        )
+                        panel_regions = self.get_grid_regions(
+                            output_grid,
+                            "test_grid",
+                            panel_shapes,
+                            panel_relationships,
+                        )
+
+                    combined_panels_grid = self.apply_validated_panel_combo(
                         output_grid,
+                        panel_regions,
+                        panel_relationships,
                         change,
                     )
 
@@ -2204,7 +2243,7 @@ class ArcAgent:
                         output_grid = combined_panels_grid
 
                 elif change["change_type"] == "transformed_tile":
-                    output_grid = self.apply_transformed_tile(
+                    output_grid = self.apply_tile_transformations(
                         output_grid,
                         change["transform_layout"],
                     )
@@ -2216,7 +2255,7 @@ class ArcAgent:
                     output_grid = np.rot90(np.fliplr(output_grid), 3).copy()
 
                 elif change["change_type"] == "combine_regions":
-                    output_grid = self.apply_combine_regions(
+                    output_grid = self.apply_region_combo(
                         output_grid,
                         test_regions,
                         change,
@@ -2236,26 +2275,26 @@ class ArcAgent:
                     )
 
                 elif change["change_type"] == "expand_objects":
-                    output_grid = self.apply_expand_objects(
+                    output_grid = self.apply_expand_object(
                         output_grid,
                         test_shapes,
                         change,
                     )
                 elif change["change_type"] == "move_toward_object":
-                    output_grid = self.apply_move_toward_object(
+                    output_grid = self.apply_move_to_object(
                         output_grid,
                         test_shapes,
                         change,
                     )
                 elif change["change_type"] == "recolor_hollow_objects":
-                    output_grid = self.apply_recolor_hollow_objects(
+                    output_grid = self.apply_recolor_hollow_object(
                         output_grid,
                         test_shapes,
                         change,
                     )
 
                 elif change["change_type"] == "recolor_hollow_regions":
-                    output_grid = self.apply_recolor_hollow_regions(
+                    output_grid = self.apply_recolor_hollow_region(
                         output_grid,
                         test_shapes,
                         change,
@@ -2777,13 +2816,13 @@ class ArcAgent:
 
     def build_color_mapping_candidates(
         self,
-        object_transformations: list[dict],
+        input_output_transformations: list[dict],
         training_set: int,
     ) -> list[dict]:
         change_candidates = []
         color_changes = {}
 
-        for transformation in object_transformations:
+        for transformation in input_output_transformations:
             if transformation["transformation"] != "color_change":
                 continue
 
@@ -2807,7 +2846,7 @@ class ArcAgent:
 
     def get_object_change_candidates(
         self,
-        object_transformations: list[dict],
+        input_output_transformations: list[dict],
         training_set: int,
     ) -> list[dict]:
         change_candidates = []
@@ -2815,7 +2854,7 @@ class ArcAgent:
         fill_in_count = 0
         move_toward_object_found = False
 
-        for transformation in object_transformations:
+        for transformation in input_output_transformations:
             if transformation["transformation"] == "make_hollow":
                 make_hollow_count += 1
                 continue
@@ -2901,13 +2940,13 @@ class ArcAgent:
 
         change_candidates.extend(
             self.build_color_mapping_candidates(
-                object_transformations,
+                input_output_transformations,
                 training_set,
             )
         )
 
-        if (len(object_transformations) > 0 ):
-            if(make_hollow_count == len(object_transformations)):
+        if (len(input_output_transformations) > 0 ):
+            if(make_hollow_count == len(input_output_transformations)):
 
                 change_candidates.append({
                     "change_type": "make_hollow",
@@ -2915,7 +2954,7 @@ class ArcAgent:
                     "fill_color": 0,
                     "training_set": training_set,
                 })
-            elif(fill_in_count == len(object_transformations)):
+            elif(fill_in_count == len(input_output_transformations)):
                 change_candidates.append({
                     "change_type": "fill_in",
                     "source_reference": "all_objects",
@@ -2968,7 +3007,7 @@ class ArcAgent:
             return grid_candidates
         change_candidates.extend(grid_candidates)
 
-        transformed_tile_change = self.detect_transformed_tile(
+        transformed_tile_change = self.find_tile_transformations(
             analysis.input_grid,
             analysis.output_grid,
         )
@@ -2977,9 +3016,11 @@ class ArcAgent:
             transformed_tile_change["training_set"] = training_set
             change_candidates.append(transformed_tile_change)
 
-        panel_combination_change = self.detect_panel_combination(
+        panel_combination_change = self.find_panel_combo_transformations(
             analysis.input_grid,
             analysis.output_grid,
+            analysis.input_regions,
+            analysis.input_relationships,
         )
 
         if panel_combination_change is not None:
@@ -2987,13 +3028,13 @@ class ArcAgent:
             change_candidates.append(panel_combination_change)
 
         region_candidates = self.get_region_change_candidates(
-            analysis.region_transformations,
+            analysis.region_combo_transformations,
             training_set,
         )
         change_candidates.extend(region_candidates)
 
         object_candidates = self.get_object_change_candidates(
-            analysis.object_transformations,
+            analysis.input_output_transformations,
             training_set,
         )
         secondary_object_candidates = []
@@ -3013,7 +3054,7 @@ class ArcAgent:
         return change_candidates
     
     
-    def detect_basic_object_transformations(
+    def find_basic_object_transformations(
         self,
         pair: tuple,
         source_shape: Shape,
@@ -3102,7 +3143,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_standalone_generate_from_seed(
+    def find_simple_seed_transformations(
         self,
         pair: tuple,
         source_shape: Shape,
@@ -3115,15 +3156,15 @@ class ArcAgent:
         target_cells = set(target_shape.cells)
 
         if same_color and len(source_shape.cells) == 1 and len(target_shape.cells) > 1:
-            direction_offsets = DIRECTION_OFFSETS
+            direction_steps = DIRECTIONS
             seed_row, seed_column = source_shape.cells[0]
             expected_cells = {(seed_row, seed_column)}
             extensions = []
             grid_height, grid_width = output_grid.shape
 
-            for direction_name, (row_offset, column_offset) in direction_offsets.items():
-                adjacent_row = seed_row + row_offset
-                adjacent_column = seed_column + column_offset
+            for direction_name, (row_step, column_step) in direction_steps.items():
+                adjacent_row = seed_row + row_step
+                adjacent_column = seed_column + column_step
 
                 if (adjacent_row < 0 or adjacent_row >= grid_height
                     or adjacent_column < 0 or adjacent_column >= grid_width):
@@ -3146,8 +3187,8 @@ class ArcAgent:
                         break
 
                     ray_cells.append(current_cell)
-                    current_row += row_offset
-                    current_column += column_offset
+                    current_row += row_step
+                    current_column += column_step
 
                 if complete_ray:
                     expected_cells.update(ray_cells)
@@ -3173,7 +3214,33 @@ class ArcAgent:
         return transformations
 
 
-    def detect_generate_from_seed_transformations(
+    def find_generate_from_seed_transformations(
+        self,
+        input_shapes: list[Shape],
+        input_grid: np.ndarray,
+        output_grid: np.ndarray,
+    ) -> list[dict]:
+        transformations = []
+
+        transformations.extend(
+            self.find_embedded_seed_transformations(
+                input_shapes,
+                input_grid,
+                output_grid,
+            )
+        )
+
+        transformations.extend(
+            self.find_object_corner_seed_transformations(
+                input_shapes,
+                input_grid,
+                output_grid,
+            )
+        )
+
+        return transformations
+
+    def find_embedded_seed_transformations(
         self,
         input_shapes: list[Shape],
         input_grid: np.ndarray,
@@ -3199,13 +3266,13 @@ class ArcAgent:
                         ray_color = int(input_color)
 
                         for direction in ("up", "down", "left", "right"):
-                            row_offset, column_offset = DIRECTION_OFFSETS[direction]
+                            row_step, column_step = DIRECTIONS[direction]
 
                             generated_grid = input_grid.copy()
                             painted_cells = 0
 
-                            current_row = row + row_offset
-                            current_column = column + column_offset
+                            current_row = row + row_step
+                            current_column = column + column_step
 
                             while (
                                 0 <= current_row < input_grid.shape[0]
@@ -3216,8 +3283,8 @@ class ArcAgent:
                                     generated_grid[current_row, current_column] = ray_color
                                     painted_cells += 1
 
-                                current_row += row_offset
-                                current_column += column_offset
+                                current_row += row_step
+                                current_column += column_step
 
                             if painted_cells == 0:
                                 continue
@@ -3237,6 +3304,19 @@ class ArcAgent:
                                 "stop_type": "grid_edge",
                                 "source_color": ray_color,
                             })
+
+        return transformations
+
+    def find_object_corner_seed_transformations(
+        self,
+        input_shapes: list[Shape],
+        input_grid: np.ndarray,
+        output_grid: np.ndarray,
+    ) -> list[dict]:
+        transformations = []
+
+        if len(input_shapes) > 0:
+
             if input_grid.shape == output_grid.shape:
 
                     corner_rules = [
@@ -3244,15 +3324,15 @@ class ArcAgent:
                             "color": 1,
                             "corner": "top_left",
                             "direction": "upper_left",
-                            "row_offset": -1,
-                            "column_offset": -1,
+                            "row_step": -1,
+                            "column_step": -1,
                         },
                         {
                             "color": 2,
                             "corner": "bottom_right",
                             "direction": "lower_right",
-                            "row_offset": 1,
-                            "column_offset": 1,
+                            "row_step": 1,
+                            "column_step": 1,
                         },
                     ]
 
@@ -3274,8 +3354,8 @@ class ArcAgent:
                                 start_row = shape.bottom
                                 start_column = shape.right
 
-                            current_row = start_row + rule["row_offset"]
-                            current_column = start_column + rule["column_offset"]
+                            current_row = start_row + rule["row_step"]
+                            current_column = start_column + rule["column_step"]
 
                             added_cells = 0
 
@@ -3290,8 +3370,8 @@ class ArcAgent:
                                 ):
                                     added_cells += 1
 
-                                current_row += rule["row_offset"]
-                                current_column += rule["column_offset"]
+                                current_row += rule["row_step"]
+                                current_column += rule["column_step"]
 
                             if added_cells == 0:
                                 continue
@@ -3329,7 +3409,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_expand_objects_transformations(
+    def find_expand_object_transformations(
         self,
         input_shapes: list[Shape],
         output_grid: np.ndarray,
@@ -3375,11 +3455,11 @@ class ArcAgent:
                         for shape in input_shapes:
                             for row, column in shape.cells:
 
-                                for row_offset in range(-distance, distance + 1):
-                                    for column_offset in range(-distance, distance + 1):
+                                for row_step in range(-distance, distance + 1):
+                                    for column_step in range(-distance, distance + 1):
 
-                                        new_row = row + row_offset
-                                        new_column = column + column_offset
+                                        new_row = row + row_step
+                                        new_column = column + column_step
 
                                         if (
                                             0 <= new_row < grid_height
@@ -3416,7 +3496,7 @@ class ArcAgent:
         return transformations
 
 
-    def detect_move_toward_object_transformations(
+    def find_move_to_object_transformations(
         self,
         input_shapes: list[Shape],
         output_shapes: list[Shape],
@@ -3648,7 +3728,7 @@ class ArcAgent:
             target_shape = output_shapes_map[pair[1]]
 
             transformations.extend(
-                self.detect_basic_object_transformations(
+                self.find_basic_object_transformations(
                     pair,
                     source_shape,
                     target_shape,
@@ -3662,7 +3742,7 @@ class ArcAgent:
             )
 
             transformations.extend(
-                self.detect_standalone_generate_from_seed(
+                self.find_simple_seed_transformations(
                     pair,
                     source_shape,
                     target_shape,
@@ -3673,13 +3753,13 @@ class ArcAgent:
             )
             
         transformations.extend(
-            self.detect_expand_objects_transformations(
+            self.find_expand_object_transformations(
                 input_shapes,
                 output_grid,
             )
         )
         transformations.extend(
-            self.detect_move_toward_object_transformations(
+            self.find_move_to_object_transformations(
                 input_shapes,
                 output_shapes,
                 output_grid,
@@ -3687,7 +3767,7 @@ class ArcAgent:
             )
         )
         transformations.extend(
-            self.detect_generate_from_seed_transformations(
+            self.find_generate_from_seed_transformations(
                 input_shapes,
                 input_grid,
                 output_grid,
@@ -4153,7 +4233,7 @@ class ArcAgent:
             right_color,
         )
 
-    def get_cell_explanations(
+    def get_cell_rule_candidates(
         self,
         features: tuple,
         output_color: int,
@@ -4429,7 +4509,7 @@ class ArcAgent:
 
         return predicted_test_grid
 
-    def detect_transformed_tile(
+    def find_tile_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
@@ -4502,7 +4582,7 @@ class ArcAgent:
 
             transform_layout.append(layout_row)
 
-        predicted_output = self.apply_transformed_tile(
+        predicted_output = self.apply_tile_transformations(
             input_grid,
             transform_layout,
         )
@@ -4521,7 +4601,7 @@ class ArcAgent:
             "transform_layout": transform_layout,
         }
 
-    def apply_transformed_tile(
+    def apply_tile_transformations(
         self,
         input_grid: np.ndarray,
         transform_layout: list[list[str]],
@@ -4574,83 +4654,106 @@ class ArcAgent:
 
         return output_grid
 
-    def extract_equal_divided_panels(
+    def get_divided_panels(
         self,
         input_grid: np.ndarray,
+        regions: list[dict],
+        relationships: list[dict],
     ) -> dict | None:
+
+        divider_relationships = [
+            relationship
+            for relationship in relationships
+            if relationship["relationship"] == "divides_grid"
+        ]
+
+        if not divider_relationships:
+            return None
+
+        orientations = {
+            relationship["orientation"]
+            for relationship in divider_relationships
+        }
+
+        if len(orientations) != 1:
+            return None
+
+        orientation = next(iter(orientations))
+
+        panels = [
+            self.get_region_grid(input_grid, region)
+            for region in regions
+        ]
+
+        if len(panels) < 2:
+            return None
+
+        if any(panel.size == 0 for panel in panels):
+            return None
+
+        if any(panel.shape != panels[0].shape for panel in panels):
+            return None
 
         background_color = self.get_background_color(input_grid)
 
-        divider_rows = {}
-        divider_columns = {}
+        # Divider color is informational only: the cells outside every region
+        # belong to the divider shapes.
+        covered = np.zeros(input_grid.shape, dtype=bool)
+        for region in regions:
+            covered[
+                region["parent_top"]:region["parent_bottom"] + 1,
+                region["parent_left"]:region["parent_right"] + 1,
+            ] = True
 
-        for row in range(input_grid.shape[0]):
-            row_colors = np.unique(input_grid[row, :])
-            if len(row_colors) == 1 and row_colors[0] != background_color:
-                divider_rows.setdefault(int(row_colors[0]), []).append(row)
+        divider_colors = {int(color) for color in input_grid[~covered]}
+        divider_color = next(iter(divider_colors)) if len(divider_colors) == 1 else None
 
-        for column in range(input_grid.shape[1]):
-            column_colors = np.unique(input_grid[:, column])
-            if len(column_colors) == 1 and column_colors[0] != background_color:
-                divider_columns.setdefault(int(column_colors[0]), []).append(column)
+        return {
+            "panels": panels,
+            "orientation": orientation,
+            "divider_color": divider_color,
+            "background_color": background_color,
+            "panel_count": len(panels),
+            "panel_shape": panels[0].shape,
+        }
 
-        # A solid non-background line may be panel content, so each divider
-        # color is tried on its own and every divider must share that color.
-        for divider_color in sorted(set(divider_rows) | set(divider_columns)):
-            rows_of_color = divider_rows.get(divider_color, [])
-            columns_of_color = divider_columns.get(divider_color, [])
+    def get_panel_orders(
+        self,
+        count: int,
+    ) -> list[list[int]]:
 
-            if rows_of_color and not columns_of_color:
-                orientation = "horizontal"
-                divider_indices = rows_of_color
-                length = input_grid.shape[0]
-            elif columns_of_color and not rows_of_color:
-                orientation = "vertical"
-                divider_indices = columns_of_color
-                length = input_grid.shape[1]
-            else:
-                continue
+        if count == 0:
+            return [[]]
 
-            panels = []
-            start = 0
+        all_permutations = []
 
-            for divider_index in divider_indices + [length]:
-                if orientation == "horizontal":
-                    panel = input_grid[start:divider_index, :]
-                else:
-                    panel = input_grid[:, start:divider_index]
+        for first_index in range(count):
+            remaining_indices = [
+                index
+                for index in range(count)
+                if index != first_index
+            ]
 
-                panels.append(panel)
-                start = divider_index + 1
+            for rest in self.get_panel_orders(count - 1):
+                all_permutations.append(
+                    [first_index]
+                    + [remaining_indices[position] for position in rest]
+                )
 
-            if len(panels) < 2:
-                continue
+        return all_permutations
 
-            if any(panel.size == 0 for panel in panels):
-                continue
-
-            if any(panel.shape != panels[0].shape for panel in panels):
-                continue
-
-            return {
-                "panels": panels,
-                "orientation": orientation,
-                "divider_color": divider_color,
-                "background_color": background_color,
-                "panel_count": len(panels),
-                "panel_shape": panels[0].shape,
-            }
-
-        return None
-
-    def detect_panel_combination(
+    def find_panel_combo_transformations(
         self,
         input_grid: np.ndarray,
         output_grid: np.ndarray,
+        regions: list[dict],
+        relationships: list[dict],
     ) -> dict | None:
 
-        panel_info = self.extract_equal_divided_panels(
-            input_grid
+        panel_info = self.get_divided_panels(
+            input_grid,
+            regions,
+            relationships,
         )
 
         if panel_info is None:
@@ -4674,7 +4777,7 @@ class ArcAgent:
 
         for operation in ["and", "or", "xor", "nor", "nand", "xnor"]:
             for output_color in output_colors:
-                predicted_output = self.apply_panel_combination(
+                predicted_output = self.apply_panel_combo(
                     panels,
                     background_color,
                     operation,
@@ -4693,10 +4796,9 @@ class ArcAgent:
                         "output_color": output_color,
                     })
 
-        for permutation in permutations(range(panel_count)):
-            panel_order = list(permutation)
+        for panel_order in self.get_panel_orders(panel_count):
 
-            predicted_output = self.apply_panel_combination(
+            predicted_output = self.apply_panel_combo(
                 panels,
                 background_color,
                 "ordered_overlay",
@@ -4780,14 +4882,18 @@ class ArcAgent:
 
         return common_hypotheses
 
-    def apply_validated_panel_combination(
+    def apply_validated_panel_combo(
         self,
         input_grid: np.ndarray,
+        regions: list[dict],
+        relationships: list[dict],
         change: dict,
     ) -> np.ndarray | None:
 
-        panel_info = self.extract_equal_divided_panels(
-            input_grid
+        panel_info = self.get_divided_panels(
+            input_grid,
+            regions,
+            relationships,
         )
 
         if panel_info is None:
@@ -4806,14 +4912,14 @@ class ArcAgent:
 
         for hypothesis in change["valid_hypotheses"]:
             if hypothesis["operation"] == "ordered_overlay":
-                prediction = self.apply_panel_combination(
+                prediction = self.apply_panel_combo(
                     panels,
                     background_color,
                     "ordered_overlay",
                     panel_order=hypothesis["panel_order"],
                 )
             else:
-                prediction = self.apply_panel_combination(
+                prediction = self.apply_panel_combo(
                     panels,
                     background_color,
                     hypothesis["operation"],
@@ -4838,7 +4944,7 @@ class ArcAgent:
 
         return predictions[0]
 
-    def apply_panel_combination(
+    def apply_panel_combo(
         self,
         panels: list[np.ndarray],
         background_color: int,
@@ -4863,7 +4969,7 @@ class ArcAgent:
             for panel_index in panel_order:
                 ordered_panels.append(panels[panel_index])
 
-            return self.apply_ordered_overlay(
+            return self.apply_panel_order_overlay(
                 ordered_panels,
                 background_color,
             )
@@ -4905,7 +5011,7 @@ class ArcAgent:
 
         return output_grid
 
-    def apply_ordered_overlay(
+    def apply_panel_order_overlay(
         self,
         panels: list[np.ndarray],
         background_color: int,
@@ -4967,20 +5073,20 @@ class ArcAgent:
         column: int,
         direction: str,
     ) -> int:
-        row_offset, column_offset = DIRECTION_OFFSETS[direction]
+        row_step, column_step = DIRECTIONS[direction]
 
         height = grid.shape[0]
         width = grid.shape[1]
 
-        current_row = row + row_offset
-        current_column = column + column_offset
+        current_row = row + row_step
+        current_column = column + column_step
 
         while 0 <= current_row < height and 0 <= current_column < width:
             if grid[current_row, current_column] != 0:
                 return int(grid[current_row, current_column])
 
-            current_row += row_offset
-            current_column += column_offset
+            current_row += row_step
+            current_column += column_step
 
         return -1
 
@@ -5045,7 +5151,7 @@ class ArcAgent:
 
                 output_color = int(output_grid[row, column])
 
-                explanations = self.get_cell_explanations(
+                explanations = self.get_cell_rule_candidates(
                     features,
                     output_color,
                 )
@@ -5084,7 +5190,7 @@ class ArcAgent:
 
                 output_color = int(output_grid[row, column])
 
-                explanations = self.get_cell_explanations(
+                explanations = self.get_cell_rule_candidates(
                     features,
                     output_color,
                 )
@@ -5182,10 +5288,10 @@ class ArcAgent:
                         ):
                             touches_boundary = True
 
-                        for row_offset, column_offset in directions:
+                        for row_step, column_step in directions:
 
-                            next_row = current_row + row_offset
-                            next_column = current_column + column_offset
+                            next_row = current_row + row_step
+                            next_column = current_column + column_step
 
                             if (
                                 next_row < top
@@ -5275,14 +5381,7 @@ class ArcAgent:
         height = bottom-top+1
         width = right-left+1
 
-        return {
-            "top": top,
-            "bottom": bottom,
-            "left": left,
-            "right": right,
-            "height": height,
-            "width": width,
-        }
+        return{"top": top, "bottom":bottom, "left": left, "right": right, "height": height, "width": width}
 
 
 
@@ -5302,19 +5401,13 @@ class ArcAgent:
             current_row = grid[row]
 
             if np.all(current_row == current_row[0]):
-                full_rows.append({
-                    "index": row,
-                    "color": current_row[0].item(),
-                })
+                full_rows.append({"index": row, "color": current_row[0].item()})
 
         for column in range(grid.shape[1]):
             current_column = grid[:, column]
 
             if np.all(current_column == current_column[0]):
-                full_columns.append({
-                    "index": column,
-                    "color": current_column[0].item(),
-                })
+                full_columns.append({"index": column, "color": current_column[0].item(),})
 
         corners = {
             "top_left": grid[0, 0].item(),

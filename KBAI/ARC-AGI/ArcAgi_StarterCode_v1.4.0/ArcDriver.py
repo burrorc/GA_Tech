@@ -2,6 +2,7 @@ import json
 import os.path
 
 import numpy as np
+import time
 
 from ArcData import ArcData
 from ArcProblem import ArcProblem
@@ -15,7 +16,15 @@ def run_training_data(agent: ArcAgent, arc_problems: list[ArcProblem]) -> dict[A
     """
     train_ans_dict: dict[ArcProblem, tuple[bool, list]] = dict()
     for trn_problem in arc_problems:
+        start_time = time.perf_counter()
         preds: list[np.ndarray] = agent.make_predictions(trn_problem)
+        end_time = time.perf_counter()
+        elapsed_ms = (end_time - start_time) * 1000
+
+        print(
+            trn_problem.problem_name(),
+            f"{elapsed_ms:.3f} ms"
+        )
         correct = False
 
         if len(preds) <= 3:
@@ -59,7 +68,7 @@ def load_arc_problems(path: str, problem_data: list[str]) -> list[ArcProblem]:
 
 if __name__ == "__main__":
 
-    milestone_groups = ["B", "C", "D"]
+    milestone_groups = ["B","C","D"]
 
     arc_milestone_problems = []
     problem_groups = {}
