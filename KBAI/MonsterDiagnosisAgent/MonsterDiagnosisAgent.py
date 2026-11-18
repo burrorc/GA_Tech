@@ -44,46 +44,13 @@ class MonsterDiagnosisAgent:
         for vitamin, value in patient.items():
             patient_vector[vitamin] = vector_values[value]
         
-        
-        # sums_diseases = {vitamin: 0 for vitamin in patient}
-
-        # for name, symptoms in disease_vectors.items():
-        #     for vitamin, value in symptoms.items():
-        #         sums_diseases[vitamin] += value
-        
-        # selected_diseases = ["Alphaitis", "Betatosis"]
 
         for size in range(len(diseases)+1):
             for combination in combinations(diseases, size):
                 sums_diseases = self.get_sums_disease(combination, disease_vectors)
                 is_match = self.get_is_match(sums_diseases, patient_vector)
                 if(is_match):
-                    print("Selected diseases:", combination)
-                    print("Valid diagnosis:", is_match)
                     return list(combination)
-        # sums_diseases = {vitamin: 0 for vitamin in patient}
-        
-        # for name in selected_diseases:
-        #     symptoms = disease_vectors[name]
-        #     for vitamin, value in symptoms.items():
-        #         sums_diseases[vitamin] += value
-
-        # is_match = True
-        # for vitamin, total in sums_diseases.items():
-
-        #     if total > 0:
-        #         predicted = 1
-        #     elif total < 0:
-        #         predicted = -1
-        #     else:
-        #         predicted = 0
-
-        #     if predicted != patient_vector[vitamin]:
-        #         is_match = False
-        #         break
-
-        # print("Selected diseases:", selected_diseases)
-        # print("Valid diagnosis:", is_match)
 
         pass
 
@@ -100,9 +67,9 @@ class MonsterDiagnosisAgent:
         is_match = True
         for vitamin, total in sums_diseases.items():
 
-            if total > 0:
+            if (total > 0):
                 predicted = 1
-            elif total < 0:
+            elif (total < 0):
                 predicted = -1
             else:
                 predicted = 0
