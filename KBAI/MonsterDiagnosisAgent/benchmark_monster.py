@@ -11,9 +11,10 @@ import argparse
 import random
 import statistics
 import time
+import tracemalloc
 from itertools import combinations
 
-from MonsterDiagnosisAgent import MonsterDiagnosisAgent
+from MonsterDiagnosisAgent_v7 import MonsterDiagnosisAgent
 
 VITAMINS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 TO_NUMBER = {"+": 1, "-": -1, "0": 0}
@@ -72,12 +73,19 @@ def smallest_size_bruteforce(diseases, patient):
 def run_case(label, disease_count, planted_count, seed, repetitions):
     diseases, patient, planted = make_case(disease_count, planted_count, seed)
     times_ms = []
+    # peaks_mib = []
     result = None
     for _ in range(repetitions):
         agent = MonsterDiagnosisAgent()
         start = time.perf_counter()
+        # tracemalloc.start()
         result = agent.solve(diseases, patient)
+        # current, peak = tracemalloc.get_traced_memory()
+        # tracemalloc.stop()
+        # peaks_mib.append(peak / (1024 ** 2))
         times_ms.append((time.perf_counter() - start) * 1000)
+        
+    # print(f"Median peak memory: {statistics.median(peaks_mib):.3f} MiB")
 
     valid = is_valid(diseases, patient, result)
     optimum = smallest_size_bruteforce(diseases, patient) if disease_count <= 10 else None

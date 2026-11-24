@@ -1,0 +1,5 @@
+,In-Sample,In-Sample,Out-of-Sample,Out-of-Sample
+,Manual Strategy,Benchmark,Manual Strategy,Benchmark
+CR,0.184986,0.012325,0.098643,-0.083579
+SDDR,0.015167,0.017041,0.007826,0.008500
+ADR,0.000451,0.000169,0.000218,-0.000137

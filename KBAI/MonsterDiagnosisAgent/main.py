@@ -1,8 +1,8 @@
-from MonsterDiagnosisAgent import MonsterDiagnosisAgent
+from MonsterDiagnosisAgent import MonsterDiagnosisAgent_v3_1
 
 def test():
     #This will run your code against two initial test cases.
-    test_agent = MonsterDiagnosisAgent()
+    test_agent = MonsterDiagnosisAgent_v3_1()
 
     diseases = {"Alphaitis":
              {"A": "+", "B": "0", "C": "-", "D": "0", "E": "0", "F": "+", "G": "0", "H": "0", "I": "+",
