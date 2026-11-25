@@ -96,17 +96,22 @@ if __name__ == "__main__":
         )
         all_stats[name] = stats
 
-        print(f"\n{name}")
-        print(stats.to_string(float_format="%.6f"))
-        print(f"Transactions: {(trades[symbol] != 0).sum()}")
-
         get_manual_chart(manual_values, benchmark_values, trades, f"Manual Strategy v Benchmark ({name})",f"manual_{name.lower()}.png" )
 
     combined_stats = pd.concat(all_stats, axis=1)
 
-    combined_stats.to_csv("manual_strategy_stats.csv",float_format="%.6f")
-
-    exp1.perform_experiment(symbol, periods, sv, commission, impact)
+    exp1_stats = exp1.perform_experiment(symbol, periods, sv, commission, impact)
     
     sd, ed = periods["In-Sample"]
-    exp2.perform_experiment(symbol, sd, ed, sv)
+    exp2_stats = exp2.perform_experiment(symbol, sd, ed, sv)
+
+    with open("p8_results.txt", "w") as f:
+         f.write("MANUAL STRATEGY\n")
+         f.write(combined_stats.to_string(float_format="%.6f"))
+
+         f.write("\n\nEXPERIMENT 1\n")
+         f.write(exp1_stats.to_string(float_format="%.6f"))
+
+         f.write("\n\nEXPERIMENT 2\n")
+         f.write(exp2_stats.to_string(index=False, float_format="%.6f"))
+

@@ -1,0 +1,21 @@
+MANUAL STRATEGY
+           In-Sample             Out-of-Sample          
+     Manual Strategy Benchmark Manual Strategy Benchmark
+CR          0.184986  0.012325        0.098643 -0.083579
+SDDR        0.015167  0.017041        0.007826  0.008500
+ADR         0.000451  0.000169        0.000218 -0.000137
+
+EXPERIMENT 1
+           In-Sample                              Out-of-Sample                           
+     Manual Strategy Strategy Learner Benchmark Manual Strategy Strategy Learner Benchmark
+CR          0.184986         0.141317  0.012325        0.098643         0.023684 -0.083579
+SDDR        0.015167         0.006306  0.017041        0.007826         0.002546  0.008500
+ADR         0.000451         0.000282  0.000169        0.000218         0.000050 -0.000137
+
+EXPERIMENT 2
+  Impact        CR  Transactions  Shares Traded  Long Days  Short Days  Cash Days     SDDR
+0.000000  1.014800           207         256000        102         207        196 0.009026
+0.005000  0.017161            70          70000         45          22        438 0.006751
+0.010000 -0.022039            16          16000         20           0        485 0.005414
+0.020000  0.130284             8           8000          8           0        497 0.003159
+0.050000  0.000000             0              0          0           0        505 0.000000

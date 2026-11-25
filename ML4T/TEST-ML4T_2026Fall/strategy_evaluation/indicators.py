@@ -1,10 +1,9 @@
-import datetime as dt  		  	   		 		  		  		  		    	 		 		   		 		  
-import os  		  	   		 		  		  		  		    	 		 		   		 		  
+import datetime as dt  		 	  	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
 import numpy as np  		  	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
 import pandas as pd  		  	   		 		  		  		  		    	 		 		   		 		  
-from util import get_data, plot_data  
+from util import get_data
 
 def author():
     """  		  	   		 		  		  		  		    	 		 		   		 		  
@@ -98,21 +97,3 @@ def convert_to_trades(signals, symbol):
     trades.iloc[0] = holdings.iloc[0]
 
     return trades.to_frame(name=symbol)
-
-
-if __name__ == "__main__":
-    signals = pd.Series(
-        [1, 1, -1, -1, 0, 1, 0, -1],
-        index=pd.bdate_range("2008-01-02", periods=8)
-    )
-
-    trades = convert_to_trades(signals, "JPM")
-
-    print("SIGNALS")
-    print(signals)
-
-    print("\nTRADES")
-    print(trades)
-
-    print("\nHOLDINGS")
-    print(trades.cumsum())

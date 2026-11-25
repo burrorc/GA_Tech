@@ -73,7 +73,5 @@ def perform_experiment(symbol, sd, ed, sv):
     get_impact_chart(results, "Transactions", "Num of Transactions", "Market Impact on Trading Frequency", "Experiment_2_transactions.png")
 
 
-    results.to_csv("experiment2_stats.csv", index=False, float_format="%.6f")
+    return results
 
-    print("\nExperiment 2")
-    print(results.to_string(index=False, float_format="%.6f"))

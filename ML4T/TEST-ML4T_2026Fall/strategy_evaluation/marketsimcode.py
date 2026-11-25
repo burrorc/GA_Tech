@@ -25,14 +25,10 @@ Student Name: Robert Burrows (replace with your name)
 GT User ID: rburrows3 (replace with your User ID)  		  	   		 		  		  		  		    	 		 		   		 		  
 GT ID: 904201091 (replace with your GT ID)  	 		  	   		 		  		  		  		    	 		 		   		 		  
 """  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-import datetime as dt  		  	   		 		  		  		  		    	 		 		   		 		  
-import os  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		 		  		  		  		    	 		 		   		 		  
+	   		 		  		  		  		    	 		 		   		 		  
   		  	   		 		  		  		  		    	 		 		   		 		  
 import pandas as pd  		  	   		 		  		  		  		    	 		 		   		 		  
-from util import get_data, plot_data  
+from util import get_data  
 
 def author():
     """  		  	   		 		  		  		  		    	 		 		   		 		  
@@ -138,7 +134,4 @@ def get_stats(portvals):
     cr = values.iloc[-1] / values.iloc[0] - 1
 
     return {"CR": cr,"SDDR": daily_returns.std(),"ADR": daily_returns.mean()} 		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-  		  	   		 		  		  		  		    	 		 		   		 		  
-if __name__ == "__main__":  		  	   		 		  		  		  		    	 		 		   		 		  
-    pass		  	   		 		  		  		  		    	 		 		   		 		  
+  		  	   		 		  		  		  		    	 		 		   		 		  	 		  		  		  		    	 		 		   		 		  

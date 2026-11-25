@@ -1,4 +1,4 @@
-import datetime as dt
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -77,9 +77,7 @@ def perform_experiment(symbol, periods, sv, commission, impact):
 
         get_strategy_chart(manual_values, learner_values, benchmark_values, f"Strategy Comparison ({name})", f"Experiment_1_{name.lower()}.png")
 
-        print(f"\nExperiment 1: {name}")
-        print(stats.to_string(float_format="%.6f"))
 
     combined_stats = pd.concat(all_stats, axis=1)
 
-    combined_stats.to_csv("experiment1_stats.csv",float_format="%.6f")
+    return combined_stats

@@ -1,0 +1,1116 @@
+Exit position #1479
+Anonymous
+6 hours ago6 hours ago, Nov 24, 2026, 3:27 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+78
+77
+88
+Views
+
+Hi,
+
+Could you please clarify on the exit condition in the project again for me? For example, if the last day in the trading period is December 31, 2009, do I have to exit on the exact day doesn't matter if I gain or lose? Or I can choose to exit and turn my portfolio into cash fully anytime before that to secure my gain?
+
+Thank you.
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+3 hours ago3 hours ago, Nov 24, 2026, 7:00 PM
+
+1
+
+You do not need to exit on the last day. We are tracking portfolio value, which includes stock positions and cash.
+
+
+You may not sell at any point to “secure your gains”. You may only trade when your learner says to trade.
+
+
+Lookback Window Clarification #1478
+Anonymous
+20 hours ago20 hours ago, Nov 24, 2026, 1:37 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+134
+11
+33
+44
+Views
+
+Do "lookback windows" refer to the duration of past data that each indicator looks back on to calculate its output? I wasn't sure if this is what a "lookback window" meant, because it could also mean a different thing if we are using classification trees specifically so I wanted to clarify?
+
+If it is referring to the indicators, if we structured our indicators in Project 6 to take in parameters (but have a default value present as well), are we allowed to override those defaults with new values while tuning (e.g. passing in 7 days instead of the default of 14 days specified for that indicator while creating it in Project 6)?
+
+Comment
+
+1 Answer
+Answer by Matt Winzenried
+Matt Winzenried
+12 hours ago12 hours ago, Nov 24, 2026, 9:43 AM
+
+
+Yes, lookback window can refer to the window of time used to make calculations for indicators.  I'm not sure what it might mean in the other context you're talking about.  Maybe you're referring to the N-day lookahead?
+
+Yes, you should be tuning your indicators to get the best performance possible during the in-sample period.
+
+
+Clarification about Strategy Learner features #1477
+Sogol Babaeinejadsarookolaee
+20 hours ago20 hours ago, Nov 24, 2026, 1:33 AM in Project 8 | Strategy Evaluation > – P8 | Random Forest Trader
+
+Star
+
+Watch
+
+125
+11
+22
+55
+Views
+
+Hi,
+
+I have a question about the requirement that ManualStrategy and StrategyLearner must use the same indicators. Would it be acceptable to use additional features in StrategyLearner that are not technical indicators, while still using the same technical indicators as ManualStrategy?
+
+For example, would it be allowed to include the current portfolio position as an additional feature alongside the technical indicators?
+
+Thank you!
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+3 hours ago3 hours ago, Nov 24, 2026, 7:01 PM
+
+
+I don’t think you could include that as a feature given the features are passed in at the start and are unknown.
+
+Comment
+
+Strategy Performance #1476
+Anonymous
+22 hours ago22 hours ago, Nov 23, 2026, 11:25 PM in Project 8 | Strategy Evaluation > – P8 | Random Forest Trader
+
+Star
+
+Watch
+
+137
+11
+33
+77
+Views
+
+I implemented a Random Forest model for my Strategy Learner, but it tends to underperform my Manual Strategy by a significant margin. After reviewing the project requirements and report rubric, I did not see an explicit requirement for the Strategy Learner to outperform the Manual Strategy. Could you confirm whether this is acceptable, provided that I analyze and explain the potential reasons for the performance difference in my report?
+
+Comment
+
+1 Answer
+Answer by Matt Winzenried
+Matt Winzenried
+12 hours ago12 hours ago, Nov 24, 2026, 9:46 AM
+
+
+Many of the questions here are addressed in the FAQ: Q7, Q2, Q4
+
+Time Limit on Hyperparameter tuning #1475
+Deborshi Goswami
+22 hours ago22 hours ago, Nov 23, 2026, 11:07 PM in Project 8 | Strategy Evaluation > – P8 | Q-Learner Trader
+
+Star
+
+Watch
+
+106
+11
+00
+66
+Views
+
+In the assignment instructions - Section 4: Strategy Learner, it says
+
+Describe the hyperparameters, their values, and how they were determined. 
+
+In the project explainer video, the instructor says they used an excel sheet based approach to tune Learner params. That is a relatively simple explanation in the report and no expectation of submitting the excel file. If I use code to tune the hyperparams, does that code need to run on executing testProject.py or is explaining it in the report enough? I wrote a grid search parameter optimization script (which will run for ~10 hours in the final run). There's no way I can optimize it down to the code execution limit.
+
+Edit: I will use the optimizer based approach if I have time left over though so maybe that will help.
+
+Comment
+
+Is there a time limit on how long experiment 2 should take to run #1474
+Jordan Malik Barrett
+23 hours ago23 hours ago, Nov 23, 2026, 10:12 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+117
+11
+11
+77
+Views
+
+I understand from the instructions that calling add_evidence on each of the test cases needs to run in under 25 seconds for our StrategyLearner. However, if we're taking multiple measures for experiment 2 to test how impact changes trading strategies it might require re-training our learner multiple times. In this instance would there be a maximum amount of time that experiment 2 is expected to be completed in?
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+13 hours ago13 hours ago, Nov 24, 2026, 8:16 AM
+
+
+Experiment 2 is called from test project, it is not called directly.  I believe Test Project has a time limit on its run of 10 minutes:
+
+3.3.5 Implement Test Project
+Execution Limit: 10 minutes 
+For any instances that strategy learner is called directly, like in the grading script, there is a limit of 25 seconds to return.
+
+
+sma vs sma ratio #1462
+Anonymous
+2 days ago2 days ago, Nov 23, 2026, 5:01 AM in Project 8 | Strategy Evaluation > – P8 | Random Forest Trader
+
+Star
+
+Watch
+
+160
+11
+66
+00
+Views
+
+So I used SMA as my indicator and coded it. I also used that metric in my manual rules. However, I was wondering if I could use, for my tree, a ratio of SMA where it would be Price/SMA(40 days) - 1. Or do I have to purely use my SMA value 
+
+Comment
+
+1 Answer
+Answer by Steven Bryant
+Steven Bryant
+Yesterdayyesterday, Nov 23, 2026, 2:41 PM
+
+
+This is fine, as we treat them as the same thing (please see Q2 in the P6 FAQ).
+
+Comment
+
+How does the rules preventing different types of stops apply? Are we not allowed to sell for a loss? #1457
+Hiep Huynh
+2 days ago2 days ago, Nov 22, 2026, 6:58 PM in Project 8 | Strategy Evaluation > – P8 | Manual Rules Trader
+
+Star
+
+Watch
+
+205
+22
+00
+55
+Views
+
+3.2 Data Details, Dates & Rules
+Only buy/sell actions are allowed. Stops, trailing stops, stop-loss, or any other trading setup is not allowed.
+
+How does this apply? if we buy a position we can't sell it if we're down by let's say 5%? How do you differentiate buy and sell orders from buying and selling positions to get of a losing position which would be a stop?
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+2 days ago2 days ago, Nov 22, 2026, 7:10 PM
+
+
+Your buys and sells need to be triggered by your model, which is in turn learning from your indicators.
+
+You cannot initiate a buy/sell unless it's triggered by that.
+
+A stop loss is not triggered by the model, but by market sentiment/momentum.
+
+Comment
+
+Hiep Huynh
+2d2 days ago, Nov 22, 2026, 8:05 PM
+So can a stop be triggered by your rules in the manual strategy then because it not the model?
+
+
+Reply
+
+
+Barbara Noble
+2d2 days ago, Nov 22, 2026, 8:12 PM
+No.  You cannot use stop-losses at all, in any strategy.
+
+You cannot duplicate this in the strategy learner, so if you did implement this, you would no longer be comparing apples-to-apples.
+
+
+Reply
+
+
+Hiep Huynh
+2d2 days ago, Nov 22, 2026, 8:24 PM
+now I'm really confuse where we get the rules to buy and sell. I thought we were manipulating our indicators to find where to buy and sell.
+
+
+Reply
+
+Matt Winzenried
+2d2 days ago, Nov 22, 2026, 8:31 PM
+Replying to Hiep Huynh
+It might be worth reviewing lesson 02-02 on order types.  Selling a stock at a loss is not what a stop is.
+
+You are using the results of your indicators to make trade decisions, this is correct.  
+
+
+Reply
+
+
+In vs Out of Sample #1454
+Anonymous
+2 days ago2 days ago, Nov 22, 2026, 12:26 PM in Project 8 | Strategy Evaluation > – P8 | Manual Rules Trader
+
+Star
+
+Watch
+
+237
+22
+33
+77
+Views
+
+To confirm. For the report and technical requirements. The out of sample needs to beat the in sample dates of January 1, 2008, to December 31, 2009. I.E the cumulative return needs to be higher from our manual than the benchmark right?
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+2 days ago2 days ago, Nov 22, 2026, 12:53 PM
+
+
+Out of sample does not need to beat in sample. Manual strategy beating the bench mark and out of sample beating in sample are not equivalent statements.
+
+Comment
+
+Anonymous
+2d2 days ago, Nov 22, 2026, 7:27 PM
+I mistyped. I meant should we use the out of sample dates or in sample dates for our report and grading evaluation
+
+
+Reply
+
+
+Barbara Noble
+2d2 days ago, Nov 22, 2026, 8:11 PM
+that depends on what parts of the assignment you're looking at.  We ask for both, just as we did in P3.
+
+
+Reply
+
+
+Anonymous
+2d2 days ago, Nov 22, 2026, 8:27 PM
+So to clarify for every learner that being manual and strategy. We need to have comparisons between our strategy and benchmark in both in and out of sample periods.
+
+
+Reply
+
+Barbara Noble
+2d2 days ago, Nov 23, 2026, 7:56 AM
+Replying to Anonymous
+Your graphs are dictated by the assignment.  I believe you are correct, but don't have the assignment in front of me to verify.  
+
+
+Reply
+
+
+Outperformance Clarification #1453
+Dalena Ngoc Nguyen
+2 days ago2 days ago, Nov 22, 2026, 11:25 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+187
+11
+88
+77
+Views
+
+Its stated that our strategies are expected to "outperform" the benchmark performance. I wanted to get some clarification on what "outperforms" entails. Manual strategy expects a table with:
+
+Cumulative return of the benchmark and Manual Strategy portfolio  
+
+STDEV of daily returns of the benchmark and Manual Strategy portfolio  
+
+Mean of daily returns of the benchmark and Manual Strategy portfolio 
+
+To outperform the benchmark, are we expected to have higher cumulative and mean returns and lower STDEV for manual strategy. Or are we only looking at cumulative returns to determine performance for both portfolios. 
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+2 days ago2 days ago, Nov 22, 2026, 12:52 PM
+
+1
+
+Only cumulative returns
+
+
+ManualStrategy and StrategyLearner need to both be SPY informed? #1451
+Thuy N Nguyen
+3 days ago3 days ago, Nov 22, 2026, 12:56 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+241
+22
+44
+11
+Views
+
+If I used SPY (calculate some indicators used in previous projects) for ManualStrategy do I need to include the same for StrategyLearner? Asking because currently my ManualStrategy performs better with SPY informed indicator while StrategyLearner performs better without. Thanks!
+
+Comment
+
+1 Answer
+Answer by Samit Jaywant Rane
+Samit Jaywant Rane
+3 days ago3 days ago, Nov 22, 2026, 2:18 AM
+
+1
+
+Hi!
+
+Based on my understanding and if I understand your question correctly: we must use exact same indicators across manual strategy and strategy learner. 
+
+From project wiki section 3.3.2:
+
+"For this part of the project, you should develop a learner that can learn a trading policy using your learner and the same indicators used in the Manual Strategy (NOTE: You can make changes to the indicators to properly work with both Manual Strategy and Strategy Learner but both strategies must use the same indicator code)." 
+
+Comment
+
+Thuy N Nguyen
+3d3 days ago, Nov 22, 2026, 2:41 AM
+Thanks! I removed the SPY-informed indicator from ManualStrategy.
+
+
+Reply
+
+
+If moving averages was one of your indicator, do you get to use both sma AND ema? or just one of the two? #1450
+Te Ling Hsu
+3 days ago3 days ago, Nov 22, 2026, 12:14 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+194
+11
+99
+44
+Views
+
+Hi,
+
+I have moving averages as one of my choice of indicator from project 6. Inside I have option to use either sma or ema, depending on the flag. For project 8, if I am using moving averages, do I get to use both sma AND ema? Or I can only choose one?
+much thanks!
+
+Best regards,
+
+Danny
+
+Comment
+
+1 Answer
+Answer by Matt Winzenried
+Matt Winzenried
+2 days ago2 days ago, Nov 22, 2026, 10:44 AM
+
+
+You may use the indicator you picked for project 6.  EMA and SMA are not the same.  
+
+
+Query on output tables #1448
+Jordan Malik Barrett
+3 days ago3 days ago, Nov 21, 2026, 7:35 PM in Project 8 | Strategy Evaluation > – P8 | Experiments & Analysis
+
+Star
+
+Watch
+
+204
+22
+00
+44
+Views
+
+The instructions specify that we must produce tables which analyze the performance of our manual trader for in-sample and out-of-sample periods. The wording is as follows:
+
+Create a table that summarizes the performance of the stock benchmark, and the Manual Strategy for both in-sample and out-of-sample periods.  At a minimum, the table must include....
+I wanted to confirm whether we could produce multiple tables, one for the in-sample period and another for out-of-sample, or if both periods must have their details captured on the same table.
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+3 days ago3 days ago, Nov 21, 2026, 10:22 PM
+
+1
+
+Ideally, one table is preferred - it makes grading simpler.  However if your story in your paper lays out so that having those tables separated is better, it's fine.
+
+Comment
+
+Jordan Malik Barrett
+2d2 days ago, Nov 22, 2026, 7:29 PM
+Thanks for clarifying!
+
+
+Can indicators be single-column dataframes? #1446
+Jordan Malik Barrett
+3 days ago3 days ago, Nov 21, 2026, 9:57 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+219
+22
+11
+99
+Views
+
+Hi all,
+
+
+The instructions specify that "Indicators must return a single results vector. As an example, the MACD indicator can only return one vector". I wanted to know if a single-column dataframe or series would also count here as a vector. The reason I'm asking is it would be convenient to keep the date indexing on the indicators. If this is not permitted, please do let me know.
+
+Comment
+
+1 Answer
+Answer by Samit Jaywant Rane
+Samit Jaywant Rane
+3 days ago3 days ago, Nov 21, 2026, 10:23 AM
+
+Hi ,
+
+Based on my understanding, as long as it’s a single column data structure it’s fine. 
+
+
+Variations of Random Forest #1443
+Christopher Ryan Jakuback
+5 days ago5 days ago, Nov 19, 2026, 8:16 PM in Project 8 | Strategy Evaluation > – P8 | Random Forest Trader
+
+Star
+
+Watch
+
+259
+22
+55
+99
+Views
+
+Hello, for the previous projects we used a version of random trees where we took the average of two randomly selected data points from a randomly selected feature to create our split point for each node. I know there are other ways to select subsets of features and split points in different implementations of Random Forest. Are we able to augment the selection process, or are we bound to this specific version of the learner? 
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+5 days ago5 days ago, Nov 19, 2026, 8:53 PM
+
+
+I believe you are pointing to use GINI or other variants?
+
+No, you are bound to the instructions in the assignment.  There are changes you need to make to your learner, so be sure you look at the hints page to correctly implement those.
+
+
+
+Transaction Cost #1442
+Anonymous
+5 days ago5 days ago, Nov 19, 2026, 6:18 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+235
+22
+33
+55
+Views
+
+Hi,
+
+Is the transaction cost of the Benchmark portfolio also default as:
+
+Commission: $9.95
+
+Impact: 0.005
+
+?
+
+Thanks.
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+5 days ago5 days ago, Nov 19, 2026, 7:30 PM
+
+
+From the assignment:
+
+3.2 Data Details, Dates & Rules
+Use only the data provided for this course. You are not allowed to import external data. 
+
+For your report, trade only the symbol JPM. This will enable us to compare results more easily. We will test your Strategy Learner with other symbols as well. 
+
+You may use data from other symbols (such as SPY) to inform both your Manual Strategy and Strategy Learner. 
+
+The in-sample period is from January 1, 2008, to December 31, 2009. 
+
+The out-of-sample/testing period is from January 1, 2010, to December 31, 2011. 
+
+The starting cash is $100,000. 
+
+Allowable positions are 1000 shares long, 1000 shares short, 0 shares. 
+
+Only buy/sell actions are allowed. Stops, trailing stops, stop-loss, or any other trading setup is not allowed.  
+
+Benchmark: The performance of a portfolio starting with $100,000 cash, investing in 1000 shares of the symbol in use on the first trading day,  and holding that position. Include transaction costs. 
+
+There is no limit on leverage. This means that you do not need to confirm that you have the capital to make your trade.  All trades can be executed without validating available cash in your portfolio.
+
+Transaction costs: 
+
+ManualStrategy and StrategyLearner: Commission: $9.95, Impact: 0.005 (unless stated otherwise in an experiment). 
+
+Auto-Grader Commission will always be $0.00, Impact may vary, and will be passed in as a parameter to the learner
+
+
+
+StrategyLearner Grading Clarification #1441
+Anonymous
+5 days ago5 days ago, Nov 19, 2026, 4:21 PM in Project 8 | Strategy Evaluation > – P8 | Q-Learner Trader
+
+Star
+
+Watch
+
+218
+22
+11
+88
+Views
+
+Is our StrategyLearner only going to be evaluated against the metrics presented in the spec (I have pasted them below for reference). According to Professor Balch's QLearning Trader Project Overview video, our QLearner strategy should return 400% in-sample and 100% out of sample; which doesn't seem to be included in the spec. 
+
+I just wanted to confirm that the Project 8 briefing on edlessons and the 'Project 8: Strategy Evaluation (Report)' assignment on Canvas are the source of truth and will identify the grading metrics for this semester.
+
+
+
+"For ML4T-220 
+
+add_evidence() completes without crashing within 25 seconds: 1 points 
+
+testPolicy() completes in-sample within 5 seconds: 2 points 
+
+testPolicy() returns same result when called in-sample twice: 2 points 
+
+testPolicy() returns an in-sample result with cumulative return greater than 100%: 5 points 
+
+testPolicy() returns an out-of-sample result with cumulative return greater than 100%: 5 points 
+
+For AAPL 
+
+add_evidence() completes without crashing within 25 seconds: 1 points 
+
+testPolicy() completes in-sample within 5 seconds: 2 points 
+
+testPolicy() returns same result when called in-sample twice: 2 points 
+
+testPolicy() returns an in-sample result with cumulative return greater than benchmark: 5 points 
+
+testPolicy() returns an out-of-sample result within 5 seconds: 5 points 
+
+For SINE_FAST_NOISE 
+
+add_evidence() completes without crashing within 25 seconds: 1 points 
+
+testPolicy() completes in-sample within 5 seconds: 2 points 
+
+testPolicy() returns same result when called in-sample twice: 2 points 
+
+testPolicy() returns an in-sample result with cumulative return greater than 200%: 5 points 
+
+testPolicy() returns an out-of-sample result within 5 seconds: 5 points 
+
+For UNH 
+
+add_evidence() completes without crashing within 25 seconds: 1 points 
+
+testPolicy() completes in-sample within 5 seconds: 2 points 
+
+testPolicy() returns same result when called in-sample twice: 2 points 
+
+testPolicy() returns an in-sample result with cumulative return greater than benchmark: 5 points 
+
+testPolicy() returns an out-of-sample result within 5 seconds: 5 points 
+
+Withheld test case 1: In-sample test case for an unknown symbol. 
+
+If any part of code crashes: 0 points awarded. 
+
+testPolicy() returns an in-sample result with cumulative return greater than benchmark: 5 points 
+
+Withheld test case 2: In-sample test case to verify that strategy accounts for different values of impact 
+
+If any part of code crashes: 0 points awarded. 
+
+Learner returns different trades when impact value is significantly different: 5 points"
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+5 days ago5 days ago, Nov 19, 2026, 4:28 PM
+
+
+Use the rubric.  Everything will be graded against the specifics in the rubric.
+
+
+Using of Indicators #1438
+Anonymous
+6 days ago6 days ago, Nov 18, 2026, 7:45 PM in Project 8 | Strategy Evaluation > – P8 | Manual Rules Trader
+
+Star
+
+Watch
+
+313
+33
+11
+33
+Views
+
+Hello,
+
+I would like to clarify this sentence "All indicators must be used in some way to determine a buy/sell signal.  You cannot use a single indicator for all signals." in the project description and Project-8 FAQ, Q.3.
+
+Does it mean as long as I involve all my indicators in my strategy somehow to playing a role in my trading decision but not always all of them have to be it should be good? For example: I decide to use 4 indicators A,B, C, and D.
+
+My strategy works like this,
+
+if A > 1:
+
+   if B < -1:
+
+       Buy
+
+else:
+
+   if C > 0 and D < -1:
+
+       Sell
+
+   elif C > 0 and B < -1:
+
+       Buy
+
+So in the algorithm above, I don't specifically use all 4 together at the same time always for my trading decision but I used all 4 by cases. Is it still valid?
+
+Thanks.
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+6 days ago6 days ago, Nov 18, 2026, 8:17 PM
+
+
+As long as every indicator is being used in some way to determine trading signals that’s fine. You don’t need every indicator on every trade
+
+Comment
+
+Krishnan Shivaraman Tarakkad
+5d5 days ago, Nov 19, 2026, 3:25 PM
+On similar question, if we use 3 indictors in below combination and lets say more than 50% of the trade signal is based on one indicator, is this a valid logic of indicators?
+
+
+for eg : If A > 1 OR (B > 1 & C >1)
+
+                    Buy
+
+             else A < 1 OR (B < 1 & C < 1)
+
+                  Sell
+
+
+Reply
+
+
+Steven Bryant
+5d5 days ago, Nov 19, 2026, 3:46 PM
+Unfortunately, we can't weigh in on every permitation or possible rule-based combination in advance. So, here, I think Andrew's guidance above is the best signpost to use as guidance.
+
+
+QLearner updates #1436
+Deborshi Goswami
+7 days ago7 days ago, Nov 18, 2026, 1:31 AM in Project 8 | Strategy Evaluation > – P8 | Q-Learner Trader
+
+Star
+
+Watch
+
+282
+22
+88
+22
+Views
+
+Can we make changes to our QLearner class to add public methods that can be called outside the class? for example to get an action from policy without setting internal state?
+
+Comment
+
+1 Answer
+Answer by Steven Bryant
+Steven Bryant
+6 days ago6 days ago, Nov 18, 2026, 12:23 PM
+
+1
+
+You can always add methods. The restriction is on chagnging the API signature of one of the provided class elements defined in the API.
+
+
+
+Charts for Manual Strategy #1425
+Anonymous
+Last weeklast week, Nov 16, 2026, 12:57 PM in Project 8 | Strategy Evaluation > – P8 | Manual Rules Trader
+
+Star
+
+Watch
+
+558
+55
+55
+88
+Views
+
+1
+Hello! For the Manual Strategy, the charts that we return for out of sample and insample are in the Manual Strategy class? I guess I am struggling to understand how this works with the one date range that is passed into testPolicy, and also what exactly does "in sample" here mean if we are not training? 
+
+edit: from the assignment, "You should tweak your rules as best you can to get the best performance possible during the in-sample period (do not peek at out-of-sample performance)"
+
+I guess I am struggling to see how the indicator for the in sample will be applied to the out of sample? If we calculate the indicators for the date range being used, won't those indicators be using information from the out of sample? Or is that saying for example if we see a certain BBP value that works well with in sample for a long signal, we have to use that same signal for the out of sample?
+
+Sorry for the lengthy post, thanks in advance!
+
+Comment
+
+3 Answers
+Answer by Barbara Noble
+Barbara Noble
+5 days ago5 days ago, Nov 19, 2026, 11:57 AM
+
+
+As we get further along in the class, we believe that you can architecture your code to give us the solutions we are asking for, with a few restrictions:
+
+ You must implement the API
+
+ You must conform to the file names given. 
+
+ We specify exactly how we're going to call your code in the assignment.  For each way we call your code, there is a set of output we expect to see.  (For example when we call 'StrategyLearner' directly, we expect a dataframe with daily trades to be returned - see the API.)
+
+It is up to you to decide where to have your graphs be created.  My advice is not to do any graphing in the learners, as those are called directly (see the grading script and details on how they're called in the assignment), and we want the graphs to be printed when we call testproject.  But again, that's just my preferences for M-V-C architecture.  You do you.  :)
+
+Comment
+
+Answer by Huyen Trang Ly
+Huyen Trang Ly
+Last weeklast week, Nov 17, 2026, 10:34 AM
+
+On your first question, yeah I am also confused whether I should put the method to create charts/tables and runexperiment for Manual Strategy in the ManualStrategy class or the testproject.py - which is supposed to be the controller that churns out diagrams for the report?
+
+On your second question, you will need to recalculate the indicators value again when testing against out of sample by changing the date range sd, ed - which are inputs of test_policy()
+
+Comment
+
+Noah Cass Oppermann
+6d6 days ago, Nov 18, 2026, 11:43 PM
+I had the same question on the first point, I was unsure where to generate the graphs as well.
+
+
+Reply
+
+Answer by Nedeesha Weerasuriya
+Nedeesha Weerasuriya
+Last weeklast week, Nov 17, 2026, 11:34 AM
+
+My understanding for the "in-sample" part of the Manual Strategy, is that we are manually doing the training using this data. So we can tweak our strategy (such as combinations of indicators/signals) to get the best possible result in the in-sample period. 
+
+For example I'm looking at the plot vs the benchmark in the in-sample period and adjusting my code accordingly to improve the results. Once we've finalised the strategy, we create the plots for the in-sample period and the out of sample period separately.
+
+The key point being we don't try to optimize our indicator strategies by looking at the OOS period.
+
+
+On indicators using lagging data #1397
+Peiyang Wang
+2 weeks ago2 weeks ago, Nov 13, 2026, 5:29 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+400
+44
+00
+00
+Views
+
+For certain indicators, we must use data from earlier like a 20-day vs 5-day moving average. For testing the manual and strategy learners, may we obtain information about these indicators on day 1 of the in-sample period by looking back, or must we accept the loss of information from having to start later in the period?
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+2 weeks ago2 weeks ago, Nov 13, 2026, 7:13 PM
+
+
+Just like in P6 you can look back before the start date so that you have data to trade on day 1
+
+
+Only Long Trades #1393
+Rohan Nathan Pinto
+2 weeks ago2 weeks ago, Nov 12, 2026, 7:56 PM in Project 8 | Strategy Evaluation > – P8 | Manual Rules Trader
+
+Star
+
+Watch
+
+384
+33
+88
+44
+Views
+
+Is it okay if as a result of our experimentation/tuning, we decide not use short positions in the manual strategy? My manual strategy currently performs well with only long positions and I don't see a requirement for long and short positions, only that at least one trade is executed. 
+
+Comment
+
+1 Answer
+Answer by Andrew Mckinney Hallacy
+Andrew Mckinney Hallacy
+2 weeks ago2 weeks ago, Nov 12, 2026, 9:53 PM
+
+
+I don’t think there’s any specific requirement about making both long and short trades.
+
+
+Can assess learners from project 3 fixed for project 8 #1307
+Rita Prasanthi Thella
+3 weeks ago3 weeks ago, Nov 1, 2026, 10:28 AM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+434
+44
+33
+44
+Views
+
+Hi, I made couple of mistakes in project 3, can I make the fixes and use it in project 8? or code should be used as is from the earlier projects?
+
+Thanks
+
+Comment
+
+1 Answer
+Answer by Steven Bryant
+Steven Bryant
+3 weeks ago3 weeks ago, Nov 1, 2026, 10:37 AM
+
+
+Yes, of course you can fix anything you find in your earlier work so that you can reliably use it in a future project. :-) 
+
+
+Project 8 - Strategy Lerner question #1295
+Amandeep Singh
+4 weeks ago4 weeks ago, Oct 30, 2026, 4:59 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+466
+44
+66
+66
+Views
+
+Hello Staff,
+
+As per instructions in Project 8,  we can choose any of the following three:
+
+Classification-based learner: 
+
+Reinforcement-based learner: 
+
+Optimization-based learner
+
+But looking at the code inside the StrategyLearner.py I noticed a line saying 
+
+ # this method should create a QLearner, and train it for trading  	
+
+Are we supposed to use QLearner only or we can choose any of the three mentioned above for this project ? 
+
+Please clarify.
+
+Regards,
+
+Amandeep
+
+Comment
+
+1 Answer
+Answer by Barbara Noble
+Barbara Noble
+4 weeks ago4 weeks ago, Oct 30, 2026, 8:14 PM
+
+
+You may use a classification-based learner or reinforcement-based learner.  Either one.
+
+An optimization-based learner can be used in conjunction with either of those.
+
+Comment
+
+Amandeep Singh
+4w4 weeks ago, Oct 30, 2026, 9:05 PM
+Thanks, 
+
+I am getting following error when running grade_strategy_learner.py
+
+File "grade_strategy_learner.py", line 378, in test_strategy
+    student_insample_cr = eval_policy_2(
+  File "grade_strategy_learner.py", line 515, in eval_policy_2
+    orders_df = orders_df.append(new_row)
+  File "generic.py", line 6299, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'DataFrame' object has no attribute 'append'
+
+
+seems like its is using syntax for Pandas. Can I change it to concat to stop the error?
+
+
+Reply
+
+
+Barbara Noble
+4w4 weeks ago, Oct 30, 2026, 10:00 PM
+You should not be making any changes to the grading scripts.  Have you started the environment?  Pandas is part of it.
+
+
+Reply
+
+
+Can I add more arguments in the constructors in this project #968
+Renjie Hu
+2 months ago2 months ago, Oct 8, 2026, 7:05 PM in Project 8 | Strategy Evaluation > – P8 | General | FAQ
+
+Star
+
+Watch
+
+583
+55
+88
+33
+Views
+
+For this project I wonder if I can parse more arguments into the constructors of the classes of Strategy learner and Manual learner. For example, here we are given an API in the screenshot below:
+
+
+
+I noticed that we are only given, by default, verbose, impact and commissions at the beginning. But since this is class will need to be used to build random forest and we'll need to do lots of hyperparameters tuning, especially leaf_size and num_bags, can we add these parameters into the constructor? 
+
+For example, something like this:
+
+class StrategyLearner:
+    def __init__(self,
+                 verbose=False,
+                 impact=0.0,
+                 commission=0.0,
+
+                 leaf_size=5,
+                 bags=100
+                 ):
+
+
+Additionally, I'm a little bit confused on the fact that the auto-grade will have requirements on other tickers. 
+
+So Are we supposed to train one model on JPM only and apply this model on other stocks to verify on our end? Or this auto-grader is simply calling our StrategyLearner to train a model on each stock and then perform the analysis with performance requirements shown below?
+
+
+Comment
+
+1 Answer
+Answer by Steven Bryant
+Steven Bryant
+2 months ago2 months ago, Oct 8, 2026, 7:53 PM
+
+
+The constructor and function signatures must remain unchanged, with an exception made for language specific requirements (e.g., the addition of 'self'). You can create other methods that your code can call.
+
+Comment
+
+Renjie Hu
+2mth2 months ago, Oct 8, 2026, 8:07 PM
+Thank you professor for the answer on the first question, then what about the second one?
+
+Especially, If the grader is calling our StrategyLearner to train a model on each stock separately and then perform the analysis, may I ask how we can guarantee that the performance meets certain requirements like " in-sample result with cumulative return greater than 100%" with a random stock?
+
+
+Reply
+
+
+Steven Bryant
+2mth2 months ago, Oct 8, 2026, 8:14 PM
+That's the goal of the learner.  It will "learn" during add_evidence. So, that's when the learning will see the stock. This only applies to the AI Strategy Learner, as we are only assessing the Manual Strategy on the specific stock on which you built your rules.
+
+There's an important implication here; which I'll address in tonight's KM Session so that the answer is more visible to the entire student body.
+
+
+Reply
+
+Matt Winzenried
+2mth2 months ago, Oct 8, 2026, 8:53 PM
+Also, I just want to point out that the rubric you quoted is not for a random stock.  It's specifically for the symbol ML4T-220 which is a symbol used specifically for this class.
