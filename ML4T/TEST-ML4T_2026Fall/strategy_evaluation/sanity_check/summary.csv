@@ -1,0 +1,5 @@
+Group,Period,Symbols,LearnerWins,ManualWins,Ties,LearnerWinRate,MeanLearnerCR,MeanManualCR,MeanBenchmarkCR,MeanExcessCR,LearnerBeatsBenchmark,LearnerNoTrades
+all,IS,5,2,3,0,0.400000,0.201108,0.014228,0.045578,0.186880,4,0
+all,OOS,5,3,2,0,0.600000,-0.437800,0.050614,0.509607,-0.488414,1,0
+market_symbol,IS,5,2,3,0,0.400000,0.201108,0.014228,0.045578,0.186880,4,0
+market_symbol,OOS,5,3,2,0,0.600000,-0.437800,0.050614,0.509607,-0.488414,1,0

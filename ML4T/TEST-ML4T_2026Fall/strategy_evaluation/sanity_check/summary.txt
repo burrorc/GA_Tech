@@ -1,0 +1,32 @@
+Discovered/requested symbols: 5
+Successful symbols: 5
+Failed/skipped symbols (no successful runs): 0
+Successful fits: 5; requested fits per symbol: 1
+Commission: 9.95; impact: 0.005
+Elapsed seconds: 3.0
+
+Win rates compare mean cumulative returns per symbol, not pooled portfolio returns.
+Full SPY-calendar coverage required in both periods. No price filling or retuning.
+Course test series and indices are reported separately from market symbols.
+
+        Group Period  Symbols  LearnerWins  ManualWins  Ties  LearnerWinRate  MeanLearnerCR  MeanManualCR  MeanBenchmarkCR  MeanExcessCR  LearnerBeatsBenchmark  LearnerNoTrades
+          all     IS        5            2           3     0        0.400000       0.201108      0.014228         0.045578      0.186880                      4                0
+          all    OOS        5            3           2     0        0.600000      -0.437800      0.050614         0.509607     -0.488414                      1                0
+market_symbol     IS        5            2           3     0        0.400000       0.201108      0.014228         0.045578      0.186880                      4                0
+market_symbol    OOS        5            3           2     0        0.600000      -0.437800      0.050614         0.509607     -0.488414                      1                0
+
+Top 20 out-of-sample learner advantages (all groups):
+Symbol         Group  OOS_Manual_CR  OOS_Learner_CR  OOS_Benchmark_CR  OOS_ExcessCR
+   IBM market_symbol      -0.624696       -0.059862          0.557474      0.564834
+   XOM market_symbol      -0.292662       -0.078746          0.186922      0.213917
+  MSFT market_symbol      -0.084375       -0.040919         -0.035154      0.043455
+   JPM market_symbol       0.098643       -0.016761         -0.083579     -0.115404
+  AAPL market_symbol       1.156160       -1.992710          1.922374     -3.148870
+
+Top 20 out-of-sample learner advantages (market symbols):
+Symbol         Group  OOS_Manual_CR  OOS_Learner_CR  OOS_Benchmark_CR  OOS_ExcessCR
+   IBM market_symbol      -0.624696       -0.059862          0.557474      0.564834
+   XOM market_symbol      -0.292662       -0.078746          0.186922      0.213917
+  MSFT market_symbol      -0.084375       -0.040919         -0.035154      0.043455
+   JPM market_symbol       0.098643       -0.016761         -0.083579     -0.115404
+  AAPL market_symbol       1.156160       -1.992710          1.922374     -3.148870

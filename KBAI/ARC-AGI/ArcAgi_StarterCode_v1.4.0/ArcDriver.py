@@ -102,6 +102,22 @@ if __name__ == "__main__":
         arc_milestone_problems,
     )
 
+# DEBUG TO_REMOVE
+    # arc_agent: ArcAgent = ArcAgent()
+
+    # target_problem = "b1948b0a"
+
+    # arc_milestone_problems = [
+    #     problem
+    #     for problem in arc_milestone_problems
+    #     if problem.problem_name() == target_problem
+    # ]
+
+    milestone_data_set = run_training_data(
+        arc_agent,
+        arc_milestone_problems,
+    )
+# DEBUG TO_REMOVE
     milestone_file = open(
         "Milestone_Results.csv",
         "w",

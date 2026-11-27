@@ -1,0 +1,66 @@
+Discovered/requested symbols: 1005
+Successful symbols: 950
+Failed/skipped symbols (no successful runs): 55
+Successful fits: 950; requested fits per symbol: 1
+Commission: 9.95; impact: 0.005
+Elapsed seconds: 492.8
+
+Win rates compare mean cumulative returns per symbol, not pooled portfolio returns.
+Full SPY-calendar coverage required in both periods. No price filling or retuning.
+Course test series and indices are reported separately from market symbols.
+
+             Group Period  Symbols  LearnerWins  ManualWins  Ties  LearnerWinRate  MeanLearnerCR  MeanManualCR  MeanBenchmarkCR  MeanExcessCR  LearnerBeatsBenchmark  LearnerNoTrades
+               all     IS      950          844         106     0        0.888421       1.306481     -0.563917        -0.138423      1.870399                    765              212
+               all    OOS      950          616         334     0        0.648421       1.067879     -0.600500         0.078246      1.668379                    394              236
+course_test_series     IS      404          380          24     0        0.940594       2.839396     -1.037053         0.001048      3.876448                    318              175
+course_test_series    OOS      404          380          24     0        0.940594       2.801865     -1.037315        -0.017046      3.839180                    332              175
+             index     IS        3            3           0     0        1.000000      -2.831694    -25.922434       -26.276354     23.090739                      3                0
+             index    OOS        3            2           1     0        0.666667      -8.012714    -34.653528        12.020093     26.640814                      0                0
+     market_symbol     IS      543          461          82     0        0.848987       0.188833     -0.071795        -0.097784      0.260629                    444               37
+     market_symbol    OOS      543          234         309     0        0.430939      -0.172063     -0.087365         0.083169     -0.084698                     62               61
+
+Top 20 out-of-sample learner advantages (all groups):
+  Symbol              Group  OOS_Manual_CR  OOS_Learner_CR  OOS_Benchmark_CR  OOS_ExcessCR
+    $DJI              index     -99.750404      -20.785577         34.705573     78.964827
+ML4T-249 course_test_series      -5.495659        8.309856         -0.105893     13.805515
+ML4T-056 course_test_series      -1.211012       11.978843         -0.006860     13.189855
+ML4T-269 course_test_series      -3.658260        9.241168         -0.099226     12.899428
+ML4T-343 course_test_series      -2.205134       10.074322          0.285816     12.279456
+ML4T-296 course_test_series      -6.146969        5.705054         -0.143288     11.852022
+ML4T-196 course_test_series       1.346759       13.116437         -0.216876     11.769678
+ML4T-019 course_test_series      -0.702623       11.013815          0.284387     11.716438
+ML4T-371 course_test_series      -5.822710        5.789994         -0.047794     11.612704
+ML4T-111 course_test_series      -5.256541        5.983638          0.089429     11.240179
+ML4T-154 course_test_series      -5.165747        5.975934          0.003002     11.141681
+ML4T-374 course_test_series      -5.646382        5.470046          0.149961     11.116428
+ML4T-053 course_test_series       2.200844       13.293525         -0.189233     11.092681
+ML4T-079 course_test_series      -3.560195        7.363065         -0.102414     10.923260
+ML4T-130 course_test_series      -5.140463        5.721189         -0.175904     10.861653
+ML4T-257 course_test_series       0.142696       10.908842          0.325058     10.766146
+ML4T-367 course_test_series      -3.661700        7.034811         -0.010466     10.696511
+ML4T-037 course_test_series      -4.500732        6.174461         -0.112593     10.675193
+ML4T-073 course_test_series      -5.540045        5.056669         -0.174949     10.596714
+ML4T-026 course_test_series      -5.334995        5.079512          0.063218     10.414508
+
+Top 20 out-of-sample learner advantages (market symbols):
+Symbol         Group  OOS_Manual_CR  OOS_Learner_CR  OOS_Benchmark_CR  OOS_ExcessCR
+  SHLD market_symbol      -1.426352        0.101138         -0.518615      1.527489
+  BIIB market_symbol      -0.883981       -0.011204          0.565673      0.872778
+   GLD market_symbol      -0.703159       -0.040087          0.424271      0.663072
+   WPO market_symbol      -0.309732        0.311256         -0.461823      0.620988
+    RL market_symbol      -0.545547        0.011457          0.573763      0.557004
+   IBM market_symbol      -0.624696       -0.070137          0.557474      0.554558
+   VAR market_symbol      -0.430565        0.068479          0.200092      0.499044
+   DVA market_symbol      -0.444420        0.000000          0.159393      0.444420
+    PX market_symbol      -0.432417        0.000000          0.283319      0.432417
+   UTX market_symbol      -0.475894       -0.072720          0.046962      0.403174
+   APD market_symbol      -0.438167       -0.035058          0.061646      0.403108
+   AGN market_symbol      -0.310009        0.079994          0.248205      0.390003
+   VFC market_symbol      -0.453446       -0.068464          0.568802      0.384982
+   DNB market_symbol      -0.382814        0.000000         -0.052513      0.382814
+  PCLN market_symbol      -1.362065       -0.985097          2.465352      0.376968
+   FLS market_symbol      -0.586511       -0.239812          0.046021      0.346699
+   TRV market_symbol      -0.316919        0.023929          0.118384      0.340847
+  CELG market_symbol      -0.365240       -0.036085          0.118943      0.329156
+   ACN market_symbol      -0.428324       -0.114299          0.126466      0.314025
+  ORLY market_symbol      -0.312079        0.000000          0.415341      0.312079

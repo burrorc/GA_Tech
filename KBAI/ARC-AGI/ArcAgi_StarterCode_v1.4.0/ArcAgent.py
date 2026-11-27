@@ -107,13 +107,82 @@ class ArcAgent:
                 count,
             )
             training_change_candidates.append(change_candidates)
-            
-            
+            # DEBUG TO_REMOVE
+            with open("debug_output.txt", "a") as debug_file:
+                print("\n==============================", file=debug_file)
+                print(f"TRAINING SET {count}", file=debug_file)
+                print("==============================", file=debug_file)
+
+                print("\nCOLOR MAPPINGS:", file=debug_file)
+                for mapping in analysis.color_mappings:
+                    print(mapping, file=debug_file)
+
+                print("\nINPUT/OUTPUT TRANSFORMATIONS:", file=debug_file)
+                for transformation in analysis.input_output_transformations:
+                    if transformation.get("transformation") == "color_change":
+                        print(transformation, file=debug_file)
+
+                print("\nCOLOR-RELATED CHANGE CANDIDATES:", file=debug_file)
+                for candidate in change_candidates:
+                    if candidate.get("change_type") in ("color_mapping", "color_change"):
+                        print(candidate, file=debug_file)
+
+                print("\nINPUT GRID:", file=debug_file)
+                print(analysis.input_grid, file=debug_file)
+
+                print("\nOUTPUT GRID:", file=debug_file)
+                print(analysis.output_grid, file=debug_file)
+
+                print("\nINPUT SHAPES:", file=debug_file)
+                for shape in analysis.input_shapes:
+                    print(
+                        f"id={shape.object_id}, "
+                        f"color={shape.color}, "
+                        f"cells={len(shape.cells)}, "
+                        f"height={shape.height}, "
+                        f"width={shape.width}, "
+                        f"bounds=({shape.top},{shape.left})-({shape.bottom},{shape.right})",
+                        file=debug_file,
+                    )
+
+                print("\nOUTPUT SHAPES:", file=debug_file)
+                for shape in analysis.output_shapes:
+                    print(
+                        f"id={shape.object_id}, "
+                        f"color={shape.color}, "
+                        f"cells={len(shape.cells)}, "
+                        f"height={shape.height}, "
+                        f"width={shape.width}, "
+                        f"bounds=({shape.top},{shape.left})-({shape.bottom},{shape.right})",
+                        file=debug_file,
+                    )
+
+                color_key_mapping = self.find_color_key_mappings(
+                    analysis.input_shapes
+                )
+
+                print(
+                    "\nCOLOR KEY MAPPINGS:",
+                    color_key_mapping,
+                    file=debug_file,
+                )
+                        
+            # DEBUG TO_REMOVE
             
 
             count += 1
 
         validated_changes = self.validate_change_candidates(training_change_candidates)
+        # DEBUG TO_REMOVE
+        with open("debug_output.txt", "a") as debug_file:
+                print("\n==============================", file=debug_file)
+                print("VALIDATED CHANGES", file=debug_file)
+                print("==============================", file=debug_file)
+
+                for change in validated_changes:
+                    print(change, file=debug_file)
+        # DEBUG TO_REMOVE
+
 
         '''
         The next 2 lines are only an example of how to populate the predictions list.
@@ -126,7 +195,8 @@ class ArcAgent:
         fallback_prediction = None
 
         if validated_solution_exists:
-            my_predictions = self. apply_validated_changes(test_grid, test_shapes, validated_changes)
+            my_predictions = self.apply_validated_changes(test_grid, test_shapes, validated_changes)
+        # 
         else:
             # The test output is hidden, so only the input-side fields are populated.
             test_analysis = ProblemAnalysis(
@@ -159,7 +229,7 @@ class ArcAgent:
             else:
                 my_predictions = self. apply_validated_changes(test_grid, test_shapes, validated_changes)
 
-        # PUT DEBUG stuff back here                
+        # PUT DEBUG stuff back here            
 
         predictions.append(my_predictions)
         # output = np.zeros_like(arc_problem.test_set().get_input_data().data())
@@ -305,6 +375,85 @@ class ArcAgent:
                     mappings.append({"from_color": int(color), "to_color": int(output_color)})
 
         return mappings
+
+    def find_color_key_mappings(self,input_shapes: list[Shape]) -> list[dict[int, int]]:
+
+        largest_shape = self.get_shape_by_reference(input_shapes,"largest")
+
+        if largest_shape is None:
+            return []
+
+        key_shapes = {}
+
+        for shape in input_shapes:
+            if len(shape.cells) != 1:
+                continue
+
+            row, column = shape.cells[0]
+
+            if (largest_shape.top <= row <= largest_shape.bottom
+                and largest_shape.left <= column <= largest_shape.right):
+                continue
+
+            key_shapes[(row, column)] = shape.color
+
+        pairs = []
+
+        for position in sorted(key_shapes):
+            row, column = position
+
+            neighbors = [(row + dir_r, column + dir_c)
+                for dir_r, dir_c in DIRECTIONS.values()
+                if (row + dir_r, column + dir_c) in key_shapes]
+
+            if (len(neighbors) > 1):
+                return []
+
+            if (neighbors and position < neighbors[0]):
+                pairs.append((
+                        key_shapes[position],
+                        key_shapes[neighbors[0]]))
+
+        if not pairs:
+            return []
+
+        main_colors = set()
+
+        for shape in input_shapes:
+            for row, column in shape.cells:
+                if (largest_shape.top <= row <= largest_shape.bottom
+                    and largest_shape.left <= column <= largest_shape.right):
+                    main_colors.add(shape.color)
+                    break
+
+
+
+        mappings = {}
+
+        for first_color, second_color in pairs:
+
+            first_in_main = first_color in main_colors
+            second_in_main = second_color in main_colors
+
+            if first_in_main == second_in_main:
+                return []
+
+            if first_in_main:
+                source_color = first_color
+                target_color = second_color
+            else:
+                source_color = second_color
+                target_color = first_color
+
+            if (source_color in mappings
+                and mappings[source_color] != target_color):
+                return []
+
+            mappings[source_color] = target_color
+
+        return [mappings]
+
+
 
 
     def get_shape_by_reference(self, shapes: list[Shape], reference: str) -> Shape | None:
@@ -1266,7 +1415,7 @@ class ArcAgent:
         mapped_source_color = None
 
         for change in validated_changes:
-            if (change["change_type"] == "color_change"and "source_color" in change and change.get("target_reference") == "mapped_color"):
+            if (change["change_type"] == "color_change" and "source_color" in change and change.get("target_reference") == "mapped_color"):
                 mapped_source_color = change["source_color"]
                 break
         if mapped_source_color is not None:
@@ -1282,8 +1431,23 @@ class ArcAgent:
 
 
         for change in validated_changes:
-            if(change["change_type"] == "color_mapping"):
-                output_grid[original_grid == change["from_color"]] = change["to_color"]
+            if (change["change_type"] == "color_mapping"):
+                if (change.get("mapping_source") == "color_key"):
+
+                    color_key_mappings = self.find_color_key_mappings(test_shapes)
+
+                    if not color_key_mappings:
+                        continue
+
+                    color_key_mapping = color_key_mappings[0]
+
+                    for source_color, target_color in color_key_mapping.items():
+                        output_grid[original_grid == source_color] = target_color
+
+
+                else:
+                    output_grid[original_grid == change["from_color"]] = change["to_color"]
+
             elif (change["change_type"] == "color_change"):
                 if ("source_color" in change and change.get("target_reference") == "mapped_color"):
 
@@ -1431,12 +1595,16 @@ class ArcAgent:
             return True
         
         elif change["change_type"] == "color_mapping":
+            if (change.get("mapping_source") == "color_key"
+                and other.get("mapping_source") == "color_key"):
+                return True
 
-            if (change["from_color"] != other["from_color"] or change["to_color"] != other["to_color"]):
-                
+            if ( change.get("from_color") != other.get("from_color")
+                or change.get("to_color") != other.get("to_color")):
                 return False
 
             return True
+        
         elif(change["change_type"] == "color_change"):
             change_values = {}
             other_values = {}
@@ -1516,6 +1684,10 @@ class ArcAgent:
 
             if (change["change_type"] == "color_mapping"):
 
+                if (change.get("mapping_source") == "color_key"):
+                    filtered_changes.append(change)
+                    continue
+
                 color_pair = (change["from_color"],change["to_color"])
 
                 if color_pair in specific_color_changes:
@@ -1579,12 +1751,24 @@ class ArcAgent:
                 "change_type": "recolor_hollow_object",
                 "source_color": change["source_color"],
                 "target_color": change["target_color"]}
-        
-        elif(change["change_type"] == "color_mapping"):
+        # CHANGED NEW KEY MAPPING
+        # elif(change["change_type"] == "color_mapping"):
+        #     return {
+        #         "change_type": "color_mapping",
+        #         "from_color": change["from_color"],
+        #         "to_color": change["to_color"]}
+        elif change["change_type"] == "color_mapping":
+
+            if change.get("mapping_source") == "color_key":
+                return {
+                    "change_type": "color_mapping",
+                    "mapping_source": "color_key"}
+
             return {
                 "change_type": "color_mapping",
                 "from_color": change["from_color"],
                 "to_color": change["to_color"]}
+
 
         
         elif (change["change_type"] == "color_change"):
@@ -2035,8 +2219,39 @@ class ArcAgent:
                 change_candidates.append(candidate)
 
         color_candidates = self.get_color_change_candidates(analysis.color_mappings, training_set )
+        color_key_mappings = self.find_color_key_mappings(analysis.input_shapes)
 
+        if color_key_mappings:
+            for mapping in color_key_mappings:
 
+                for candidate in grid_candidates:
+
+                    if candidate.get("change_type") != "crop_to_object":
+                        continue
+
+                    source_shape = self.get_shape_by_reference(analysis.input_shapes,candidate["object_reference"])
+
+                    if source_shape is None:
+                        continue
+
+                    cropped_grid = analysis.input_grid[
+                        source_shape.top:source_shape.bottom + 1,
+                        source_shape.left:source_shape.right + 1].copy()
+
+                    original_crop = cropped_grid.copy()
+
+                    for source_color, target_color in mapping.items():
+                        cropped_grid[original_crop == source_color] = target_color
+
+                    if np.array_equal(cropped_grid,analysis.output_grid):
+                        change_candidates.append({
+                            "change_type": "color_mapping",
+                            "mapping_source": "color_key",
+                            "training_set": training_set
+                        })
+
+                        break
+            
         change_candidates.extend(color_candidates)
 
         change_candidates.extend(secondary_object_candidates)
