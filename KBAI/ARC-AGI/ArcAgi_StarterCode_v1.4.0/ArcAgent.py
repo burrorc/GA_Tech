@@ -108,88 +108,11 @@ class ArcAgent:
             )
             training_change_candidates.append(change_candidates)
             # DEBUG TO_REMOVE
-            with open("debug_output.txt", "a") as debug_file:
-                print("\n==============================", file=debug_file)
-                print(f"TRAINING SET {count}", file=debug_file)
-                print("==============================", file=debug_file)
-
-                print("\nCOLOR MAPPINGS:", file=debug_file)
-                for mapping in analysis.color_mappings:
-                    print(mapping, file=debug_file)
-
-                print("\nINPUT/OUTPUT TRANSFORMATIONS:", file=debug_file)
-                for transformation in analysis.input_output_transformations:
-                    if transformation.get("transformation") == "color_change":
-                        print(transformation, file=debug_file)
-
-                print("\nCOLOR-RELATED CHANGE CANDIDATES:", file=debug_file)
-                for candidate in change_candidates:
-                    if candidate.get("change_type") in ("color_mapping", "color_change"):
-                        print(candidate, file=debug_file)
-
-                print("\nINPUT GRID:", file=debug_file)
-                print(analysis.input_grid, file=debug_file)
-
-                print("\nOUTPUT GRID:", file=debug_file)
-                print(analysis.output_grid, file=debug_file)
-
-                print("\nINPUT SHAPES:", file=debug_file)
-                for shape in analysis.input_shapes:
-                    print(
-                        f"id={shape.object_id}, "
-                        f"color={shape.color}, "
-                        f"cells={len(shape.cells)}, "
-                        f"height={shape.height}, "
-                        f"width={shape.width}, "
-                        f"bounds=({shape.top},{shape.left})-({shape.bottom},{shape.right})",
-                        file=debug_file,
-                    )
-
-                print("\nOUTPUT SHAPES:", file=debug_file)
-                for shape in analysis.output_shapes:
-                    print(
-                        f"id={shape.object_id}, "
-                        f"color={shape.color}, "
-                        f"cells={len(shape.cells)}, "
-                        f"height={shape.height}, "
-                        f"width={shape.width}, "
-                        f"bounds=({shape.top},{shape.left})-({shape.bottom},{shape.right})",
-                        file=debug_file,
-                    )
-
-                color_key_mapping = self.find_color_key_mappings(
-                    analysis.input_shapes
-                )
-
-                print(
-                    "\nCOLOR KEY MAPPINGS:",
-                    color_key_mapping,
-                    file=debug_file,
-                )
-
-                print(
-                    "REGION QUAD COMPLETIONS:",
-                    self.find_sig_region_groups(
-                        analysis.input_grid,
-                        analysis.input_regions
-                    )
-                )
-
-                print(
-                    "INPUT REGIONS:",
-                    len(analysis.input_regions),
-                    file=debug_file
-                )
-
-                for region in analysis.input_regions:
-                    print(
-                        region["grid_id"],
-                        region["parent_top"],
-                        region["parent_bottom"],
-                        region["parent_left"],
-                        region["parent_right"],
-                        file=debug_file
-                    )
+            self.debug_training_analysis(
+                analysis,
+                change_candidates,
+                count
+            )
                         
             # DEBUG TO_REMOVE
             
@@ -198,13 +121,9 @@ class ArcAgent:
 
         validated_changes = self.validate_change_candidates(training_change_candidates)
         # DEBUG TO_REMOVE
-        with open("debug_output.txt", "a") as debug_file:
-                print("\n==============================", file=debug_file)
-                print("VALIDATED CHANGES", file=debug_file)
-                print("==============================", file=debug_file)
-
-                for change in validated_changes:
-                    print(change, file=debug_file)
+        self.debug_validated_changes(
+            validated_changes
+        )
         # DEBUG TO_REMOVE
 
 
@@ -260,6 +179,212 @@ class ArcAgent:
         # predictions.append(output)
 
         return predictions
+
+    def debug_training_analysis(
+            self,
+            analysis: ProblemAnalysis,
+            change_candidates: list[dict],
+            training_set: int
+        ) -> None:
+
+            with open("debug_output.txt", "a") as debug_file:
+
+                print("\n==============================", file=debug_file)
+                print(f"TRAINING SET {training_set}", file=debug_file)
+                print("==============================", file=debug_file)
+
+                print("\nINPUT GRID:", file=debug_file)
+                print(analysis.input_grid, file=debug_file)
+
+                print("\nOUTPUT GRID:", file=debug_file)
+                print(analysis.output_grid, file=debug_file)
+
+                print("\nINPUT SHAPES:", file=debug_file)
+
+                for shape in analysis.input_shapes:
+                    print(
+                        f"id={shape.object_id}, "
+                        f"color={shape.color}, "
+                        f"cells={len(shape.cells)}, "
+                        f"height={shape.height}, "
+                        f"width={shape.width}, "
+                        f"bounds=({shape.top},{shape.left})-"
+                        f"({shape.bottom},{shape.right}), "
+                        f"target_axis={self.get_target_axis(shape)}",
+                        file=debug_file
+                    )
+
+                    if shape.is_hollow:
+                        hollow_regions = self.get_hollow_regions(
+                            analysis.input_grid,
+                            shape
+                        )
+
+                        print(
+                            f"  hollow_regions={len(hollow_regions)}",
+                            file=debug_file
+                        )
+
+                print("\nOUTPUT SHAPES:", file=debug_file)
+
+                for shape in analysis.output_shapes:
+                    print(
+                        f"id={shape.object_id}, "
+                        f"color={shape.color}, "
+                        f"cells={len(shape.cells)}, "
+                        f"height={shape.height}, "
+                        f"width={shape.width}, "
+                        f"bounds=({shape.top},{shape.left})-"
+                        f"({shape.bottom},{shape.right})",
+                        file=debug_file
+                    )
+
+                print("\nCOLOR MAPPINGS:", file=debug_file)
+
+                for mapping in analysis.color_mappings:
+                    print(mapping, file=debug_file)
+
+                print(
+                    "COLOR KEY MAPPINGS:",
+                    self.find_color_key_mappings(
+                        analysis.input_shapes
+                    ),
+                    file=debug_file
+                )
+
+                print(
+                    "\nREGION QUAD COMPLETIONS:",
+                    self.find_sig_region_groups(
+                        analysis.input_grid,
+                        analysis.input_regions
+                    ),
+                    file=debug_file
+                )
+
+                print(
+                    "INPUT REGIONS:",
+                    len(analysis.input_regions),
+                    file=debug_file
+                )
+
+                print(
+                    "\nENCLOSED SHAPE TRANSFORMATIONS:",
+                    file=debug_file
+                )
+
+                for transformation in analysis.input_output_transformations:
+                    if (
+                        transformation.get("transformation")
+                        == "transform_enclosed_shapes"
+                    ):
+                        print(
+                            transformation,
+                            file=debug_file
+                        )
+
+                print(
+                    "\nENCLOSED SHAPE CHANGE CANDIDATES:",
+                    file=debug_file
+                )
+
+                for candidate in change_candidates:
+                    if (
+                        candidate.get("change_type")
+                        == "transform_enclosed_shapes"
+                    ):
+                        print(
+                            candidate,
+                            file=debug_file
+                        )
+
+                print("\nENCLOSED SHAPES:", file=debug_file)
+
+                transformed_grid = analysis.input_grid.copy()
+
+                for container in analysis.input_shapes:
+
+                    if not container.is_hollow:
+                        continue
+
+                    axis = self.get_target_axis(container)
+
+                    if axis == "vertical":
+                        transformation = "flipped_h"
+
+                    elif axis == "horizontal":
+                        transformation = "flipped_v"
+
+                    else:
+                        continue
+
+                    enclosed_shapes = self.get_enclosed_shapes(
+                        container,
+                        analysis.input_shapes
+                    )
+
+                    print(
+                        f"container={container.object_id}, "
+                        f"axis={axis}, "
+                        f"enclosed="
+                        f"{[shape.object_id for shape in enclosed_shapes]}",
+                        file=debug_file
+                    )
+
+                    for enclosed_shape in enclosed_shapes:
+
+                        new_top, new_left = (
+                            self.get_transformed_shape_position(
+                                enclosed_shape,
+                                container,
+                                transformation
+                            )
+                        )
+
+                        print(
+                            f"  shape={enclosed_shape.object_id}, "
+                            f"transform={transformation}, "
+                            f"original="
+                            f"({enclosed_shape.top},{enclosed_shape.left}), "
+                            f"target=({new_top},{new_left})",
+                            file=debug_file
+                        )
+
+                        transformed_grid = (
+                            self.apply_shape_transformation(
+                                transformed_grid,
+                                enclosed_shape,
+                                container,
+                                transformation,
+                                preserve_source=True
+                            )
+                        )
+
+                print(
+                    "SHAPE TRANSFORMATION MATCH:",
+                    np.array_equal(
+                        transformed_grid,
+                        analysis.output_grid
+                    ),
+                    file=debug_file
+                )
+
+    def debug_validated_changes(
+            self,
+            validated_changes: list[dict]
+        ) -> None:
+
+            with open("debug_output.txt", "a") as debug_file:
+
+                print("\n==============================", file=debug_file)
+                print("VALIDATED CHANGES", file=debug_file)
+                print("==============================", file=debug_file)
+
+                if not validated_changes:
+                    print("None", file=debug_file)
+                    return
+
+                for change in validated_changes:
+                    print(change, file=debug_file)
 
     def analyze_problem(self, training_set: ArcSet, count: int) -> ProblemAnalysis:
         input_grid = training_set.get_input_data().data()
@@ -321,6 +446,10 @@ class ArcAgent:
         )
 
     def print_frame(self, frame: dict, label: str = "", file=None):
+        if file is None:
+            with open("debug_output.txt", "a") as debug_file:
+                self.print_frame(frame, label, file=debug_file)
+            return
 
         if label:
             print(label, file=file)
@@ -1519,6 +1648,38 @@ class ArcAgent:
 
         return output_grid
 
+    def apply_transform_enclosed_shapes(self,input_grid: np.ndarray,test_shapes: list[Shape],change: dict ) -> np.ndarray:
+
+            output_grid = input_grid.copy()
+
+            if (change.get("transformation_source") != "container_axis"):
+                return output_grid
+
+            preserve_source = change.get( "preserve_source",True)
+
+            for container in test_shapes:
+
+                if not container.is_hollow:
+                    continue
+
+                axis = self.get_target_axis(container)
+
+                if (axis == "vertical"):
+                    transformation = "flipped_h"
+                elif (axis == "horizontal"):
+                    transformation = "flipped_v"
+                else:
+                    continue
+
+                enclosed_shapes = self.get_enclosed_shapes(container,test_shapes)
+
+                for enclosed_shape in enclosed_shapes:
+
+                    output_grid = self.apply_shape_transformation(output_grid,enclosed_shape,container,
+                        transformation,preserve_source=preserve_source)
+
+            return output_grid
+
     def apply_color_changes(self,input_grid: np.ndarray,test_shapes: list[Shape],validated_changes: list[dict]) -> np.ndarray:
 
         output_grid = input_grid.copy()
@@ -1667,6 +1828,10 @@ class ArcAgent:
 
                 elif (change["change_type"] == "move_to_object"):
                     output_grid = self.apply_move_to_object(output_grid,test_shapes,change)
+
+                elif (change["change_type"] == "transform_enclosed_shapes"):
+                    output_grid = self.apply_transform_enclosed_shapes(output_grid, test_shapes,change)
+                
                 elif (change["change_type"] == "recolor_hollow_object"):
                     output_grid = self.apply_recolor_hollow_object( output_grid,test_shapes,change)
 
@@ -1699,6 +1864,10 @@ class ArcAgent:
 
         elif (change["change_type"] == "complete_sig_region_combos"):
             return True
+
+        elif (change["change_type"] == "transform_enclosed_shapes"):
+            return (change.get("transformation_source") == other.get("transformation_source")
+                    and change.get("preserve_source") == other.get("preserve_source"))    
             
         elif (change["change_type"] == "recolor_hollow_region"):
 
@@ -1984,6 +2153,13 @@ class ArcAgent:
                 "crop_area": change["crop_area"],
                 "recolor_to": change["recolor_to"] }
 
+        elif (change["change_type"] == "transform_enclosed_shapes"):
+            return {
+                "change_type": "transform_enclosed_shapes",
+                "transformation_source": change["transformation_source"],
+                "preserve_source": change["preserve_source"]
+            }
+        
         return {}
 
 
@@ -2246,8 +2422,16 @@ class ArcAgent:
 
                 move_to_object_found = True
                 continue
+            elif (transformation["transformation"] == "transform_enclosed_shapes"):
+                change_candidates.append({
+                    "change_type": "transform_enclosed_shapes",
+                    "transformation_source":transformation["transformation_source"],
+                    "preserve_source": transformation["preserve_source"],
+                    "training_set": training_set})
 
+                continue
 
+            
             if(transformation["transformation"] != "color_change"):
                 continue
 
@@ -2951,7 +3135,8 @@ class ArcAgent:
         transformations.extend(self.find_move_to_object_transformations(input_shapes,output_shapes,output_grid, input_object_relationships ))
 
         transformations.extend( self.find_generate_from_seed_transformations(input_shapes,input_grid, output_grid))
-        
+
+        transformations.extend(self.find_enclosed_shape_transformations(input_grid,output_grid,input_shapes))
         
         return transformations
 
@@ -3793,7 +3978,22 @@ class ArcAgent:
             if relationship["relationship"] == "divides_grid"]
 
         if not divider_relationships:
-            return None
+            background_color = self.get_background_color(input_grid)
+            implied_panels = self.get_implied_panels(input_grid, background_color)
+
+            if implied_panels is None:
+                return None
+
+            panels, orientation = implied_panels
+
+            return {
+                "panels": panels,
+                "orientation": orientation,
+                "divider_color": None,
+                "background_color": background_color,
+                "panel_count": 2,
+                "panel_shape": panels[0].shape
+            }
 
         orientations = {relationship["orientation"]
             for relationship in divider_relationships}
@@ -3834,6 +4034,27 @@ class ArcAgent:
             "panel_shape": panels[0].shape
         }
 
+    def get_implied_panels(self, input_grid: np.ndarray, background_color: int):
+        height, width = input_grid.shape
+
+        candidates = []
+
+        if (height % 2 == 0):
+            middle = height // 2
+            candidates.append(([input_grid[:middle, :],input_grid[middle:, :]],"horizontal"))
+
+        if (width % 2 == 0):
+            middle = width // 2
+            candidates.append(([ input_grid[:, :middle],input_grid[:, middle:]], "vertical"))
+
+        for panels, orientation in candidates:
+
+            colors = [set(np.unique(panel)) - {background_color}for panel in panels]
+
+            if (len(colors[0]) == 1 and len(colors[1]) == 1 and colors[0] != colors[1]):
+                return panels, orientation
+
+        return None
     
 
     def get_panel_orders(self, count: int) -> list[list[int]]:
@@ -4228,8 +4449,134 @@ class ArcAgent:
 
         return int(colors[np.argmax(counts)])
 
+    def get_target_axis(self, shape: Shape) -> str:
+
+        cells = set(shape.cells)
+
+        left_count = sum(1 for row, column in cells if column == shape.left)
+        right_count = sum(1 for row, column in cells if column == shape.right)
+        top_count = sum(1 for row, column in cells if row == shape.top)
+        bottom_count = sum(1 for row, column in cells if row == shape.bottom)
+
+        horizontal_score = left_count + right_count
+        vertical_score = top_count + bottom_count
+
+        if (horizontal_score > vertical_score):
+            return "horizontal"
+
+        if (vertical_score > horizontal_score):
+            return "vertical"
+
+        return None
+
+
+    def get_enclosed_shapes(self, container: Shape, shapes: list[Shape]) -> list[Shape]:
+
+        enclosed_shapes = []
+
+        for shape in shapes:
+            if (shape.object_id == container.object_id):
+                continue
+
+            if (shape.top > container.top and shape.bottom < container.bottom
+                and shape.left > container.left and shape.right < container.right):
+                enclosed_shapes.append(shape)
+
+        return enclosed_shapes
+
+
+    def get_transformed_shape_pattern(self, shape: Shape, transformation: str ) -> np.ndarray:
+        return self.apply_grid_transform(shape.pattern, transformation)
+
     
 
+    def get_transformed_shape_position(self,shape: Shape,container: Shape,transformation: str) -> tuple[int, int]:
+        if (transformation == "same"):
+            return shape.top, shape.left
+
+        if (transformation == "flipped_h"):
+            new_top = shape.top
+            new_left = container.left + container.right - shape.right
+            return new_top, new_left
+
+        if (transformation == "flipped_v"):
+            new_top = container.top + container.bottom - shape.bottom
+            new_left = shape.left
+            return new_top, new_left
+
+        if (transformation == "rotation_180"):
+            new_top = container.top + container.bottom - shape.bottom
+            new_left = container.left + container.right - shape.right
+            return new_top, new_left
+
+        return shape.top, shape.left
+
+
+    def apply_shape_transformation( self,input_grid: np.ndarray, shape: Shape,container: Shape,transformation: str, preserve_source: bool = True) -> np.ndarray:
+
+        output_grid = input_grid.copy()
+
+        if not preserve_source:
+            for row, column in shape.cells:
+                output_grid[row, column] = 0
+
+        transformed_pattern = self.get_transformed_shape_pattern(shape,transformation)
+
+        new_top, new_left = self.get_transformed_shape_position(shape,container,transformation)
+
+        for row in range(transformed_pattern.shape[0]):
+            for column in range(transformed_pattern.shape[1]):
+
+                if (transformed_pattern[row, column] == 0):
+                    continue
+
+                target_row = new_top + row
+                target_column = new_left + column
+
+                if (0 <= target_row < output_grid.shape[0] and 0 <= target_column < output_grid.shape[1]):
+                    output_grid[target_row,target_column] = shape.color
+
+        return output_grid
+
+
+    def find_enclosed_shape_transformations( self, input_grid: np.ndarray, output_grid: np.ndarray,input_shapes: list[Shape]) -> list[dict]:
+
+        transformations = []
+
+        predicted_grid = input_grid.copy()
+        transformed_count = 0
+
+        for container in input_shapes:
+            if not container.is_hollow:
+                continue
+
+            axis = self.get_target_axis(container)
+
+            if (axis == "vertical"):
+                transformation = "flipped_h"
+            elif (axis == "horizontal"):
+                transformation = "flipped_v"
+            else:
+                continue
+
+            enclosed_shapes = self.get_enclosed_shapes(container,input_shapes)
+
+            for enclosed_shape in enclosed_shapes:
+
+                predicted_grid = self.apply_shape_transformation(predicted_grid,enclosed_shape,container,transformation,preserve_source=True)
+
+                transformed_count += 1
+
+        if (transformed_count > 0  and np.array_equal(predicted_grid, output_grid)):
+            transformations.append({
+                "transformation_type": "object",
+                "transformation": "transform_enclosed_shapes",
+                "transformation_source": "container_axis",
+                "preserve_source": True
+            })
+
+        return transformations
+    
     def is_hollow(self, grid: np.ndarray, shape: Shape) -> bool:
         hollow_regions = self.get_hollow_regions(grid, shape)
         return len(hollow_regions) > 0
