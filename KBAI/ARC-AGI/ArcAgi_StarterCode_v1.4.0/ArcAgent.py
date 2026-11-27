@@ -166,6 +166,30 @@ class ArcAgent:
                     color_key_mapping,
                     file=debug_file,
                 )
+
+                print(
+                    "REGION QUAD COMPLETIONS:",
+                    self.find_sig_region_groups(
+                        analysis.input_grid,
+                        analysis.input_regions
+                    )
+                )
+
+                print(
+                    "INPUT REGIONS:",
+                    len(analysis.input_regions),
+                    file=debug_file
+                )
+
+                for region in analysis.input_regions:
+                    print(
+                        region["grid_id"],
+                        region["parent_top"],
+                        region["parent_bottom"],
+                        region["parent_left"],
+                        region["parent_right"],
+                        file=debug_file
+                    )
                         
             # DEBUG TO_REMOVE
             
@@ -307,6 +331,94 @@ class ArcAgent:
     def get_region_grid(self, grid: np.ndarray, region: dict) -> np.ndarray:
         return grid[region["parent_top"]:region["parent_bottom"] + 1,
             region["parent_left"]:region["parent_right"] + 1]
+
+    def find_sig_region_groups(self, input_grid: np.ndarray, regions: list[dict]) -> list[dict]:
+        completions = []
+
+        row_starts = sorted(set( region["parent_top"] for region in regions))
+
+        column_starts = sorted(set(region["parent_left"] for region in regions))
+
+        region_lookup = {(region["parent_top"], region["parent_left"]): region for region in regions}
+
+        transforms = [["same", "flipped_h"], ["flipped_v", "rotation_180"]]
+
+        for row in range(len(row_starts) - 1):
+            for column in range(len(column_starts) - 1):
+
+                quad = [[region_lookup.get((row_starts[row], column_starts[column])),
+                        region_lookup.get((row_starts[row], column_starts[column + 1]))],
+                    [region_lookup.get((row_starts[row + 1], column_starts[column])),
+                        region_lookup.get((row_starts[row + 1], column_starts[column + 1]))]]
+
+                if any(region is None for region_row in quad for region in region_row):
+                    continue
+
+                grids = [[self.get_region_grid(input_grid, quad[r][c])
+                        for c in range(2)] for r in range(2)]
+
+                shapes = {grids[r][c].shape for r in range(2) for c in range(2)}
+
+                if (len(shapes) != 1):
+                    continue
+
+                empty = [(r, c) for r in range(2) for c in range(2) if np.all(grids[r][c] == 0)]
+
+                if (len(empty) != 1):
+                    continue
+
+                missing_row, missing_column = empty[0]
+
+                for source_row in range(2):
+                    for source_column in range(2):
+
+                        if ((source_row, source_column) == (missing_row, missing_column)):
+                            continue
+
+                        source_transform = transforms[source_row][source_column]
+
+                        standard = self.apply_grid_transform(grids[source_row][source_column],source_transform)
+
+                        valid = True
+
+                        for check_row in range(2):
+                            for check_column in range(2):
+                                if ((check_row, check_column) == (missing_row, missing_column)):
+                                    continue
+
+                                expected = self.apply_grid_transform(standard,transforms[check_row][check_column])
+
+                                if not np.array_equal(expected,grids[check_row][check_column]):
+                                    valid = False
+
+                        if valid:
+                            completions.append({
+                                "region": quad[missing_row][missing_column],
+                                "grid": self.apply_grid_transform(
+                                    standard,
+                                    transforms[missing_row][missing_column]
+                                )})
+                            break
+
+                    if valid:
+                        break
+
+        return completions
+
+
+    def apply_sig_region_groups(self, input_grid: np.ndarray, regions: list[dict]) -> np.ndarray:
+        output_grid = input_grid.copy()
+
+        sig_regions = self.find_sig_region_groups(input_grid,regions)
+
+        for sig_region in sig_regions:
+            region = sig_region["region"]
+            grid = sig_region["grid"]
+
+            output_grid[region["parent_top"]:region["parent_bottom"] + 1,
+                region["parent_left"]:region["parent_right"] + 1] = grid
+
+        return output_grid
 
     def get_region_combo_transformations(self, region1:np.ndarray, region2:np.ndarray, output_grid: np.ndarray) -> list[dict]:
         transformations = []
@@ -1541,6 +1653,9 @@ class ArcAgent:
                 elif (change["change_type"] == "region_combo"):
                     output_grid = self.apply_region_combo(output_grid,test_regions,change)
 
+                elif change["change_type"] == "complete_sig_region_combos":
+                    output_grid = self.apply_sig_region_groups(output_grid,test_regions)
+
                 elif (change["change_type"] == "copy_to_empty_half"):
                     output_grid = self.apply_copy_to_empty_half(output_grid,change)
 
@@ -1581,6 +1696,9 @@ class ArcAgent:
                 and change["target_side"] == other["target_side"]
                 and change["copy_transformation"] == other["copy_transformation"]):
                 return True
+
+        elif (change["change_type"] == "complete_sig_region_combos"):
+            return True
             
         elif (change["change_type"] == "recolor_hollow_region"):
 
@@ -1724,6 +1842,9 @@ class ArcAgent:
                 "panel_count": change["panel_count"],
                 "valid_candidates": change["valid_candidates"],
             }
+
+        elif (change["change_type"] == "complete_sig_region_combos"):
+            return {"change_type": "complete_sig_region_combos"}
         
         elif( change["change_type"] == "tile_transformation"):
             return {
@@ -2205,6 +2326,14 @@ class ArcAgent:
         if panel_combo_change is not None:
             panel_combo_change["training_set"] = training_set
             change_candidates.append(panel_combo_change)
+
+        predicted = self.apply_sig_region_groups(analysis.input_grid,analysis.input_regions)
+
+        if np.array_equal(predicted, analysis.output_grid):
+            change_candidates.append({
+                "change_type": "complete_sig_region_combos",
+                "training_set": training_set
+            })
 
         region_candidates = self.get_region_change_candidates(analysis.region_combo_transformations,training_set)
         change_candidates.extend(region_candidates)
@@ -2998,6 +3127,28 @@ class ArcAgent:
         # TODO figure out how to properly handle cross grid dividers, my dumbass forgot that we're identifying objects by colors
         # maybe something like if goes across grid with consistent width, except at intersection point then it's a multi-region divider
         # i dunno, but that might work. crap, what if we have different colors that cross but act as divider. dang this is annoying
+        full_divider_rows = []
+        full_divider_columns = []
+
+        for row in range(grid.shape[0]):
+            row_values = np.unique(grid[row, :])
+
+            if (len(row_values) == 1 and row_values[0] != 0):
+                full_divider_rows.append(row)
+
+
+        for column in range(grid.shape[1]):
+            column_values = np.unique(grid[:, column])
+
+            if (len(column_values) == 1 and column_values[0] != 0):
+                full_divider_columns.append(column)
+        
+        
+        
+        
+        
+        
+        # PREV CODE 
         regions = []
         vertical_dividers = []
         horizontal_dividers = []
@@ -3021,6 +3172,71 @@ class ArcAgent:
             elif(relationship["orientation"] == "horizontal"):
                 horizontal_dividers.append(divider)
 
+        if (not vertical_dividers and not horizontal_dividers and (full_divider_rows or full_divider_columns)):
+
+            row_splits = []
+            column_splits = []
+
+            start_row = 0
+
+            for divider_row in full_divider_rows:
+
+                if (start_row <= divider_row - 1):
+                    row_splits.append((start_row, divider_row - 1))
+
+                start_row = divider_row + 1
+
+            if (start_row <= grid.shape[0] - 1):
+                row_splits.append((start_row, grid.shape[0] - 1))
+            start_column = 0
+
+            for divider_column in full_divider_columns:
+
+                if (start_column <= divider_column - 1):
+                    column_splits.append((start_column, divider_column - 1))
+                start_column = divider_column + 1
+
+            if (start_column <= grid.shape[1] - 1):
+                column_splits.append((start_column, grid.shape[1] - 1))
+
+
+            if not row_splits:
+                row_splits = [(0, grid.shape[0] - 1)]
+
+            if not column_splits:
+                column_splits = [ (0, grid.shape[1] - 1)]
+
+
+            for row_start, row_end in row_splits:
+                for column_start, column_end in column_splits:
+
+                    region_grid = grid[row_start:row_end + 1, column_start:column_end + 1]
+                    region_id = (parent_grid_id+ "_region_"+ str(region_number))
+
+                    regions.append(
+                        self.analyze_grid(
+                            region_grid,
+                            region_id,
+                            "region",
+                            parent_grid_id,
+                            row_start,
+                            row_end,
+                            column_start,
+                            column_end
+                        )
+                    )
+
+                    region_number += 1
+
+            return regions
+
+
+
+
+
+
+
+    # PREV CODE
         if not vertical_dividers and not horizontal_dividers:
             return []
 
@@ -3666,7 +3882,7 @@ class ArcAgent:
 
         valid_candidates = []
 
-        for operation in ["and", "or", "xor", "nor", "nand", "xnor"]:
+        for operation in ["and", "or", "xor", "nor", "nand", "xnor", "exact_overlap"]:
             for output_color in output_colors:
                 predicted_output = self.apply_panel_combo(panels,background_color,operation,output_color=output_color,)
 
@@ -3814,7 +4030,7 @@ class ArcAgent:
 
             return self.apply_panel_order_overlay( ordered_panels, background_color)
 
-        if operation not in ("xor", "or", "and", "nor", "nand", "xnor"):
+        if operation not in ("xor", "or", "and", "nor", "nand", "xnor", "exact_overlap"):
             return None
 
         if output_color is None:
@@ -3828,8 +4044,19 @@ class ArcAgent:
         or_mask = (occupied_count >= 1)
         and_mask = (occupied_count == len(panels))
         xor_mask = (occupied_count % 2 == 1)
+        if (operation == "exact_overlap"):
+            output_grid = panels[0].copy()
+            for panel in panels[1:]:
 
-        if (operation == "or"):
+                right_mask = panel != background_color
+                left_mask = output_grid != background_color
+
+                if np.any(right_mask & left_mask):
+                    return panels[0].copy()
+                output_grid[right_mask] = panel[right_mask]
+
+            return output_grid
+        elif (operation == "or"):
             final_mask = or_mask
         elif (operation == "and"):
             final_mask = and_mask

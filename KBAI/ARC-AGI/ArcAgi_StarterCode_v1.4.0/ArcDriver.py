@@ -94,18 +94,30 @@ if __name__ == "__main__":
         for problem in milestone_problems:
             problem_groups[problem.problem_name()] = milestone_group
 
+    target_problem = ""  # Set to a problem name, or leave blank for all.
 
-    arc_agent: ArcAgent = ArcAgent()
+    if target_problem.strip():
+        target = target_problem.strip()
+        arc_milestone_problems = [
+            problem for problem in arc_milestone_problems
+            if problem.problem_name() == target
+        ]
+        if not arc_milestone_problems:
+            raise ValueError(f"Problem not found: {target}")
 
-    milestone_data_set = run_training_data(
-        arc_agent,
-        arc_milestone_problems,
-    )
+    arc_agent = ArcAgent()
+    milestone_data_set = run_training_data(arc_agent, arc_milestone_problems)
+    # arc_agent: ArcAgent = ArcAgent()
+
+    # milestone_data_set = run_training_data(
+    #     arc_agent,
+    #     arc_milestone_problems,
+    # )
 
 # DEBUG TO_REMOVE
     # arc_agent: ArcAgent = ArcAgent()
 
-    # target_problem = "b1948b0a"
+    # target_problem = "60a26a3e"
 
     # arc_milestone_problems = [
     #     problem
@@ -113,10 +125,10 @@ if __name__ == "__main__":
     #     if problem.problem_name() == target_problem
     # ]
 
-    milestone_data_set = run_training_data(
-        arc_agent,
-        arc_milestone_problems,
-    )
+    # milestone_data_set = run_training_data(
+    #     arc_agent,
+    #     arc_milestone_problems,
+    # )
 # DEBUG TO_REMOVE
     milestone_file = open(
         "Milestone_Results.csv",
