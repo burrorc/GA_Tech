@@ -368,6 +368,82 @@ class ArcAgent:
                     file=debug_file
                 )
 
+                print("\nOBJECT SLOTS:", file=debug_file)
+
+                for shape in analysis.input_shapes:
+
+                    slots = self.find_object_slots(
+                        analysis.input_grid,
+                        shape
+                    )
+
+                    if slots:
+                        print(
+                            f"target={shape.object_id}, "
+                            f"color={shape.color}, "
+                            f"slots={slots}",
+                            file=debug_file
+                        )
+
+                print("\nSLOT MATCHES:", file=debug_file)
+
+                for target_shape in analysis.input_shapes:
+
+                    slots = self.find_object_slots(
+                        analysis.input_grid,
+                        target_shape
+                    )
+
+                    if not slots:
+                        continue
+
+                    matches = self.get_shape_slot_matches(
+                        analysis.input_shapes,
+                        target_shape,
+                        slots
+                    )
+
+                    for match in matches:
+                        print(
+                            f"source={match['source_shape'].object_id}, "
+                            f"slot={match['slot']}, "
+                            f"rotation={match['rotation']}",
+                            file=debug_file
+                        )
+
+                slot_output = self.apply_move_to_object_slot(
+                    analysis.input_grid,
+                    analysis.input_shapes
+                )
+
+                print(
+                    "SLOT MOVE MATCH:",
+                    np.array_equal(
+                        slot_output,
+                        analysis.output_grid
+                    ),
+                    file=debug_file
+                )
+
+                print(
+                    "\nSLOT MOVE TRANSFORMATIONS:",
+                    self.find_slot_move_transformations(
+                        analysis.input_grid,
+                        analysis.output_grid,
+                        analysis.input_shapes
+                    ),
+                    file=debug_file
+                )
+
+                print("\nFIT SLOT CANDIDATES:", file=debug_file)
+
+                for candidate in change_candidates:
+                    if (
+                        candidate.get("change_type") == "move_to_object"
+                        and candidate.get("move_type") == "fit_slot"
+                    ):
+                        print(candidate, file=debug_file)
+
     def debug_validated_changes(
             self,
             validated_changes: list[dict]
@@ -1052,23 +1128,6 @@ class ArcAgent:
         for shape in output_shapes:
             output_shapes_map[shape.object_id] = shape
 
-        # for source_shape in input_shapes:
-
-        #     object_reference = self.get_object_reference(source_shape,input_shapes)
-
-        #     if object_reference is None:
-        #         continue
-
-        #     cropped_grid = input_grid[source_shape.top:source_shape.bottom + 1,source_shape.left:source_shape.right + 1]
-
-        #     if np.array_equal(cropped_grid, output_grid):
-        #         transformations.append({
-        #             "transformation_type": "grid",
-        #             "transformation": "crop_to_object",
-        #             "source_id": source_shape.object_id,
-        #             "object_reference": object_reference,
-        #         })
-
 
         transformations.extend( self.find_crop_to_object_transformations(output_grid,input_shapes,input_output_transformations))
         transformations.extend(self.find_crop_to_region_transformations(input_grid,output_grid,input_shapes))
@@ -1489,10 +1548,103 @@ class ArcAgent:
 
         return output_grid
 
+    def find_object_slots(self, input_grid: np.ndarray,target_shape: Shape ) -> list[dict]:
 
+        slots = []
+
+        if (target_shape.height < 2):
+            return slots
+
+        top_row = target_shape.top
+        support_row = top_row + 1
+
+        column = target_shape.left
+
+        while (column <= target_shape.right):
+
+            if (input_grid[top_row, column] == 0 and input_grid[support_row, column] == target_shape.color):
+                start = column
+
+                while (column <= target_shape.right and input_grid[top_row, column] == 0
+                    and input_grid[support_row, column] == target_shape.color):
+                    column += 1
+
+                slots.append({"left": start,"right": column - 1,"width": column - start})
+
+            else:
+                column += 1
+
+        return slots
+
+    def get_shape_slot_matches(self, source_shapes: list[Shape], target_shape: Shape, slots: list[dict] ) -> list[dict]:
+
+        sources = [
+            shape
+            for shape in source_shapes
+            if shape.object_id != target_shape.object_id
+        ]
+
+        result = self.find_slot_assignment(
+            sources,
+            slots
+        )
+
+        if result is not None:
+            return result
+        else:
+            return []
+
+    def find_slot_assignment( self, sources: list[Shape],slots: list[dict],source_index: int = 0,matches: list[dict] | None = None) -> list[dict] | None:
+
+        if matches is None:
+            matches = []
+
+        if (source_index == len(sources)):
+            return matches
+
+        source = sources[source_index]
+
+        for slot in slots:
+            rotation = None
+
+            if (source.width == slot["width"]):
+                rotation = "same"
+
+            elif (source.height == slot["width"]):
+                rotation = "rotation_90"
+
+            if rotation is None:
+                continue
+
+            remaining_slots = [other for other in slots if other is not slot]
+
+            result = self.find_slot_assignment(sources, remaining_slots,source_index + 1,
+                matches + [{"source_shape": source,"slot": slot,"rotation": rotation}])
+
+            if result is not None:
+                return result
+
+        return None
+
+    def find_slot_move_transformations(self,input_grid: np.ndarray,output_grid: np.ndarray,input_shapes: list[Shape]) -> list[dict]:
+
+        transformations = []
+
+        predicted_grid = self.apply_move_to_object_slot(input_grid,input_shapes)
+
+        if np.array_equal(predicted_grid, output_grid):
+
+            transformations.append({ "transformation_type": "object","transformation": "move_to_object","move_type": "fit_slot"})
+
+        return transformations
 
     def apply_move_to_object(self, input_grid: np.ndarray,test_shapes: list[Shape],change: dict,) -> np.ndarray:
         output_grid = input_grid.copy()
+
+        move_type = change.get("move_type", "until")
+
+        if move_type == "fit_slot":
+            return self.apply_move_to_object_slot(input_grid,test_shapes)
 
         source_reference = change["source_reference"]
         target_relationship = change.get("target_relationship")
@@ -1609,6 +1761,57 @@ class ArcAgent:
 
             # put in nwe spot
             output_grid[moved_row, moved_column] = source_shape.color
+
+        return output_grid
+
+    def apply_move_to_object_slot(self,input_grid: np.ndarray,test_shapes: list[Shape]) -> np.ndarray:
+
+        output_grid = input_grid.copy()
+
+        target_shape = None
+        slots = []
+
+        for shape in test_shapes:
+            shape_slots = self.find_object_slots(input_grid,shape)
+
+            if shape_slots:
+                target_shape = shape
+                slots = shape_slots
+                break
+
+        if target_shape is None:
+            return output_grid
+
+        matches = self.get_shape_slot_matches(test_shapes,target_shape,slots)
+
+        if not matches:
+            return output_grid
+
+        for match in matches:
+
+            source_shape = match["source_shape"]
+            slot = match["slot"]
+            rotation = match["rotation"]
+
+            for row, column in source_shape.cells:
+                output_grid[row, column] = 0
+
+            pattern = source_shape.pattern
+
+            if (rotation == "rotation_90"):
+                pattern = self.apply_grid_transform(pattern,"rotation_90")
+
+            target_bottom = target_shape.top
+            target_top = target_bottom - pattern.shape[0] + 1
+            target_left = slot["left"]
+
+            for row in range(pattern.shape[0]):
+                for column in range(pattern.shape[1]):
+
+                    if (pattern[row, column] == 0):
+                        continue
+
+                    output_grid[target_top + row,target_left + column] = source_shape.color
 
         return output_grid
 
@@ -1940,6 +2143,15 @@ class ArcAgent:
                 return True
         
         elif change["change_type"] == "move_to_object":
+            move_type = change.get("move_type", "until")
+            other_move_type = other.get("move_type", "until")
+
+            if (move_type != other_move_type):
+                return False
+
+            if (move_type == "fit_slot"):
+                return True
+            
             if (change["source_reference"] == other["source_reference"] and change.get("target_relationship") == other.get("target_relationship")
                 and change.get("target_reference") == other.get("target_reference") and change.get("move_type", "until") == other.get("move_type", "until")
                 and change.get("stop_type") == other.get("stop_type") and change["distance"] == other["distance"]):
@@ -2041,12 +2253,7 @@ class ArcAgent:
                 "change_type": "recolor_hollow_object",
                 "source_color": change["source_color"],
                 "target_color": change["target_color"]}
-        # CHANGED NEW KEY MAPPING
-        # elif(change["change_type"] == "color_mapping"):
-        #     return {
-        #         "change_type": "color_mapping",
-        #         "from_color": change["from_color"],
-        #         "to_color": change["to_color"]}
+       
         elif change["change_type"] == "color_mapping":
 
             if change.get("mapping_source") == "color_key":
@@ -2126,6 +2333,14 @@ class ArcAgent:
 
         
         elif (change["change_type"] == "move_to_object"):
+
+            move_type = change.get("move_type", "until")
+
+            if (move_type == "fit_slot"):
+                return {
+                    "change_type": "move_to_object",
+                    "move_type": "fit_slot"
+                }
 
             validated_change = {
                  "change_type": "move_to_object",
@@ -2400,6 +2615,16 @@ class ArcAgent:
             elif (transformation["transformation"] == "move_to_object"):
 
                 if move_to_object_found:
+                    continue
+
+                if (transformation.get("move_type") == "fit_slot"):
+                    change_candidates.append({
+                        "change_type": "move_to_object",
+                        "move_type": "fit_slot",
+                        "training_set": training_set
+                    })
+
+                    move_to_object_found = True
                     continue
 
                 change_candidate = {
@@ -3137,7 +3362,8 @@ class ArcAgent:
         transformations.extend( self.find_generate_from_seed_transformations(input_shapes,input_grid, output_grid))
 
         transformations.extend(self.find_enclosed_shape_transformations(input_grid,output_grid,input_shapes))
-        
+
+        transformations.extend(self.find_slot_move_transformations(input_grid,output_grid,input_shapes))
         return transformations
 
     def get_object_to_object_relationships(self, shapes: list[Shape], target_shapes: list[Shape] = None) -> list[dict]:
@@ -3327,13 +3553,7 @@ class ArcAgent:
 
             if (len(column_values) == 1 and column_values[0] != 0):
                 full_divider_columns.append(column)
-        
-        
-        
-        
-        
-        
-        # PREV CODE 
+
         regions = []
         vertical_dividers = []
         horizontal_dividers = []
@@ -3416,12 +3636,6 @@ class ArcAgent:
             return regions
 
 
-
-
-
-
-
-    # PREV CODE
         if not vertical_dividers and not horizontal_dividers:
             return []
 
